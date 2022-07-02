@@ -1,0 +1,16 @@
+[
+{
+  "modid": "lapamanvideo",
+  "name": "Lapaman Watch Video",
+  "description": "Mod developed to load videos from server into the GUI.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Goedix"],
+  "credits": "Goedix and Naty.",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
