@@ -3,7 +3,6 @@ package com.lapaman.watchvideo;
 import com.lapaman.watchvideo.client.gui.VideoContainer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 

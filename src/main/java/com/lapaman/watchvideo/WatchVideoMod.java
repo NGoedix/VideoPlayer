@@ -1,7 +1,5 @@
 package com.lapaman.watchvideo;
 
-import com.lapaman.watchvideo.commands.ShowCommand;
-import com.lapaman.watchvideo.commands.StopCommand;
 import com.lapaman.watchvideo.commands.VideoCommand;
 import com.lapaman.watchvideo.network.PacketHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -28,6 +26,7 @@ public class WatchVideoMod
     public void preInit(FMLPreInitializationEvent event) {
         watchVideoMod = this;
         logger = event.getModLog();
+        logger.info("Pre-initializing WatchVideoMod");
         PacketHandler.init();
         proxy.preInit();
     }
@@ -35,20 +34,20 @@ public class WatchVideoMod
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
+        logger.info("Initializing WatchVideoMod");
         proxy.init();
     }
 
     @EventHandler
     public void postInit(FMLPostInitializationEvent event)
     {
+        logger.info("Post-initializing WatchVideoMod");
         proxy.postInit();
     }
 
     @EventHandler
     public void serverLoad(FMLServerStartingEvent event) {
         event.registerServerCommand(new VideoCommand());
-        event.registerServerCommand(new ShowCommand());
-        event.registerServerCommand(new StopCommand());
     }
 
     public Logger getLogger() {

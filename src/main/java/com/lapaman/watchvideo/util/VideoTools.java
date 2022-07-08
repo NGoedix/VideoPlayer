@@ -1,16 +1,15 @@
 package com.lapaman.watchvideo.util;
 
-import com.lapaman.watchvideo.WatchVideoMod;
-import com.lapaman.watchvideo.network.PacketHandler;
-import com.lapaman.watchvideo.network.message.MessageVideo;
+import com.github.kokorin.jaffree.StreamType;
+import com.github.kokorin.jaffree.ffmpeg.*;
+import com.google.common.util.concurrent.AtomicDouble;
 import net.minecraftforge.common.DimensionManager;
-import org.jcodec.api.FrameGrab;
-import org.jcodec.api.JCodecException;
-import org.jcodec.common.*;
-import org.jcodec.common.io.NIOUtils;
-import org.jcodec.common.model.Picture;
 
+import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class VideoTools {
 
@@ -18,32 +17,74 @@ public class VideoTools {
         return new File(new File(DimensionManager.getCurrentSaveRootDirectory(), "resourcesLapaman"), filename);
     }
 
-    public static void sendImagesFromVideo(File video, double frameRate) {
-        try {
-            FrameGrab grab = FrameGrab.createFrameGrab(NIOUtils.readableChannel(video));
-            Picture picture;
-            while (null != (picture = grab.getNativeFrame()))
-                PacketHandler.INSTANCE.sendToAll(new MessageVideo(video.getName(), org.jcodec.javase.scale.AWTUtil.toBufferedImage(picture), frameRate));
-        } catch (IOException | JCodecException e) {
-            e.printStackTrace();
-        }
+    public static double getSecondsDuration(File video) {
+        final AtomicLong durationMillis = new AtomicLong();
+
+        FFmpeg.atPath()
+                .addInput(
+                        UrlInput.fromPath(video.toPath())
+                )
+                .addOutput(new NullOutput())
+                .setProgressListener(progress -> durationMillis.set(progress.getTimeMillis()))
+                .execute();
+
+        return (double) (durationMillis.get() / 1000);
     }
 
-    public static void sendVideo(String name) {
-        try {
-            File video = VideoTools.getVideo(name);
+    public static double getFps(File video) {
+        final AtomicDouble fps = new AtomicDouble();
+        FFmpeg.atPath()
+                .addInput(
+                        UrlInput.fromPath(video.toPath())
+                )
+                .addOutput(new NullOutput())
+                .setProgressListener(progress -> fps.set(progress.getFps()))
+                .execute();
 
-            Format f = JCodecUtil.detectFormat(video);
-            Demuxer d = JCodecUtil.createDemuxer(f, video.getAbsolutePath());
-            DemuxerTrack vt = d.getVideoTracks().get(0);
-            DemuxerTrackMeta dtm = vt.getMeta();
+        return fps.get();
+    }
 
-            double frameRate = dtm.getTotalFrames() / dtm.getTotalDuration();
+    public static File getAudio(File video) {
+        FFmpeg.atPath()
+                .addArguments("-i", "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4")
+                .addArgument(System.getenv("TMP") + video.getName() + ".mp3")
+                .execute();
+        return new File(System.getenv("TMP") + video.getName() + ".mp3");
+    }
 
-            WatchVideoMod.getWatchVideoMod().getLogger().info("Sending video " + name + "... Total of " + dtm.getTotalFrames() + " frames and frame rate of " + frameRate + " fps.");
-            VideoTools.sendImagesFromVideo(video, frameRate);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public static BufferedImage getFrame(File video) {
+        final BufferedImage[] image = {null};
+
+        FFmpeg.atPath()
+                .addInput(UrlInput
+                        .fromPath(video.toPath())
+                )
+                .addOutput(FrameOutput
+                        .withConsumer(
+                                new FrameConsumer() {
+                                    @Override
+                                    public void consumeStreams(List<Stream> streams) {}
+
+                                    @Override
+                                    public void consume(Frame frame) {
+                                        // End of Stream
+                                        if (frame == null) {
+                                            return;
+                                        }
+                                        image[0] = frame.getImage();
+                                    }
+                                }
+                        )
+                        // No more then 1 frames
+                        .setFrameCount(StreamType.VIDEO, 1L)
+                        .setPosition(1000)
+                        // Disable all streams except video
+                        .disableStream(StreamType.AUDIO)
+                        .disableStream(StreamType.SUBTITLE)
+                        .disableStream(StreamType.DATA)
+                )
+                .execute();
+
+        return image[0];
     }
 }

@@ -3,23 +3,16 @@ package com.lapaman.watchvideo.commands;
 import com.lapaman.watchvideo.WatchVideoMod;
 import com.lapaman.watchvideo.network.PacketHandler;
 import com.lapaman.watchvideo.network.message.MessageVideo;
-import com.lapaman.watchvideo.util.TextureCache;
+import com.lapaman.watchvideo.util.FileUtil;
 import com.lapaman.watchvideo.util.VideoTools;
+import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
-import org.jcodec.common.*;
-import org.jcodec.common.io.NIOUtils;
-import org.jcodec.common.io.SeekableByteChannel;
-import org.jcodec.containers.mp4.demuxer.MP4Demuxer;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 
 public class VideoCommand extends CommandBase {
 
@@ -41,18 +34,28 @@ public class VideoCommand extends CommandBase {
         }
 
         if (args.length < 2) {
-            sender.sendMessage(new TextComponentString("El formato del comando es /playvideo <all/username> <video> <fullscreen/1280x720>."));
+            sender.sendMessage(new TextComponentString("El formato del comando es /playvideo <all/username> <video>."));
             return;
         }
 
-        if (!VideoTools.getVideo(args[1]).exists()) {
+        File video = VideoTools.getVideo(args[1]);
+
+        if (!video.exists()) {
             sender.sendMessage(new TextComponentString("The video does not exist."));
             return;
         }
 
-        // Get data of video
-        sender.sendMessage(new TextComponentString("Separating video into frames to send it to the clients..."));
+        // Converting video
+        WatchVideoMod.getWatchVideoMod().getLogger().info("Converting video to bytes.");
+        byte[] videoBytes = FileUtil.toBytes(video);
 
-        new Thread(() -> VideoTools.sendVideo(args[1])).start();
+        // Sending video
+        WatchVideoMod.getWatchVideoMod().getLogger().info("Sending video to " + args[0]);
+
+        if (args[0].equals("all")) {
+            new Thread(() -> PacketHandler.INSTANCE.sendToAll(new MessageVideo(videoBytes))).start();
+        } else {
+            new Thread(() -> PacketHandler.INSTANCE.sendTo(new MessageVideo(videoBytes), (EntityPlayerMP) Minecraft.getMinecraft().world.getPlayerEntityByName(args[0]))).start();
+        }
     }
 }
