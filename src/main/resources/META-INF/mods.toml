@@ -1,0 +1,11 @@
+modLoader="javafml"
+loaderVersion="[38,)"
+license="GPLv3"
+[[mods]]
+modId="watchvideomod"
+version="0.0.1"
+displayName="WatchVideo - Lamapan"
+authors="Goedix"
+description='''
+None
+'''
