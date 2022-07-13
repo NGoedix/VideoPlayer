@@ -24,19 +24,23 @@ import uk.co.caprica.vlcj.player.base.MediaPlayer;
 public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> {
 
     boolean init = false;
+    MediaPlayerBase mediaPlayer;
 
-    public VideoScreen() {
-        super(new DummyContainer(), Minecraft.getInstance().player != null ? Minecraft.getInstance().player.getInventory() : null, new TextComponent("Video player"));
+    public VideoScreen(String url) {
+        super(new DummyContainer(), Minecraft.getInstance().player != null ? Minecraft.getInstance().player.getInventory() : null, new TextComponent(""));
         if (MediaPlayerHandler.getInstance().getMediaPlayer(WatchVideo.getResourceLocation()).providesAPI()) {
-            MediaPlayerHandler.getInstance().getMediaPlayer(WatchVideo.getResourceLocation()).api().media().prepare("https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
+            Minecraft.getInstance().getSoundManager().pause();
+            MediaPlayerHandler.getInstance().getMediaPlayer(WatchVideo.getResourceLocation()).api().media().prepare(url);
             MediaPlayerHandler.getInstance().getMediaPlayer(WatchVideo.getResourceLocation()).api().audio().setVolume(200);
         }
     }
 
     @Override
-    protected void renderBg(@NotNull PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {
-        MediaPlayerBase mediaPlayer = (MediaPlayerBase) MediaPlayerHandler.getInstance().getMediaPlayer(WatchVideo.getResourceLocation());
+    protected void renderLabels(PoseStack pPoseStack, int pMouseX, int pMouseY) {}
 
+    @Override
+    protected void renderBg(@NotNull PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {
+        mediaPlayer = (MediaPlayerBase) MediaPlayerHandler.getInstance().getMediaPlayer(WatchVideo.getResourceLocation());
         if (MediaPlayerHandler.getInstance().getMediaPlayer(WatchVideo.getResourceLocation()).providesAPI()) {
             if (!init) {
                 mediaPlayer.api().controls().play();
@@ -52,7 +56,6 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
             RenderSystem.enableBlend();
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             GuiComponent.blit(pPoseStack, 0, 0, 0.0F, 0.0F, width, height, width, height);
-            RenderSystem.disableBlend();
         } else {
             // Generic Render Code for Screens
             int width = Minecraft.getInstance().screen.width;
@@ -72,7 +75,27 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
             RenderSystem.enableBlend();
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             GuiComponent.blit(pPoseStack, 0, 0, 0.0F, 0.0F, width, height, width2, width2);
-            RenderSystem.disableBlend();
         }
+        RenderSystem.disableBlend();
+    }
+
+    @Override
+    public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
+        if (hasShiftDown() && pKeyCode == 256) {
+            this.onClose();
+        }
+        return super.keyPressed(pKeyCode, pScanCode, pModifiers);
+    }
+
+    @Override
+    public boolean shouldCloseOnEsc() {
+        return false;
+    }
+
+    @Override
+    public void onClose() {
+        super.onClose();
+        Minecraft.getInstance().getSoundManager().resume();
+        mediaPlayer.api().controls().stop();
     }
 }
