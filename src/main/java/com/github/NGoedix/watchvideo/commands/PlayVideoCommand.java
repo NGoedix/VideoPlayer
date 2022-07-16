@@ -14,7 +14,7 @@ public class PlayVideoCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher){
         dispatcher.register(Commands.literal("playvideo")
                 .then(Commands.argument("url", StringArgumentType.greedyString())
-                        .executes(PlayVideoCommand::execute)));
+                .executes(PlayVideoCommand::execute)));
     }
 
     private static int execute(CommandContext<CommandSourceStack> command){

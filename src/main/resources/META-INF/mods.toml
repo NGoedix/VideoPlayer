@@ -4,8 +4,14 @@ license="GPLv3"
 [[mods]]
 modId="watchvideomod"
 version="0.0.1"
-displayName="WatchVideo - Lamapan"
+displayName="VideoPlayer"
 authors="Goedix"
 description='''
-None
+This mod allows the playback of videos in the user interface (GUI), you can play videos for all connected users or for a specific user.
 '''
+[[dependencies.fmextension_video]]
+modId="fancyvideo_api"
+mandatory=true
+versionRange="[0.2.0.0,)"
+ordering="AFTER"
+side="BOTH"

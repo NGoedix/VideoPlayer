@@ -8,18 +8,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import nick1st.fancyvideo.api.DynamicResourceLocation;
 import nick1st.fancyvideo.api.MediaPlayerHandler;
-import nick1st.fancyvideo.api.eventbus.event.PlayerRegistryEvent;
 import nick1st.fancyvideo.api.mediaPlayer.MediaPlayerBase;
-import nick1st.fancyvideo.api.mediaPlayer.SimpleMediaPlayer;
 import org.jetbrains.annotations.NotNull;
-import uk.co.caprica.vlcj.player.base.MediaPlayer;
 
 public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> {
 
