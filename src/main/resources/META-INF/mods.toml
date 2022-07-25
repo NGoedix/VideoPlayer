@@ -3,7 +3,7 @@ loaderVersion="[38,)"
 license="GPLv3"
 [[mods]]
 modId="watchvideomod"
-version="0.0.1"
+version="0.2"
 displayName="VideoPlayer"
 authors="Goedix"
 description='''
