@@ -14,11 +14,12 @@ import nick1st.fancyvideo.api.DynamicResourceLocation;
 import nick1st.fancyvideo.api.MediaPlayerHandler;
 import nick1st.fancyvideo.api.mediaPlayer.MediaPlayerBase;
 import org.jetbrains.annotations.NotNull;
-import uk.co.caprica.vlcj.media.MediaRef;
-import uk.co.caprica.vlcj.media.TrackType;
+import uk.co.caprica.vlcj.media.*;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventListener;
 import uk.co.caprica.vlcj.player.base.TitleDescription;
+
+import java.util.List;
 
 public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> {
 
@@ -42,7 +43,9 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
                 @Override
                 public void paused(MediaPlayer mediaPlayer) {}
                 @Override
-                public void stopped(MediaPlayer mediaPlayer) {}
+                public void stopped(MediaPlayer mediaPlayer) {
+                    onClose();
+                }
                 @Override
                 public void forward(MediaPlayer mediaPlayer) {}
                 @Override
@@ -50,9 +53,7 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
                 @Override
                 public void stopping(MediaPlayer mediaPlayer) {}
                 @Override
-                public void finished(MediaPlayer mediaPlayer) {
-                    onClose();
-                }
+                public void finished(MediaPlayer mediaPlayer) {}
                 @Override
                 public void timeChanged(MediaPlayer mediaPlayer, long l) {}
                 @Override
