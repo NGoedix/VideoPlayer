@@ -1,0 +1,23 @@
+modLoader="javafml"
+loaderVersion="[36,)"
+license="GNU GLP 3.0"
+[[mods]]
+modId="videoplayer"
+version="0.4"
+displayName="VideoPlayer"
+authors="Goedix"
+description='''
+This mod allows the playback of videos in the user interface (GUI), you can play videos for all connected users or for a specific user.
+'''
+[[dependencies.videoplayer]]
+    modId="forge"
+    mandatory=true
+    versionRange="[36,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.videoplayer]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.16.5,1.17)"
+    ordering="NONE"
+    side="BOTH"
