@@ -35,6 +35,8 @@ public class WatchVideo {
         }
 
         eventBus.addListener(this::onCommonSetup);
+
+        MinecraftForge.EVENT_BUS.register(this);
     }
 
     private void onCommonSetup(FMLCommonSetupEvent event) {

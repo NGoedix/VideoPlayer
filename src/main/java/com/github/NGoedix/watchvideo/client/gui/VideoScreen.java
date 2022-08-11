@@ -15,15 +15,15 @@ import nick1st.fancyvideo.api.MediaPlayerHandler;
 import nick1st.fancyvideo.api.mediaPlayer.MediaPlayerBase;
 import org.jetbrains.annotations.NotNull;
 import uk.co.caprica.vlcj.media.*;
+import uk.co.caprica.vlcj.medialist.MediaList;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventListener;
 import uk.co.caprica.vlcj.player.base.TitleDescription;
 
-import java.util.List;
-
 public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> {
 
     boolean init = false;
+    boolean stopped = true;
     MediaPlayerBase mediaPlayer;
 
     public VideoScreen(String url) {
@@ -31,6 +31,27 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
         if (MediaPlayerHandler.getInstance().getMediaPlayer(WatchVideo.getResourceLocation()).providesAPI()) {
             Minecraft.getInstance().getSoundManager().pause();
             MediaPlayerHandler.getInstance().getMediaPlayer(WatchVideo.getResourceLocation()).api().media().prepare(url);
+            MediaPlayerHandler.getInstance().getMediaPlayer(WatchVideo.getResourceLocation()).api().events().addMediaEventListener(new MediaEventAdapter() {
+                @Override
+                public void mediaSubItemAdded(Media media, MediaRef newChild) {
+                    WatchVideo.LOGGER.info("item added");
+                    MediaList mediaList = MediaPlayerHandler.getInstance().getMediaPlayer(WatchVideo.getResourceLocation()).api().media().subitems().newMediaList();
+                    for (String mrl : mediaList.media().mrls()) {
+                        WatchVideo.LOGGER.info("mrl=" + mrl);
+                    }
+                    mediaList.release();
+                }
+
+                @Override
+                public void mediaSubItemTreeAdded(Media media, MediaRef item) {
+                    WatchVideo.LOGGER.info("item tree added");
+                    MediaList mediaList = MediaPlayerHandler.getInstance().getMediaPlayer(WatchVideo.getResourceLocation()).api().media().subitems().newMediaList();
+                    for (String mrl : mediaList.media().mrls()) {
+                        WatchVideo.LOGGER.info("mrl=" + mrl);
+                    }
+                    mediaList.release();
+                }
+            });
             MediaPlayerHandler.getInstance().getMediaPlayer(WatchVideo.getResourceLocation()).api().events().addMediaPlayerEventListener(new MediaPlayerEventListener() {
                 @Override
                 public void mediaChanged(MediaPlayer mediaPlayer, MediaRef mediaRef) {}
@@ -44,7 +65,9 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
                 public void paused(MediaPlayer mediaPlayer) {}
                 @Override
                 public void stopped(MediaPlayer mediaPlayer) {
-                    onClose();
+                    if (!stopped) {
+                        onClose();
+                    }
                 }
                 @Override
                 public void forward(MediaPlayer mediaPlayer) {}
@@ -115,16 +138,20 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
         mediaPlayer = (MediaPlayerBase) MediaPlayerHandler.getInstance().getMediaPlayer(WatchVideo.getResourceLocation());
         if (MediaPlayerHandler.getInstance().getMediaPlayer(WatchVideo.getResourceLocation()).providesAPI()) {
             if (!init) {
+                WatchVideo.LOGGER.info("!init success");
                 mediaPlayer.api().controls().play();
                 init = true;
+                stopped = false;
             }
             // Generic Render Code for Screens
             int width = Minecraft.getInstance().screen.width;
             int height = Minecraft.getInstance().screen.height;
 
+            WatchVideo.LOGGER.info("Rendering: " + mediaPlayer.renderToResourceLocation());
+
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, mediaPlayer.renderToResourceLocation());
-    
+
             RenderSystem.enableBlend();
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             GuiComponent.blit(pPoseStack, 0, 0, 0.0F, 0.0F, width, height, width, height);
@@ -142,7 +169,9 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
             }
 
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
-            RenderSystem.setShaderTexture(0, new DynamicResourceLocation(Reference.MOD_ID, "fallback"));
+            DynamicResourceLocation dr = new DynamicResourceLocation(Reference.MOD_ID, "fallback");
+            WatchVideo.LOGGER.info("else: " + dr);
+            RenderSystem.setShaderTexture(0, dr);
 
             RenderSystem.enableBlend();
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -166,8 +195,12 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
 
     @Override
     public void onClose() {
-        super.onClose();
-        Minecraft.getInstance().getSoundManager().resume();
-        mediaPlayer.api().controls().stop();
+        if (!stopped) {
+            stopped = true;
+            Minecraft.getInstance().getSoundManager().resume();
+            mediaPlayer.api().controls().stop();
+            super.onClose();
+        }
     }
 }
+

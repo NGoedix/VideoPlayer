@@ -2,16 +2,16 @@ modLoader="javafml"
 loaderVersion="[38,)"
 license="GPLv3"
 [[mods]]
-modId="watchvideomod"
-version="0.2"
+modId="videoplayer"
+version="0.4"
 displayName="VideoPlayer"
 authors="Goedix"
 description='''
 This mod allows the playback of videos in the user interface (GUI), you can play videos for all connected users or for a specific user.
 '''
-[[dependencies.fmextension_video]]
-modId="fancyvideo_api"
-mandatory=true
-versionRange="[0.2.0.0,)"
-ordering="AFTER"
-side="BOTH"
+[[dependencies.videoplayer]]
+    modId="fancyvideo_api"
+    mandatory=true
+    versionRange="[0.2.0.0,)"
+    ordering="AFTER"
+    side="BOTH"
