@@ -2,12 +2,15 @@ buildscript {
     repositories {
         // These repositories are only for Gradle plugins, put any other repositories in the repository block further below
         maven { url = 'https://maven.minecraftforge.net' }
+        maven { url = 'https://repo.spongepowered.org/maven' }
         maven { url = 'https://maven.parchmentmc.org' }
         mavenCentral()
+        jcenter()
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
         classpath 'org.parchmentmc:librarian:1.+'
+        classpath "org.spongepowered:mixingradle:0.7-SNAPSHOT"
     }
 }
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
@@ -17,10 +20,11 @@ plugins {
 }
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
+apply plugin: 'org.spongepowered.mixin'
 
 
-version = '0.4-BETA-1.18.2'
-group = 'com.github.NGoedix.WatchVideoMod' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+version = '0.6-BETA-1.18.2'
+group = 'com.github.NGoedix.VideoPlayer' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'VideoPlayer'
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
@@ -34,46 +38,30 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'watchvideomod'
+            property 'forge.enabledGameTestNamespaces', 'videoplayer'
             mods {
-                watchvideomod {
+                videoplayer {
                     source sourceSets.main
                 }
             }
+
+            arg '--mixin.config'
+            arg 'videoplayer.mixin.json'
         }
 
         server {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'watchvideomod'
+            property 'forge.enabledGameTestNamespaces', 'videoplayer'
             mods {
-                watchvideomod {
+                videoplayer {
                     source sourceSets.main
                 }
             }
-        }
-        gameTestServer {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'watchvideomod'
-            mods {
-                watchvideomod {
-                    source sourceSets.main
-                }
-            }
-        }
-        data {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            args '--mod', 'watchvideomod', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-            mods {
-                watchvideomod {
-                    source sourceSets.main
-                }
-            }
+
+            arg '--mixin.config'
+            arg 'videoplayer.mixin.json'
         }
     }
 }
@@ -81,30 +69,32 @@ minecraft {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
-    // Put repositories for dependencies here
-    // ForgeGradle automatically adds the Forge maven and Maven Central for you
-
-    // If you have mod jar dependencies in ./libs, you can declare them as a repository like so:
-    // flatDir {
-    //     dir 'libs'
-    // }
+    maven { url "https://maven.tterrag.com/" }
+    maven {
+        url 'https://www.cursemaven.com'
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.18.2-40.1.23'
+    implementation fg.deobf("curse.maven:fancyvideo-api-591686:3822603")
 
-    implementation fileTree('libs') { include '*.jar' }
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
 jar {
     manifest {
         attributes([
-                "Specification-Title"     : "watchvideomod",
-                "Specification-Vendor"    : "watchvideomodsareus",
-                "Specification-Version"   : "1", // We are version 1 of ourselves
+                "Specification-Title"     : "videoplayer",
+                "Specification-Vendor"    : "Goedix",
+                "Specification-Version"   : project.version, // We are version 1 of ourselves
                 "Implementation-Title"    : project.name,
                 "Implementation-Version"  : project.jar.archiveVersion,
-                "Implementation-Vendor"   : "watchvideomodsareus",
+                "Implementation-Vendor"   : "Goedix",
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }

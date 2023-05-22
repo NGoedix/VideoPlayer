@@ -1,7 +1,9 @@
 package com.github.NGoedix.watchvideo.client.gui;
 
 import com.github.NGoedix.watchvideo.Reference;
-import com.github.NGoedix.watchvideo.WatchVideo;
+import com.github.NGoedix.watchvideo.VideoPlayer;
+import com.github.NGoedix.watchvideo.media.CustomMediaEventListener;
+import com.github.NGoedix.watchvideo.media.CustomMediaPlayerEventListener;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -14,11 +16,7 @@ import nick1st.fancyvideo.api.DynamicResourceLocation;
 import nick1st.fancyvideo.api.MediaPlayerHandler;
 import nick1st.fancyvideo.api.mediaPlayer.MediaPlayerBase;
 import org.jetbrains.annotations.NotNull;
-import uk.co.caprica.vlcj.media.*;
-import uk.co.caprica.vlcj.medialist.MediaList;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
-import uk.co.caprica.vlcj.player.base.MediaPlayerEventListener;
-import uk.co.caprica.vlcj.player.base.TitleDescription;
 
 public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> {
 
@@ -26,107 +24,27 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     boolean stopped = true;
     MediaPlayerBase mediaPlayer;
 
+    @Override
+    protected void init() {
+        this.imageWidth = Minecraft.getInstance().screen.width;
+        this.imageHeight = Minecraft.getInstance().screen.height;
+        super.init();
+    }
+
     public VideoScreen(String url) {
         super(new DummyContainer(), Minecraft.getInstance().player != null ? Minecraft.getInstance().player.getInventory() : null, new TextComponent(""));
-        if (MediaPlayerHandler.getInstance().getMediaPlayer(WatchVideo.getResourceLocation()).providesAPI()) {
-            Minecraft.getInstance().getSoundManager().pause();
-            MediaPlayerHandler.getInstance().getMediaPlayer(WatchVideo.getResourceLocation()).api().media().prepare(url);
-            MediaPlayerHandler.getInstance().getMediaPlayer(WatchVideo.getResourceLocation()).api().events().addMediaEventListener(new MediaEventAdapter() {
-                @Override
-                public void mediaSubItemAdded(Media media, MediaRef newChild) {
-                    WatchVideo.LOGGER.info("item added");
-                    MediaList mediaList = MediaPlayerHandler.getInstance().getMediaPlayer(WatchVideo.getResourceLocation()).api().media().subitems().newMediaList();
-                    for (String mrl : mediaList.media().mrls()) {
-                        WatchVideo.LOGGER.info("mrl=" + mrl);
-                    }
-                    mediaList.release();
-                }
 
-                @Override
-                public void mediaSubItemTreeAdded(Media media, MediaRef item) {
-                    WatchVideo.LOGGER.info("item tree added");
-                    MediaList mediaList = MediaPlayerHandler.getInstance().getMediaPlayer(WatchVideo.getResourceLocation()).api().media().subitems().newMediaList();
-                    for (String mrl : mediaList.media().mrls()) {
-                        WatchVideo.LOGGER.info("mrl=" + mrl);
-                    }
-                    mediaList.release();
-                }
-            });
-            MediaPlayerHandler.getInstance().getMediaPlayer(WatchVideo.getResourceLocation()).api().events().addMediaPlayerEventListener(new MediaPlayerEventListener() {
-                @Override
-                public void mediaChanged(MediaPlayer mediaPlayer, MediaRef mediaRef) {}
-                @Override
-                public void opening(MediaPlayer mediaPlayer) {}
-                @Override
-                public void buffering(MediaPlayer mediaPlayer, float v) {}
-                @Override
-                public void playing(MediaPlayer mediaPlayer) {}
-                @Override
-                public void paused(MediaPlayer mediaPlayer) {}
+        if (MediaPlayerHandler.getInstance().getMediaPlayer(VideoPlayer.getResourceLocation()).providesAPI()) {
+            Minecraft.getInstance().getSoundManager().pause();
+            MediaPlayerHandler.getInstance().getMediaPlayer(VideoPlayer.getResourceLocation()).api().media().prepare(url);
+            MediaPlayerHandler.getInstance().getMediaPlayer(VideoPlayer.getResourceLocation()).api().events().addMediaEventListener(new CustomMediaEventListener());
+            MediaPlayerHandler.getInstance().getMediaPlayer(VideoPlayer.getResourceLocation()).api().events().addMediaPlayerEventListener(new CustomMediaPlayerEventListener() {
                 @Override
                 public void stopped(MediaPlayer mediaPlayer) {
-                    if (!stopped) {
-                        onClose();
-                    }
+                    if (!stopped) onClose();
                 }
-                @Override
-                public void forward(MediaPlayer mediaPlayer) {}
-                @Override
-                public void backward(MediaPlayer mediaPlayer) {}
-                @Override
-                public void stopping(MediaPlayer mediaPlayer) {}
-                @Override
-                public void finished(MediaPlayer mediaPlayer) {}
-                @Override
-                public void timeChanged(MediaPlayer mediaPlayer, long l) {}
-                @Override
-                public void positionChanged(MediaPlayer mediaPlayer, float v) {}
-                @Override
-                public void seekableChanged(MediaPlayer mediaPlayer, int i) {}
-                @Override
-                public void pausableChanged(MediaPlayer mediaPlayer, int i) {}
-                @Override
-                public void titleListChanged(MediaPlayer mediaPlayer) {}
-                @Override
-                public void titleSelectionChanged(MediaPlayer mediaPlayer, TitleDescription titleDescription, int i) {}
-                @Override
-                public void snapshotTaken(MediaPlayer mediaPlayer, String s) {}
-                @Override
-                public void lengthChanged(MediaPlayer mediaPlayer, long l) {}
-                @Override
-                public void videoOutput(MediaPlayer mediaPlayer, int i) {}
-                @Override
-                public void elementaryStreamAdded(MediaPlayer mediaPlayer, TrackType trackType, int i, String s) {}
-                @Override
-                public void elementaryStreamDeleted(MediaPlayer mediaPlayer, TrackType trackType, int i, String s) {}
-                @Override
-                public void elementaryStreamUpdated(MediaPlayer mediaPlayer, TrackType trackType, int i, String s) {}
-                @Override
-                public void elementaryStreamSelected(MediaPlayer mediaPlayer, TrackType trackType, String s, String s1) {}
-                @Override
-                public void corked(MediaPlayer mediaPlayer, boolean b) {}
-                @Override
-                public void muted(MediaPlayer mediaPlayer, boolean b) {}
-                @Override
-                public void volumeChanged(MediaPlayer mediaPlayer, float v) {}
-                @Override
-                public void audioDeviceChanged(MediaPlayer mediaPlayer, String s) {}
-                @Override
-                public void chapterChanged(MediaPlayer mediaPlayer, int i) {}
-                @Override
-                public void programAdded(MediaPlayer mediaPlayer, int i) {}
-                @Override
-                public void programDeleted(MediaPlayer mediaPlayer, int i) {}
-                @Override
-                public void programUpdated(MediaPlayer mediaPlayer, int i) {}
-                @Override
-                public void programSelected(MediaPlayer mediaPlayer, int i, int i1) {}
-                @Override
-                public void error(MediaPlayer mediaPlayer) {}
-                @Override
-                public void mediaPlayerReady(MediaPlayer mediaPlayer) {}
             });
-            MediaPlayerHandler.getInstance().getMediaPlayer(WatchVideo.getResourceLocation()).api().audio().setVolume(200);
+            MediaPlayerHandler.getInstance().getMediaPlayer(VideoPlayer.getResourceLocation()).api().audio().setVolume(200);
         }
     }
 
@@ -135,10 +53,10 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
 
     @Override
     protected void renderBg(@NotNull PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {
-        mediaPlayer = (MediaPlayerBase) MediaPlayerHandler.getInstance().getMediaPlayer(WatchVideo.getResourceLocation());
-        if (MediaPlayerHandler.getInstance().getMediaPlayer(WatchVideo.getResourceLocation()).providesAPI()) {
+        mediaPlayer = (MediaPlayerBase) MediaPlayerHandler.getInstance().getMediaPlayer(VideoPlayer.getResourceLocation());
+        if (MediaPlayerHandler.getInstance().getMediaPlayer(VideoPlayer.getResourceLocation()).providesAPI()) {
             if (!init) {
-                WatchVideo.LOGGER.info("!init success");
+                VideoPlayer.LOGGER.info("!init success");
                 mediaPlayer.api().controls().play();
                 init = true;
                 stopped = false;
@@ -146,8 +64,6 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
             // Generic Render Code for Screens
             int width = Minecraft.getInstance().screen.width;
             int height = Minecraft.getInstance().screen.height;
-
-            WatchVideo.LOGGER.info("Rendering: " + mediaPlayer.renderToResourceLocation());
 
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, mediaPlayer.renderToResourceLocation());
@@ -170,7 +86,7 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
 
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             DynamicResourceLocation dr = new DynamicResourceLocation(Reference.MOD_ID, "fallback");
-            WatchVideo.LOGGER.info("else: " + dr);
+
             RenderSystem.setShaderTexture(0, dr);
 
             RenderSystem.enableBlend();

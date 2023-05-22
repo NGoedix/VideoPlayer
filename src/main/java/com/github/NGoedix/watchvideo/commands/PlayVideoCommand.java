@@ -12,6 +12,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.server.commands.GameModeCommand;
 import net.minecraft.server.level.ServerPlayer;
 
 import javax.swing.text.html.parser.Entity;
@@ -21,6 +22,7 @@ public class PlayVideoCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher){
         dispatcher.register(Commands.literal("playvideo")
+                .requires(source -> source.hasPermission(2))
                 .then(Commands.argument("target", EntityArgument.players())
                 .then(Commands.argument("url", StringArgumentType.greedyString())
                 .executes(PlayVideoCommand::execute))));
