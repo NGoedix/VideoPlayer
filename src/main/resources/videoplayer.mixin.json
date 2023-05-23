@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "com.github.NGoedix.watchvideo.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "videoplayer.mixin.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+    "MinecraftMixin"
+  ],
+  "minVersion": "0.8"
+}
