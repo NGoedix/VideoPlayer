@@ -33,7 +33,8 @@ public class TVBlock extends Block implements EntityBlock {
 
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
 
-    private static final VoxelShape SHAPE = Block.box(7, 0, -4, 8, 15, 20);
+    private static final VoxelShape SHAPE_EAST_WEST = Block.box(7, 0, -4, 8, 15, 20);
+    private static final VoxelShape SHAPE_NORTH_SOUTH = Block.box(-4, 0, 7, 20, 15, 8);
 
     public TVBlock(Properties p_49795_) {
         super(p_49795_.noOcclusion());
@@ -42,7 +43,7 @@ public class TVBlock extends Block implements EntityBlock {
 
     @Override
     public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
-        return SHAPE;
+        return pState.getValue(FACING).getAxis() == Direction.Axis.X ? SHAPE_EAST_WEST : SHAPE_NORTH_SOUTH;
     }
 
     @Override
