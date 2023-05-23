@@ -3,7 +3,7 @@ loaderVersion="[41,)" #mandatory This is typically bumped every Minecraft versio
 license="All rights reserved"
 [[mods]] #mandatory
 modId="videoplayer" #mandatory
-version="0.4" #mandatory
+version="1.0" #mandatory
 displayName="VideoPlayer"
 authors="Goedix"
 description='''
