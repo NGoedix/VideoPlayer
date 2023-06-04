@@ -1,14 +1,25 @@
 package com.github.NGoedix.watchvideo.media;
 
-import uk.co.caprica.vlcj.media.MediaRef;
-import uk.co.caprica.vlcj.media.TrackType;
-import uk.co.caprica.vlcj.player.base.MediaPlayer;
-import uk.co.caprica.vlcj.player.base.MediaPlayerEventListener;
-import uk.co.caprica.vlcj.player.base.TitleDescription;
+
+import me.lib720.caprica.vlcj.media.MediaRef;
+import me.lib720.caprica.vlcj.media.TrackType;
+import me.lib720.caprica.vlcj.player.base.MediaPlayer;
+import me.lib720.caprica.vlcj.player.base.MediaPlayerEventListener;
+import me.lib720.caprica.vlcj.player.base.TitleDescription;
 
 public abstract class CustomMediaPlayerEventListener implements MediaPlayerEventListener {
     @Override
     public void mediaChanged(MediaPlayer mediaPlayer, MediaRef mediaRef) {
+
+    }
+
+    @Override
+    public void positionChanged(MediaPlayer mediaPlayer, double v) {
+
+    }
+
+    @Override
+    public void recordChanged(MediaPlayer mediaPlayer, boolean b, String s) {
 
     }
 
@@ -140,10 +151,6 @@ public abstract class CustomMediaPlayerEventListener implements MediaPlayerEvent
 
     }
 
-    @Override
-    public void positionChanged(MediaPlayer mediaPlayer, float v) {
-
-    }
 
     @Override
     public void programAdded(MediaPlayer mediaPlayer, int i) {

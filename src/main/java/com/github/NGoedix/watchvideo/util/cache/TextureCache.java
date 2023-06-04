@@ -1,6 +1,6 @@
 package com.github.NGoedix.watchvideo.util.cache;
 
-import com.github.NGoedix.watchvideo.util.displayers.DisplayerApi;
+import com.github.NGoedix.watchvideo.util.displayers.IDisplay;
 import com.github.NGoedix.watchvideo.util.displayers.ImageDisplayer;
 import com.github.NGoedix.watchvideo.util.displayers.VideoDisplayer;
 import com.github.NGoedix.watchvideo.util.gif.GifDecoder;
@@ -123,11 +123,11 @@ public class TextureCache {
         return last;
     }
     
-    public DisplayerApi createDisplay(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop) {
+    public IDisplay createDisplay(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop) {
         return createDisplay(pos, url, volume, minDistance, maxDistance, loop, false);
     }
     
-    public DisplayerApi createDisplay(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop, boolean noVideo) {
+    public IDisplay createDisplay(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop, boolean noVideo) {
         volume *= Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER);
         if (textures == null && !noVideo)
             return VideoDisplayer.createVideoDisplay(pos, url, volume, minDistance, maxDistance, loop);

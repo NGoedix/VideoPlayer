@@ -9,9 +9,10 @@ authors="Goedix"
 description='''
 This mod allows the playback of videos in the user interface (GUI), you can play videos for all connected users or for a specific user.
 '''
+credits="J-RAP"
 [[dependencies.videoplayer]]
-    modId="fancyvideo_api"
+    modId="watermedia"
     mandatory=true
-    versionRange="[0.2.0.0,)"
+    versionRange="[0,)"
     ordering="AFTER"
     side="BOTH"

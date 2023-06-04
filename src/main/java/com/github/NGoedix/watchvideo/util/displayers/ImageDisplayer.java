@@ -3,7 +3,7 @@ package com.github.NGoedix.watchvideo.util.displayers;
 import com.github.NGoedix.watchvideo.util.cache.TextureCache;
 import net.minecraft.client.Minecraft;
 
-public class ImageDisplayer extends DisplayerApi {
+public class ImageDisplayer implements IDisplay {
     
     public final TextureCache texture;
     private int textureId;

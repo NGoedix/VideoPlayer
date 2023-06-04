@@ -3,7 +3,7 @@ package com.github.NGoedix.watchvideo.client.render;
 import com.github.NGoedix.watchvideo.VideoPlayer;
 import com.github.NGoedix.watchvideo.block.custom.TVBlock;
 import com.github.NGoedix.watchvideo.block.entity.custom.TVBlockEntity;
-import com.github.NGoedix.watchvideo.util.displayers.DisplayerApi;
+import com.github.NGoedix.watchvideo.util.displayers.IDisplay;
 import com.github.NGoedix.watchvideo.util.math.AlignedBox;
 import com.github.NGoedix.watchvideo.util.math.BoxCorner;
 import com.github.NGoedix.watchvideo.util.math.BoxFace;
@@ -55,11 +55,10 @@ public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
             return;
         }
 
-        DisplayerApi display = frame.requestDisplay();
+        IDisplay display = frame.requestDisplay();
         if (display == null) return;
 
-        display.prepare(frame.getUrl(), frame.volume * Minecraft.getInstance().options
-                .getSoundSourceVolume(SoundSource.MASTER), frame.minDistance, frame.maxDistance, frame.isPlaying(), frame.loop, frame.getTick());
+        display.prepare(frame.getUrl(), frame.volume * Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER), frame.minDistance, frame.maxDistance, frame.isPlaying(), frame.loop, frame.getTick());
 
         RenderSystem.enableDepthTest();
         RenderSystem.enableBlend();
