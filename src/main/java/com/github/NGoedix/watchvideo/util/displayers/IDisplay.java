@@ -1,5 +1,7 @@
 package com.github.NGoedix.watchvideo.util.displayers;
 
+import com.mojang.blaze3d.platform.NativeImage;
+
 public interface IDisplay {
 
     int getWidth();
@@ -21,5 +23,4 @@ public interface IDisplay {
     int texture();
 
     void release();
-
 }

@@ -33,16 +33,6 @@ public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
         return frame.getSizeX() > 16 || frame.getSizeY() > 16;
     }
 
-//    @Override
-//    public boolean shouldRenderOffScreen(TVBlockEntity pBlockEntity) {
-//        return true;
-//    }
-
-//    @Override
-//    public int getViewDistance() {
-//        return 256;
-//    }
-
     @Override
     public boolean shouldRender(TVBlockEntity frame, Vec3 vec) {
         return Vec3.atCenterOf(frame.getBlockPos()).closerThan(vec, 128);
