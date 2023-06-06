@@ -84,7 +84,7 @@ repositories {
 dependencies {
     minecraft 'net.minecraftforge:forge:1.19-41.1.0'
 
-    implementation fg.deobf("curse.maven:fancyvideo-api-591686:3865525")
+    implementation fg.deobf("curse.maven:watermedia-869524:4568511")
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
