@@ -23,7 +23,7 @@ apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'org.spongepowered.mixin'
 
 
-version = '2.0-RELEASE-1.18.2'
+version = '2.0-RELEASE-1.18.X'
 group = 'com.github.NGoedix.VideoPlayer' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'VideoPlayer'
 
