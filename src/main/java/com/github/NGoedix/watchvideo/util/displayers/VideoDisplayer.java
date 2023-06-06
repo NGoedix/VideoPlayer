@@ -7,8 +7,8 @@ import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.lib720.caprica.vlcj.player.embedded.videosurface.callback.BufferFormat;
 import me.lib720.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCallback;
-import me.srrapero720.watermedia.api.player.VLCPlayer;
-import me.srrapero720.watermedia.watercore_supplier.ThreadUtil;
+import me.srrapero720.watermedia.api.media.players.WaterVLCPlayer;
+import me.srrapero720.watermedia.internal.util.ThreadUtil;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL11;
 
@@ -62,15 +62,15 @@ public class VideoDisplayer implements IDisplay {
     public volatile int width = 1;
     public volatile int height = 1;
     
-    public VLCPlayer player;
+    public WaterVLCPlayer player;
     
     private final Vec3d pos;
-    private volatile IntBuffer buffer;
+    public volatile IntBuffer buffer;
     public int texture;
     private boolean stream = false;
     private float lastSetVolume;
     private volatile boolean needsUpdate = false;
-    private ReentrantLock lock = new ReentrantLock();
+    private final ReentrantLock lock = new ReentrantLock();
     private volatile boolean first = true;
     private long lastCorrectedTime = Long.MIN_VALUE;
     
@@ -79,7 +79,7 @@ public class VideoDisplayer implements IDisplay {
         this.pos = pos;
         texture = GlStateManager._genTexture();
 
-        player = new VLCPlayer(url, (mediaPlayer, nativeBuffers, bufferFormat) -> {
+        player = new WaterVLCPlayer(url, (mediaPlayer, nativeBuffers, bufferFormat) -> {
             lock.lock();
             try {
                 buffer.put(nativeBuffers[0].asIntBuffer());

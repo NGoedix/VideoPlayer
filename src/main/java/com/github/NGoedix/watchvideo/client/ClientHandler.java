@@ -8,8 +8,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class ClientHandler {
-    public static void openVideo(String url) {
-        Minecraft.getInstance().setScreen(new VideoScreen(url));
+    public static void openVideo(String url, int volume) {
+        Minecraft.getInstance().setScreen(new VideoScreen(url, volume));
     }
 
     public static void manageVideo(BlockPos pos, boolean playing, int tick) {

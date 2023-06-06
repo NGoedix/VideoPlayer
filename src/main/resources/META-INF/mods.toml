@@ -3,16 +3,16 @@ loaderVersion="[38,)"
 license="GPLv3"
 [[mods]]
 modId="videoplayer"
-version="1.0"
+version="2.0"
 displayName="VideoPlayer"
 authors="Goedix"
 description='''
 This mod allows the playback of videos in the user interface (GUI), you can play videos for all connected users or for a specific user.
 '''
-credits="J-RAP"
+credits="Thanks J-RAP for the help with the API"
 [[dependencies.videoplayer]]
     modId="watermedia"
     mandatory=true
     versionRange="[0,)"
     ordering="AFTER"
-    side="BOTH"
+    side="CLIENT"

@@ -50,5 +50,4 @@ public class ImageDisplayer implements IDisplay {
     public int getHeight() {
         return texture.getHeight();
     }
-    
 }

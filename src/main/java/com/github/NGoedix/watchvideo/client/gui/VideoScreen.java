@@ -1,36 +1,27 @@
 package com.github.NGoedix.watchvideo.client.gui;
 
-import com.github.NGoedix.watchvideo.VideoPlayer;
-import com.github.NGoedix.watchvideo.media.CustomMediaPlayerEventListener;
 import com.github.NGoedix.watchvideo.util.cache.TextureCache;
 import com.github.NGoedix.watchvideo.util.displayers.IDisplay;
 import com.github.NGoedix.watchvideo.util.displayers.VideoDisplayer;
-import com.github.NGoedix.watchvideo.util.vlc.MediaPlayerBase;
-import com.github.NGoedix.watchvideo.util.vlc.MediaPlayerHandler;
-import com.github.NGoedix.watchvideo.util.vlc.SimpleMediaPlayer;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import me.lib720.caprica.vlcj.player.base.MediaPlayer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 
+import java.nio.IntBuffer;
+
 public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> {
 
-    private boolean playing = false;
-
-    SimpleMediaPlayer mediaPlayer;
-
-    private String url;
+    private final String url;
+    private final int volume;
     private int tick;
 
     @OnlyIn(Dist.CLIENT)
@@ -57,17 +48,15 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
             return null;
         if (display != null)
             return display;
-        return display = cache.createDisplay(null, url, 200 / 100f, 0, 0, false);
+        return display = cache.createDisplay(null, url, volume, 0, 0, false);
     }
 
-    public VideoScreen(String url) {
+    public VideoScreen(String url, int volume) {
         super(new DummyContainer(), Minecraft.getInstance().player != null ? Minecraft.getInstance().player.getInventory() : null, new TextComponent(""));
         this.url = url;
+        this.volume = volume;
 
-        mediaPlayer = new SimpleMediaPlayer(VideoPlayer.getResourceLocation());
-        mediaPlayer.api().media().prepare(url);
-        mediaPlayer.api().audio().setVolume(200);
-//        display = requestDisplay();
+        display = requestDisplay();
     }
 
     @Override
@@ -75,30 +64,60 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
 
     @Override
     protected void renderBg(@NotNull PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {
-        if (!playing) {
-            playing = true;
-            mediaPlayer.api().controls().play();
+        if (url.isBlank()) {
+            if (display != null) display.release();
+            return;
         }
 
-        // Generic Render Code for Screens
-        int width = Minecraft.getInstance().screen.width;
-        int height = Minecraft.getInstance().screen.height;
+        IDisplay display = requestDisplay();
+        if (display == null) return;
+
+        int texture;
+        if (display instanceof VideoDisplayer) {
+            texture = createTexture(display.getWidth(), display.getHeight(), ((VideoDisplayer) display).buffer);
+        } else {
+            display.prepare(url, 200, 1, 1, true, false, tick);
+
+            texture = display.texture();
+        }
+
+        if (texture == -1) return;
 
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, mediaPlayer.renderToResourceLocation());
+        RenderSystem.setShaderTexture(0, texture);
 
         RenderSystem.enableBlend();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        GuiComponent.blit(pPoseStack, 0, 0, 0.0F, 0.0F, width, height, width, height);
+        GuiComponent.blit(pPoseStack, 0, 0, 0.0F, 0.0F, Minecraft.getInstance().screen.width, Minecraft.getInstance().screen.height, Minecraft.getInstance().screen.width, Minecraft.getInstance().screen.height);
         RenderSystem.disableBlend();
     }
 
-//    @Override
-//    protected void containerTick() {
-//        if (display != null)
-//            display.tick(url, 200, 1, 1, true, false, tick);
-//        tick++;
-//    }
+    public int createTexture(int width, int height, IntBuffer buffer) {
+        // Generate a new texture object in memory and bind it
+        int textureId = GL11.glGenTextures();
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
+
+        // Set texture parameters
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+
+        // Upload the texture data
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+
+        // Unbind the texture
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+
+        return textureId;
+    }
+
+    @Override
+    protected void containerTick() {
+        if (display != null)
+            display.tick(url, volume, 1, 1, true, false, tick);
+        tick++;
+    }
 
     @Override
     public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
@@ -116,7 +135,8 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     @Override
     public void onClose() {
         Minecraft.getInstance().getSoundManager().resume();
-        mediaPlayer.api().controls().stop();
+        if (display != null)
+            display.release();
         super.onClose();
     }
 }
