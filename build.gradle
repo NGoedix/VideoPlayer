@@ -104,9 +104,9 @@ jar {
 }
 
 mixin {
-    add sourceSets.main, 'watchvideo.refmap.json'
+    add sourceSets.main, 'videoplayer.refmap.json'
 
-    config 'watchvideo.mixins.json'
+    config 'videoplayer.mixin.json'
 }
 
 // Example configuration to allow publishing using the maven-publish plugin
