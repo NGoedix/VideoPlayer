@@ -5,6 +5,8 @@ import com.github.NGoedix.watchvideo.util.displayers.IDisplay;
 import com.github.NGoedix.watchvideo.util.displayers.VideoDisplayer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import me.lib720.caprica.vlcj.player.base.MediaPlayer;
+import me.lib720.caprica.vlcj.player.base.MediaPlayerEventAdapter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -23,6 +25,8 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     private final String url;
     private final int volume;
     private int tick;
+
+    private boolean firstIteration;
 
     @OnlyIn(Dist.CLIENT)
     public IDisplay display;
@@ -71,6 +75,18 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
 
         IDisplay display = requestDisplay();
         if (display == null) return;
+
+        if (!firstIteration) {
+            firstIteration = true;
+            if (display instanceof VideoDisplayer) {
+                ((VideoDisplayer) display).player.getRawPlayer().mediaPlayer().events().addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
+                    @Override
+                    public void finished(MediaPlayer mediaPlayer) {
+                        onClose();
+                    }
+                });
+            }
+        }
 
         int texture;
         if (display instanceof VideoDisplayer) {
