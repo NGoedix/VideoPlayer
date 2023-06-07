@@ -21,7 +21,7 @@ plugins {
 }
 apply plugin: 'org.spongepowered.mixin'
 
-version = '2.0-RELEASE-1.19-1.19.1-1.19.2'
+version = '2.0-RELEASE-1.19-3'
 group = 'com.github.NGoedix.VideoPlayer' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'VideoPlayer'
 
@@ -30,7 +30,7 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 minecraft {
-    mappings channel: 'parchment', version: '1.18.2-2022.08.02-1.19'
+    mappings channel: 'parchment', version: '2023.03.12-1.19.3'
     runs {
         client {
             workingDirectory project.file('run')
@@ -82,10 +82,10 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19-41.1.0'
+    minecraft 'net.minecraftforge:forge:1.19.3-44.1.23'
 
     implementation fg.deobf("curse.maven:watermedia-869524:4568511")
-    implementation fg.deobf("curse.maven:jei-238222:4494410")
+    implementation fg.deobf("curse.maven:jei-238222:4455246")
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }

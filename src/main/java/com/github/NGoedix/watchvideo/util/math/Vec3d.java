@@ -1,10 +1,10 @@
 package com.github.NGoedix.watchvideo.util.math;
 
-import com.mojang.math.Vector3d;
-import com.mojang.math.Vector3f;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3d;
+import org.joml.Vector3f;
 
 public class Vec3d extends VecNd<Vec3d> {
     public double x;

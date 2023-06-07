@@ -10,7 +10,11 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -27,6 +31,8 @@ public class VideoPlayer
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
 
+    public static CreativeModeTab videoPlayerTab;
+    private static final ResourceLocation VIDEO_PLAYER_TAB_ID = new ResourceLocation(Reference.MOD_ID, "video_player_tab");
 
     public VideoPlayer()
     {
@@ -57,11 +63,15 @@ public class VideoPlayer
         BlockEntityRenderers.register(ModBlockEntities.TV_BLOCK_ENTITY.get(), TVBlockRenderer::new);
     }
 
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
     @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event)
-    {
-        // Do something when the server starts
-        LOGGER.info("HELLO from server starting");
+    private void onCreativeTabRegistration(CreativeModeTabEvent.Register event) {
+        LOGGER.info("Registering creative tab...");
+        videoPlayerTab = event.registerCreativeModeTab(VIDEO_PLAYER_TAB_ID, (icon) -> new ItemStack(ModBlocks.TV_BLOCK.get()));
+    }
+
+    @SubscribeEvent
+    private void addCreative(CreativeModeTabEvent.BuildContents event) {
+        LOGGER.info("Adding items to creative tab...");
+        event.accept(ModBlocks.TV_BLOCK);
     }
 }

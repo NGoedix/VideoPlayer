@@ -1,7 +1,8 @@
 package com.github.NGoedix.watchvideo.util.math;
 
-import com.mojang.math.Vector3d;
-import com.mojang.math.Vector3f;
+
+import org.joml.Vector3d;
+import org.joml.Vector3f;
 
 public class Vec3f extends VecNf<Vec3f> {
     public float x;

@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[41,)"
+loaderVersion="[44.1,)"
 license="GPLv3"
 [[mods]]
 modId="videoplayer"
