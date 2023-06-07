@@ -1,5 +1,6 @@
 package com.github.NGoedix.watchvideo.client.gui;
 
+import com.github.NGoedix.watchvideo.VideoPlayer;
 import com.github.NGoedix.watchvideo.util.cache.TextureCache;
 import com.github.NGoedix.watchvideo.util.displayers.IDisplay;
 import com.github.NGoedix.watchvideo.util.displayers.VideoDisplayer;
@@ -82,8 +83,13 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
                 ((VideoDisplayer) display).player.getRawPlayer().mediaPlayer().events().addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
                     @Override
                     public void finished(MediaPlayer mediaPlayer) {
-                        onClose();
+                        long time = mediaPlayer.status().time();
+                        if (time > 10) {
+                            VideoPlayer.LOGGER.warn("Video finished");
+                            onClose();
+                        }
                     }
+
                 });
             }
         }
