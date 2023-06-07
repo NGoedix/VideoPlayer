@@ -111,6 +111,12 @@ jar.finalizedBy('reobfJar')
 // However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
 // publish.dependsOn('reobfJar')
 
+mixin {
+    add sourceSets.main, 'videoplayer.mixin.refmap.json'
+
+    config 'videoplayer.mixin.json'
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
