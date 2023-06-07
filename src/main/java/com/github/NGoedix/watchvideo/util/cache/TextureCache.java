@@ -1,6 +1,6 @@
 package com.github.NGoedix.watchvideo.util.cache;
 
-import com.github.NGoedix.watchvideo.util.displayers.DisplayerApi;
+import com.github.NGoedix.watchvideo.util.displayers.IDisplay;
 import com.github.NGoedix.watchvideo.util.displayers.ImageDisplayer;
 import com.github.NGoedix.watchvideo.util.displayers.VideoDisplayer;
 import com.github.NGoedix.watchvideo.util.gif.GifDecoder;
@@ -40,12 +40,12 @@ public class TextureCache {
     }
 
 
-    
+
     public static void reloadAll() {
         for (var cache : cached.values())
             cache.reload();
     }
-    
+
     @SubscribeEvent
     public static void unload(LevelEvent.Unload event) {
         if (event.getLevel().isClientSide()) {
@@ -55,7 +55,7 @@ public class TextureCache {
             VideoDisplayer.unload();
         }
     }
-    
+
     public static TextureCache get(String url) {
         TextureCache cache = cached.get(url);
         if (cache != null) {
@@ -66,7 +66,7 @@ public class TextureCache {
         cached.put(url, cache);
         return cache;
     }
-    
+
     public final String url;
     private int[] textures;
     private int width;
@@ -74,22 +74,22 @@ public class TextureCache {
     private long[] delay;
     private long duration;
     private boolean isVideo;
-    
+
     private TextureSeeker seeker;
     private boolean ready = false;
     private String error;
-    
+
     private int usage = 0;
-    
+
     private GifDecoder decoder;
     private int remaining;
-    
+
     public TextureCache(String url) {
         this.url = url;
         use();
         trySeek();
     }
-    
+
     private void trySeek() {
         if (seeker != null)
             return;
@@ -98,7 +98,7 @@ public class TextureCache {
                 this.seeker = new TextureSeeker(this);
         }
     }
-    
+
     private int getTexture(int index) {
         if (textures[index] == -1 && decoder != null) {
             textures[index] = uploadFrame(decoder.getFrame(index), width, height);
@@ -108,7 +108,7 @@ public class TextureCache {
         }
         return textures[index];
     }
-    
+
     public int getTexture(long time) {
         if (textures == null)
             return -1;
@@ -122,22 +122,22 @@ public class TextureCache {
         }
         return last;
     }
-    
-    public DisplayerApi createDisplay(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop) {
+
+    public IDisplay createDisplay(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop) {
         return createDisplay(pos, url, volume, minDistance, maxDistance, loop, false);
     }
-    
-    public DisplayerApi createDisplay(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop, boolean noVideo) {
+
+    public IDisplay createDisplay(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop, boolean noVideo) {
         volume *= Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER);
         if (textures == null && !noVideo)
             return VideoDisplayer.createVideoDisplay(pos, url, volume, minDistance, maxDistance, loop);
         return new ImageDisplayer(this);
     }
-    
+
     public String getError() {
         return error;
     }
-    
+
     public void processVideo() {
         this.textures = null;
         this.error = null;
@@ -145,14 +145,14 @@ public class TextureCache {
         this.ready = true;
         this.seeker = null;
     }
-    
+
     public void processFailed(String error) {
         this.textures = null;
         this.error = error;
         this.ready = true;
         this.seeker = null;
     }
-    
+
     public void process(BufferedImage image) {
         width = image.getWidth();
         height = image.getHeight();
@@ -162,14 +162,14 @@ public class TextureCache {
         seeker = null;
         ready = true;
     }
-    
+
     public void process(GifDecoder decoder) {
         Dimension frameSize = decoder.getFrameSize();
         width = (int) frameSize.getWidth();
         height = (int) frameSize.getHeight();
         textures = new int[decoder.getFrameCount()];
         delay = new long[decoder.getFrameCount()];
-        
+
         this.decoder = decoder;
         this.remaining = decoder.getFrameCount();
         long time = 0;
@@ -182,65 +182,65 @@ public class TextureCache {
         seeker = null;
         ready = true;
     }
-    
+
     public boolean ready() {
         if (ready)
             return true;
         trySeek();
         return false;
     }
-    
+
     public boolean isVideo() {
         return isVideo;
     }
-    
+
     public void reload() {
         remove();
         error = null;
         trySeek();
     }
-    
+
     public void use() {
         usage++;
     }
-    
+
     public void unuse() {
         usage--;
     }
-    
+
     public boolean isUsed() {
         return usage > 0;
     }
-    
+
     public void remove() {
         ready = false;
         if (textures != null) for (int texture: textures) GlStateManager._deleteTexture(texture);
     }
-    
+
     public int getWidth() {
         return width;
     }
-    
+
     public int getHeight() {
         return height;
     }
-    
+
     public long[] getDelay() {
         return delay;
     }
-    
+
     public long getDuration() {
         return duration;
     }
-    
+
     public boolean isAnimated() {
         return textures.length > 1;
     }
-    
+
     public int getFrameCount() {
         return textures.length;
     }
-    
+
     private static int uploadFrame(BufferedImage image, int width, int height) {
         int[] pixels = new int[width * height];
         image.getRGB(0, 0, width, height, pixels, 0, width);
@@ -264,19 +264,19 @@ public class TextureCache {
             }
         }
         buffer.flip();
-        
+
         int textureID = GlStateManager._genTexture(); //Generate texture ID
         RenderSystem.bindTexture(textureID); //Bind texture ID
-        
+
         //Setup wrap mode
         RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
         RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
 
-        
+
         //Setup texture scaling filtering
         RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
         RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-        
+
         if (!hasAlpha) RenderSystem.pixelStore(GL11.GL_UNPACK_ALIGNMENT, 1);
 
 
@@ -284,10 +284,10 @@ public class TextureCache {
         GlStateManager._pixelStore(3314, 0);
         GlStateManager._pixelStore(3316, 0);
         GlStateManager._pixelStore(3315, 0);
-        
+
         //Send texel data to OpenGL
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, hasAlpha ? GL11.GL_RGBA8 : GL11.GL_RGB8, width, height, 0, hasAlpha ? GL11.GL_RGBA : GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, buffer);
-        
+
         //Return the texture ID so we can bind it later again
         return textureID;
     }

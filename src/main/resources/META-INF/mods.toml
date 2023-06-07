@@ -1,23 +1,18 @@
-modLoader="javafml" #mandatory
-loaderVersion="[41,)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
-license="All rights reserved"
-[[mods]] #mandatory
-modId="videoplayer" #mandatory
-version="1.0" #mandatory
+modLoader="javafml"
+loaderVersion="[41,)"
+license="GPLv3"
+[[mods]]
+modId="videoplayer"
+version="2.0"
 displayName="VideoPlayer"
 authors="Goedix"
 description='''
 This mod allows the playback of videos in the user interface (GUI), you can play videos for all connected users or for a specific user.
 '''
-[[dependencies.videoplayer]] #optional
-    modId="forge" #mandatory
-    mandatory=true #mandatory
-    versionRange="[41,)" #mandatory
-    ordering="NONE"
-    side="BOTH"
+credits="Thanks J-RAP for the help with the API"
 [[dependencies.videoplayer]]
-    modId="minecraft"
-    mandatory=true
-    versionRange="[1.19,1.20)"
-    ordering="NONE"
-    side="BOTH"
+modId="watermedia"
+mandatory=true
+versionRange="[0,)"
+ordering="AFTER"
+side="CLIENT"

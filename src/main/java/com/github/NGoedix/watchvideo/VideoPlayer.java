@@ -18,12 +18,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import nick1st.fancyvideo.api.DynamicResourceLocation;
-import nick1st.fancyvideo.api.eventbus.EventException;
-import nick1st.fancyvideo.api.eventbus.FancyVideoEvent;
-import nick1st.fancyvideo.api.eventbus.FancyVideoEventBus;
-import nick1st.fancyvideo.api.eventbus.event.PlayerRegistryEvent;
-import nick1st.fancyvideo.api.mediaPlayer.SimpleMediaPlayer;
 import org.slf4j.Logger;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -33,7 +27,6 @@ public class VideoPlayer
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    static DynamicResourceLocation resourceLocation;
 
     public VideoPlayer()
     {
@@ -41,12 +34,6 @@ public class VideoPlayer
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         MinecraftForge.EVENT_BUS.register(RegisterCommands.class);
-
-        try {
-            FancyVideoEventBus.getInstance().registerEvent(this);
-        } catch(EventException.EventRegistryException | EventException.UnauthorizedRegistryException e) {
-            LOGGER.warn("A fatal API error occurred!");
-        }
 
         // Register the commonSetup method for modloading
         ModBlocks.register(eventBus);
@@ -77,21 +64,4 @@ public class VideoPlayer
         // Do something when the server starts
         LOGGER.info("HELLO from server starting");
     }
-
-    @FancyVideoEvent
-    @SuppressWarnings("unused")
-    public void init(PlayerRegistryEvent.AddPlayerEvent event) {
-        resourceLocation = new DynamicResourceLocation(Reference.MOD_ID, "video");
-        event.handler().registerPlayerOnFreeResLoc(resourceLocation, SimpleMediaPlayer.class);
-        if (event.handler().getMediaPlayer(resourceLocation).providesAPI()) {
-            LOGGER.info("Correctly setup");
-        } else {
-            LOGGER.warn("Running in NO_LIBRARY_MODE");
-        }
-    }
-
-    public static DynamicResourceLocation getResourceLocation() {
-        return resourceLocation;
-    }
-
 }

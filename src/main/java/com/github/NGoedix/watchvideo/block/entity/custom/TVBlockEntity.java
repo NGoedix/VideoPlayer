@@ -1,13 +1,12 @@
 package com.github.NGoedix.watchvideo.block.entity.custom;
 
-import com.github.NGoedix.watchvideo.VideoPlayer;
 import com.github.NGoedix.watchvideo.block.custom.TVBlock;
 import com.github.NGoedix.watchvideo.block.entity.ModBlockEntities;
 import com.github.NGoedix.watchvideo.network.message.OpenVideoManagerScreen;
-import com.github.NGoedix.watchvideo.util.displayers.DisplayerApi;
 import com.github.NGoedix.watchvideo.network.PacketHandler;
 import com.github.NGoedix.watchvideo.network.message.FrameVideoMessage;
 import com.github.NGoedix.watchvideo.util.cache.TextureCache;
+import com.github.NGoedix.watchvideo.util.displayers.IDisplay;
 import com.github.NGoedix.watchvideo.util.math.AlignedBox;
 import com.github.NGoedix.watchvideo.util.math.Axis;
 import com.github.NGoedix.watchvideo.util.math.Facing;
@@ -19,14 +18,12 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -47,7 +44,7 @@ public class TVBlockEntity extends BlockEntity {
     private UUID playerUsing;
 
     @OnlyIn(Dist.CLIENT)
-    public DisplayerApi display;
+    public IDisplay display;
 
     @OnlyIn(Dist.CLIENT)
     public TextureCache cache;
@@ -79,7 +76,7 @@ public class TVBlockEntity extends BlockEntity {
         this.loop = loop;
     }
 
-    public DisplayerApi requestDisplay() {
+    public IDisplay requestDisplay() {
         String url = getUrl();
         if (cache == null || !cache.url.equals(url)) {
             cache = TextureCache.get(url);
@@ -147,7 +144,7 @@ public class TVBlockEntity extends BlockEntity {
     public static void tick(Level level, BlockPos pos, BlockState state, BlockEntity blockEntity) {
         if (blockEntity instanceof TVBlockEntity be) {
             if (level.isClientSide) {
-                DisplayerApi display = be.requestDisplay();
+                IDisplay display = be.requestDisplay();
                 if (display != null)
                     display.tick(be.url, be.volume, be.minDistance, be.maxDistance, be.playing, be.loop, be.tick);
             }

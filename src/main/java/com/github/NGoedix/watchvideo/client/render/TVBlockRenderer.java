@@ -1,8 +1,9 @@
 package com.github.NGoedix.watchvideo.client.render;
 
+import com.github.NGoedix.watchvideo.VideoPlayer;
 import com.github.NGoedix.watchvideo.block.custom.TVBlock;
 import com.github.NGoedix.watchvideo.block.entity.custom.TVBlockEntity;
-import com.github.NGoedix.watchvideo.util.displayers.DisplayerApi;
+import com.github.NGoedix.watchvideo.util.displayers.IDisplay;
 import com.github.NGoedix.watchvideo.util.math.AlignedBox;
 import com.github.NGoedix.watchvideo.util.math.BoxCorner;
 import com.github.NGoedix.watchvideo.util.math.BoxFace;
@@ -32,16 +33,6 @@ public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
         return frame.getSizeX() > 16 || frame.getSizeY() > 16;
     }
 
-//    @Override
-//    public boolean shouldRenderOffScreen(TVBlockEntity pBlockEntity) {
-//        return true;
-//    }
-
-//    @Override
-//    public int getViewDistance() {
-//        return 256;
-//    }
-
     @Override
     public boolean shouldRender(TVBlockEntity frame, Vec3 vec) {
         return Vec3.atCenterOf(frame.getBlockPos()).closerThan(vec, 128);
@@ -54,11 +45,10 @@ public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
             return;
         }
 
-        DisplayerApi display = frame.requestDisplay();
+        IDisplay display = frame.requestDisplay();
         if (display == null) return;
 
-        display.prepare(frame.getUrl(), frame.volume * Minecraft.getInstance().options
-                .getSoundSourceVolume(SoundSource.MASTER), frame.minDistance, frame.maxDistance, frame.isPlaying(), frame.loop, frame.getTick());
+        display.prepare(frame.getUrl(), frame.volume * Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER), frame.minDistance, frame.maxDistance, frame.isPlaying(), frame.loop, frame.getTick());
 
         RenderSystem.enableDepthTest();
         RenderSystem.enableBlend();
