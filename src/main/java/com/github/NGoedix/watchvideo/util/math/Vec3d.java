@@ -44,9 +44,6 @@ public class Vec3d extends VecNd<Vec3d> {
         return new Vec3(this.x, this.y, this.z);
     }
 
-    public BlockPos toBlockPos() {
-        return new BlockPos(this.x, this.y, this.z);
-    }
 
     public void set(Vec3d vec) {
         this.x = vec.x;

@@ -117,7 +117,7 @@ public class AlignedBox {
     }
 
     public BlockPos getOffset() {
-        return new BlockPos((double)this.minX, (double)this.minY, (double)this.minZ);
+        return new BlockPos((int) this.minX, (int) this.minY, (int) this.minZ);
     }
 
     public float get(Facing facing) {

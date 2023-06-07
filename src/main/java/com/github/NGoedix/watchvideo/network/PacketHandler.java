@@ -45,7 +45,7 @@ public class PacketHandler {
     }
 
     public static <MSG> void sendTo(MSG msg, Player player) {
-        INSTANCE.sendTo(msg, ((ServerPlayer)player).connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+        INSTANCE.sendTo(msg, ((ServerPlayer)player).connection.connection, NetworkDirection.PLAY_TO_CLIENT);
     }
 
     public static <MSG> void sendToClient(MSG message, Level level, BlockPos pos) {
