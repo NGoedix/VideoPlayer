@@ -8,7 +8,7 @@ buildscript {
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        classpath "org.spongepowered:mixingradle:0.7"
+        classpath "org.spongepowered:mixingradle:0.7-SNAPSHOT"
         classpath 'org.parchmentmc:librarian:1.+'
     }
 }
@@ -39,6 +39,7 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
 
             property 'forge.enabledGameTestNamespaces', 'watchvideomod'
+            arg '-mixin.config=videoplayer.mixin.json'
             mods {
                 watchvideomod {
                     source sourceSets.main
@@ -54,6 +55,7 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
 
             property 'forge.enabledGameTestNamespaces', 'watchvideomod'
+            arg '-mixin.config=videoplayer.mixin.json'
             mods {
                 watchvideomod {
                     source sourceSets.main
@@ -83,7 +85,9 @@ dependencies {
     implementation fg.deobf("curse.maven:watermedia-869524:4568511")
     implementation fg.deobf("curse.maven:jei-238222:4455246")
 
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    if (System.getProperty('idea.sync.active') != 'true') {
+        annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
+    }
 }
 
 // Example for how to get properties into the manifest for reading at runtime.
@@ -102,10 +106,7 @@ jar {
 }
 
 mixin {
-    // MixinGradle Settings
-    add sourceSets.main, 'videoplayer.mixins.refmap.json'
-
-    config 'videoplayer.mixins.json'
+    add sourceSets.main, 'videoplayer.refmap.json'
 }
 
 // Example configuration to allow publishing using the maven-publish plugin
