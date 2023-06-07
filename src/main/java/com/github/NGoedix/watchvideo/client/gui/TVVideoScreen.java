@@ -56,7 +56,6 @@ public class TVVideoScreen extends Screen {
         leftPos = (width - imageWidth) / 2;
         topPos = (height - imageHeight) / 2;
 
-        minecraft.keyboardHandler.setSendRepeatsToGui(true);
 
         addRenderableWidget(urlBox = new EditBox(font, leftPos + 10, topPos + 30, imageWidth - 26, 20, Component.literal("")));
         // Set the text to the url
@@ -64,26 +63,22 @@ public class TVVideoScreen extends Screen {
         urlBox.setValue(url == null ? "" : url);
 
         // Play button
-        Button playButton;
-        addRenderableWidget(playButton = new Button(leftPos + 10, topPos + 80, imageWidth - 24, 20, Component.translatable("gui.tv_video_screen.play"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("gui.tv_video_screen.play"), button -> {
             PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getBlockPos(), url, volume, true, true, true));
-        }));
+        }).bounds(leftPos + 10, topPos + 80, imageWidth - 24, 20).build());
 
         // Pause button
-        Button pauseButton;
-        addRenderableWidget(pauseButton = new Button(leftPos + 10, topPos + 105, imageWidth - 24, 20, Component.translatable("gui.tv_video_screen.pause"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("gui.tv_video_screen.pause"), button -> {
             PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getBlockPos(), url, volume, true, false, false));
-        }));
+        }).bounds(leftPos + 10, topPos + 105, imageWidth - 24, 20).build());
 
         // Stop button
-        Button stopButton;
-        addRenderableWidget(stopButton = new Button(leftPos + 10, topPos + 130, imageWidth - 24, 20, Component.translatable("gui.tv_video_screen.stop"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("gui.tv_video_screen.stop"), button -> {
             PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getBlockPos(), url, volume, true, false, true));
-        }));
+        }).bounds(leftPos + 10, topPos + 130, imageWidth - 24, 20).build());
 
         // Save button
-        Button saveButton;
-        addRenderableWidget(saveButton = new Button(leftPos + 10, topPos + 220, imageWidth - 24, 20, Component.translatable("gui.tv_video_screen.save"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("gui.tv_video_screen.save"), button -> {
             int tempVolume = volumeSlider.getValue();
             String tempUrl = urlBox.getValue();
 
@@ -95,7 +90,7 @@ public class TVVideoScreen extends Screen {
 
             changed = true;
             PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getBlockPos(), tempUrl, tempVolume, true, true, false));
-        }));
+        }).bounds(leftPos + 10, topPos + 220, imageWidth - 24, 20).build());
 
         // Volume slider
         addRenderableWidget(volumeSlider = new CustomSlider(leftPos + 10, topPos + 155, imageWidth - 24, 20, Component.translatable("gui.tv_video_screen.volume"), volume / 100f));
@@ -118,7 +113,6 @@ public class TVVideoScreen extends Screen {
     public void removed() {
         if (!changed)
             PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getBlockPos(), url, -1, true, true, false));
-        minecraft.keyboardHandler.setSendRepeatsToGui(false);
     }
 
     @Override

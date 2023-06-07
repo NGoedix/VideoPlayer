@@ -48,6 +48,8 @@ public class VideoPlayer
 
         eventBus.addListener(this::onCommonSetup);
         eventBus.addListener(this::onClientSetup);
+        eventBus.addListener(this::onCreativeTabRegistration);
+        eventBus.addListener(this::addCreative);
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
@@ -63,13 +65,11 @@ public class VideoPlayer
         BlockEntityRenderers.register(ModBlockEntities.TV_BLOCK_ENTITY.get(), TVBlockRenderer::new);
     }
 
-    @SubscribeEvent
     private void onCreativeTabRegistration(CreativeModeTabEvent.Register event) {
         LOGGER.info("Registering creative tab...");
         videoPlayerTab = event.registerCreativeModeTab(VIDEO_PLAYER_TAB_ID, (icon) -> new ItemStack(ModBlocks.TV_BLOCK.get()));
     }
 
-    @SubscribeEvent
     private void addCreative(CreativeModeTabEvent.BuildContents event) {
         LOGGER.info("Adding items to creative tab...");
         event.accept(ModBlocks.TV_BLOCK);
