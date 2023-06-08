@@ -1,6 +1,7 @@
 package com.github.NGoedix.videoplayer.block.entity.custom;
 
 import com.github.NGoedix.videoplayer.block.custom.TVBlock;
+import com.github.NGoedix.videoplayer.block.entity.ModBlockEntities;
 import com.github.NGoedix.videoplayer.network.PacketHandler;
 import com.github.NGoedix.videoplayer.util.cache.TextureCache;
 import com.github.NGoedix.videoplayer.util.displayers.IDisplay;

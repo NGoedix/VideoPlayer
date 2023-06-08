@@ -5,6 +5,7 @@ import com.github.NGoedix.videoplayer.util.math.AlignedBox;
 import com.github.NGoedix.videoplayer.util.math.Facing;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
@@ -35,7 +36,7 @@ public class TVBlock extends Block implements BlockEntityProvider {
     private static final VoxelShape SHAPE_NORTH_SOUTH = Block.createCuboidShape(-4, 0, 7, 20, 15, 8);
 
     public TVBlock(Settings p_49795_) {
-        super(p_49795_.nonOpaque());
+        super(p_49795_);
         this.setDefaultState(this.getStateManager().getDefaultState().with(FACING, Direction.NORTH));
     }
 
