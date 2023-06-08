@@ -28,7 +28,7 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	modImplementation "curse.maven:fancyvideo-api-591686:3865529"
+	modImplementation "curse.maven:watermedia-869524:4568511"
 }
 
 processResources {
