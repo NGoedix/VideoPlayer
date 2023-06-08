@@ -10,6 +10,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.ClientConnection;
 import net.minecraft.network.Packet;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
@@ -112,18 +113,13 @@ public class TVBlockEntity extends BlockEntity {
         markDirty();
     }
 
-    @Nullable
     @Override
-    public Packet<ClientPlayPacketListener> toUpdatePacket() {
+    public BlockEntityUpdateS2CPacket toUpdatePacket() {
         return BlockEntityUpdateS2CPacket.create(this);
     }
 
-    @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
-        this.handleUpdateTag(pkt.getTag());
-    }
 
-    @Override
+
     public void handleUpdateTag(NbtCompound nbt) {
         loadFromNBT(nbt);
         this.world.markDirty(this.getPos());
@@ -151,14 +147,6 @@ public class TVBlockEntity extends BlockEntity {
         if (isClient() && display != null)
             display.release();
     }
-
-    @Override
-    public void onChunkUnloaded() {
-        if (isClient() && display != null)
-            display.release();
-    }
-
-
 
     public boolean isClient() {
         return this.world != null && this.world.isClient;
