@@ -1,189 +1,133 @@
 package com.github.NGoedix.videoplayer.client.render;
 
-import com.github.NGoedix.videoplayer.util.FancyEvents;
 import com.github.NGoedix.videoplayer.Constants;
+import com.github.NGoedix.videoplayer.util.cache.TextureCache;
+import com.github.NGoedix.videoplayer.util.displayers.IDisplay;
+import com.github.NGoedix.videoplayer.util.displayers.VideoDisplayer;
 import com.mojang.blaze3d.systems.RenderSystem;
+import me.lib720.caprica.vlcj.player.base.MediaPlayer;
+import me.lib720.caprica.vlcj.player.base.MediaPlayerEventAdapter;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
-import nick1st.fancyvideo.api.DynamicResourceLocation;
-import nick1st.fancyvideo.api.MediaPlayerHandler;
-import nick1st.fancyvideo.api.mediaPlayer.MediaPlayerBase;
-import uk.co.caprica.vlcj.media.Media;
-import uk.co.caprica.vlcj.media.MediaEventAdapter;
-import uk.co.caprica.vlcj.media.MediaRef;
-import uk.co.caprica.vlcj.media.TrackType;
-import uk.co.caprica.vlcj.medialist.MediaList;
-import uk.co.caprica.vlcj.player.base.MediaPlayer;
-import uk.co.caprica.vlcj.player.base.MediaPlayerEventListener;
-import uk.co.caprica.vlcj.player.base.TitleDescription;
+import org.lwjgl.opengl.GL11;
+
+import java.nio.IntBuffer;
 
 public class VideoScreen extends Screen {
 
     private final String url;
+    private final int volume;
+    private int tick;
 
-    private MediaPlayerBase mediaPlayer;
+    private boolean firstIteration;
 
-    private boolean init = false;
-    private boolean stopped = true;
 
-    public VideoScreen(String url) {
-        super(Text.of(""));
-        this.url = url;
-    }
+    @Environment(EnvType.CLIENT)
+    public IDisplay display;
+
+    @Environment(EnvType.CLIENT)
+    public TextureCache cache;
 
     @Override
     protected void init() {
+        this.width = MinecraftClient.getInstance().currentScreen.width;
+        this.height = MinecraftClient.getInstance().currentScreen.height;
         super.init();
-        Constants.LOGGER.info("initiating video screen");
-        if (MediaPlayerHandler.getInstance().getMediaPlayer(FancyEvents.getResourceLocation()).providesAPI()) {
-            MinecraftClient.getInstance().getSoundManager().pauseAll();
-            MediaPlayerHandler.getInstance().getMediaPlayer(FancyEvents.
-                    getResourceLocation()).api().media().prepare(url);
-            MediaPlayerHandler.getInstance().getMediaPlayer(FancyEvents.getResourceLocation()).api()
-                    .events().addMediaEventListener(new MediaEventAdapter() {
-                        @Override
-                        public void mediaSubItemAdded(Media media, MediaRef newChild) {
-                            MediaList mediaList = MediaPlayerHandler.getInstance().
-                                    getMediaPlayer(FancyEvents.getResourceLocation()).api().media().subitems().newMediaList();
-                            mediaList.release();
-                        }
-
-                        @Override
-                        public void mediaSubItemTreeAdded(Media media, MediaRef item) {
-                            MediaList mediaList = MediaPlayerHandler.getInstance()
-                                    .getMediaPlayer(FancyEvents.getResourceLocation()).api().media().subitems().newMediaList();
-
-                            mediaList.release();
-                        }
-                    });
-            MediaPlayerHandler.getInstance().getMediaPlayer(FancyEvents.getResourceLocation())
-                    .api().events().addMediaPlayerEventListener(new MediaPlayerEventListener() {
-                        @Override
-                        public void mediaChanged(MediaPlayer mediaPlayer, MediaRef mediaRef) {}
-                        @Override
-                        public void opening(MediaPlayer mediaPlayer) {}
-                        @Override
-                        public void buffering(MediaPlayer mediaPlayer, float v) {}
-                        @Override
-                        public void playing(MediaPlayer mediaPlayer) {}
-                        @Override
-                        public void paused(MediaPlayer mediaPlayer) {}
-                        @Override
-                        public void stopped(MediaPlayer mediaPlayer) {
-                            MinecraftClient.getInstance().execute(()->{
-                                if (!stopped){
-                                    close();
-                                }
-                            });
-                        }
-                        @Override
-                        public void forward(MediaPlayer mediaPlayer) {}
-                        @Override
-                        public void backward(MediaPlayer mediaPlayer) {}
-                        @Override
-                        public void stopping(MediaPlayer mediaPlayer) {}
-                        @Override
-                        public void finished(MediaPlayer mediaPlayer) {}
-                        @Override
-                        public void timeChanged(MediaPlayer mediaPlayer, long l) {}
-                        @Override
-                        public void positionChanged(MediaPlayer mediaPlayer, float v) {}
-                        @Override
-                        public void seekableChanged(MediaPlayer mediaPlayer, int i) {}
-                        @Override
-                        public void pausableChanged(MediaPlayer mediaPlayer, int i) {}
-                        @Override
-                        public void titleListChanged(MediaPlayer mediaPlayer) {}
-                        @Override
-                        public void titleSelectionChanged(MediaPlayer mediaPlayer, TitleDescription titleDescription, int i) {}
-                        @Override
-                        public void snapshotTaken(MediaPlayer mediaPlayer, String s) {}
-                        @Override
-                        public void lengthChanged(MediaPlayer mediaPlayer, long l) {}
-                        @Override
-                        public void videoOutput(MediaPlayer mediaPlayer, int i) {}
-                        @Override
-                        public void elementaryStreamAdded(MediaPlayer mediaPlayer, TrackType trackType, int i, String s) {}
-                        @Override
-                        public void elementaryStreamDeleted(MediaPlayer mediaPlayer, TrackType trackType, int i, String s) {}
-                        @Override
-                        public void elementaryStreamUpdated(MediaPlayer mediaPlayer, TrackType trackType, int i, String s) {}
-                        @Override
-                        public void elementaryStreamSelected(MediaPlayer mediaPlayer, TrackType trackType, String s, String s1) {}
-                        @Override
-                        public void corked(MediaPlayer mediaPlayer, boolean b) {}
-                        @Override
-                        public void muted(MediaPlayer mediaPlayer, boolean b) {}
-                        @Override
-                        public void volumeChanged(MediaPlayer mediaPlayer, float v) {}
-                        @Override
-                        public void audioDeviceChanged(MediaPlayer mediaPlayer, String s) {}
-                        @Override
-                        public void chapterChanged(MediaPlayer mediaPlayer, int i) {}
-                        @Override
-                        public void programAdded(MediaPlayer mediaPlayer, int i) {}
-                        @Override
-                        public void programDeleted(MediaPlayer mediaPlayer, int i) {}
-                        @Override
-                        public void programUpdated(MediaPlayer mediaPlayer, int i) {}
-                        @Override
-                        public void programSelected(MediaPlayer mediaPlayer, int i, int i1) {}
-                        @Override
-                        public void error(MediaPlayer mediaPlayer) {}
-                        @Override
-                        public void mediaPlayerReady(MediaPlayer mediaPlayer) {}
-                    });
-            MediaPlayerHandler.getInstance().getMediaPlayer(FancyEvents.getResourceLocation()).api().audio().setVolume(200);
-
-        }
     }
 
+    public IDisplay requestDisplay() {
+        if (cache == null || !cache.url.equals(url)) {
+            cache = TextureCache.get(url);
+            if (display != null)
+                display.release();
+            display = null;
+        }
+        if (!cache.isVideo() && (!cache.ready() || cache.getError() != null))
+            return null;
+        if (display != null)
+            return display;
+        return display = cache.createDisplay(null, url, volume, 0, 0, false);
+    }
+
+    public VideoScreen(String url, int volume) {
+        super(Text.of(""));
+        this.url = url;
+        this.volume = volume;
+
+        display = requestDisplay();
+    }
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta){
-        mediaPlayer = (MediaPlayerBase) MediaPlayerHandler.getInstance().getMediaPlayer(FancyEvents.getResourceLocation());
-        if (MediaPlayerHandler.getInstance().getMediaPlayer(FancyEvents.getResourceLocation()).providesAPI()) {
-            if (!init) {
-                mediaPlayer.api().controls().play();
-                init = true;
-                stopped = false;
-            }
 
-            int width = this.width;
-            int height = this.height;
-
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
-            RenderSystem.setShaderTexture(0, mediaPlayer.renderToResourceLocation());
-
-            RenderSystem.enableBlend();
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            DrawableHelper.drawTexture(matrices, 0, 0, 0.0F, 0.0F, width, height, width, height);
-        } else {
-
-            int width = this.width;
-            int height = this.height;
-
-            int width2;
-
-            if (width <= height) {
-                width2 = width / 3;
-            } else {
-                width2 = height / 2;
-            }
-
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
-            DynamicResourceLocation dr = new DynamicResourceLocation(Constants.MOD_ID, "fallback");
-            RenderSystem.setShaderTexture(0, dr);
-
-            RenderSystem.enableBlend();
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            DrawableHelper.drawTexture(matrices, 0, 0, 0.0F, 0.0F, width, height, width2, width2);
+        if (url.isBlank()) {
+            if (display != null) display.release();
+            return;
         }
+
+        IDisplay display = requestDisplay();
+        if (display == null) return;
+
+        if (!firstIteration) {
+            firstIteration = true;
+            if (display instanceof VideoDisplayer) {
+                ((VideoDisplayer) display).player.getRawPlayer().mediaPlayer().events().addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
+                    @Override
+                    public void finished(MediaPlayer mediaPlayer) {
+                        long time = mediaPlayer.status().time();
+                        if (time > 10) {
+                            Constants.LOGGER.warn("Video finished");
+                            close();
+                        }
+                    }
+                });
+            }
+        }
+
+        int texture;
+        if (display instanceof VideoDisplayer) {
+            texture = createTexture(display.getWidth(), display.getHeight(), ((VideoDisplayer) display).buffer);
+        } else {
+            display.prepare(url, 200, 1, 1, true, false, tick);
+
+            texture = display.texture();
+        }
+
+        if (texture == -1) return;
+
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, texture);
+
+        RenderSystem.enableBlend();
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        DrawableHelper.drawTexture(matrices, 0, 0, 0.0F, 0.0F, width, height, width, height);
         RenderSystem.disableBlend();
+    }
+
+    private int createTexture(int width, int height, IntBuffer buffer) {
+        // Generate a new texture object in memory and bind it
+        int textureId = GL11.glGenTextures();
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
+
+        // Set texture parameters
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+
+        // Upload the texture data
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+
+        // Unbind the texture
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+
+        return textureId;
     }
 
 
@@ -202,11 +146,9 @@ public class VideoScreen extends Screen {
 
     @Override
     public void close() {
-        if (!stopped) {
-            stopped = true;
-            MinecraftClient.getInstance().getSoundManager().resumeAll();
-            mediaPlayer.api().controls().stop();
-        }
+        MinecraftClient.getInstance().getSoundManager().resumeAll();
+        if (display != null)
+            display.release();
         super.close();
     }
 }

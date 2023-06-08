@@ -1,6 +1,5 @@
 package com.github.NGoedix.videoplayer.network;
 
-import com.github.NGoedix.videoplayer.network.messages.SendVideoPlayer;
 import com.github.NGoedix.videoplayer.Constants;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -22,9 +21,10 @@ public class PacketHandler {
         ClientPlayNetworking.registerGlobalReceiver(NET_ID, PacketManager::receiveFrameVideo);
     }
 
-    public static void sendMsgSendVideo(ServerPlayerEntity player, String url){
+    public static void sendMsgSendVideo(ServerPlayerEntity player, String url, int volume){
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeString(url);
+        buf.writeInt(volume);
         ServerPlayNetworking.send(player, NET_ID, buf);
     }
 

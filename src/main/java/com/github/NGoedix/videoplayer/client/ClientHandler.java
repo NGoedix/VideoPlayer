@@ -2,7 +2,6 @@ package com.github.NGoedix.videoplayer.client;
 
 import com.github.NGoedix.videoplayer.client.render.VideoScreen;
 import com.github.NGoedix.videoplayer.network.PacketHandler;
-import com.github.NGoedix.videoplayer.util.FancyEvents;
 import com.github.NGoedix.videoplayer.Constants;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -16,13 +15,10 @@ public class ClientHandler implements ClientModInitializer {
     public void onInitializeClient() {
         Constants.LOGGER.info("Initializing Client");
 
-        FancyEvents fancyEvents = new FancyEvents();
-        fancyEvents.register();
-
         PacketHandler.registerClient();
     }
 
-    public static void openVideo(MinecraftClient client, String url){
-        client.execute(() -> client.setScreen(new VideoScreen(url)));
+    public static void openVideo(MinecraftClient client, String url, int volume){
+        client.execute(() -> client.setScreen(new VideoScreen(url, volume)));
     }
 }

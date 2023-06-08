@@ -12,14 +12,16 @@ public class PacketManager {
     public static void receiveSendVideo(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender sender) {
         Constants.LOGGER.info("Received video player message");
         String url = buf.readString();
+        int volume = buf.readInt();
 
-        ClientHandler.openVideo(client, url);
+        ClientHandler.openVideo(client, url, volume);
     }
 
+    // TODO
     public static void receiveFrameVideo(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender sender) {
         Constants.LOGGER.info("Received frame message");
         String url = buf.readString();
 
-        ClientHandler.openVideo(client, url);
+//        ClientHandler.openVideo(client, url);
     }
 }

@@ -10,6 +10,7 @@ import me.srrapero720.watermedia.api.media.players.WaterVLCPlayer;
 import me.srrapero720.watermedia.internal.util.ThreadUtil;
 import net.minecraft.client.MinecraftClient;
 import org.lwjgl.opengl.GL11;
+import net.minecraft.client.util.GlAllocationUtils;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -96,7 +97,7 @@ public class VideoDisplayer implements IDisplay {
                     VideoDisplayer.this.width = sourceWidth;
                     VideoDisplayer.this.height = sourceHeight;
                     VideoDisplayer.this.first = true;
-                    buffer = GlAllocationUtils.create(sourceWidth * sourceHeight * 4).asIntBuffer();
+                    buffer = GlAllocationUtils.allocateByteBuffer(sourceWidth * sourceHeight * 4).asIntBuffer();
                     needsUpdate = true;
                 } finally {
                     lock.unlock();

@@ -4,6 +4,7 @@ import com.github.NGoedix.videoplayer.Constants;
 import com.github.NGoedix.videoplayer.network.PacketHandler;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -21,8 +22,9 @@ public class PlayVideoCommand {
         dispatcher.register(CommandManager.literal("playvideo")
                 .requires((command)-> command.hasPermissionLevel(2))
                 .then(CommandManager.argument("target", EntityArgumentType.players())
+                .then(CommandManager.argument("volume", IntegerArgumentType.integer(0, 100))
                 .then(CommandManager.argument("video", StringArgumentType.greedyString())
-                    .executes(PlayVideoCommand::execute))));
+                    .executes(PlayVideoCommand::execute)))));
     }
 
 
@@ -42,9 +44,11 @@ public class PlayVideoCommand {
             return Command.SINGLE_SUCCESS;
         }
 
+        int volume = IntegerArgumentType.getInteger(command, "volume");
+
         for (ServerPlayerEntity player : players) {
             Constants.LOGGER.info("Sending video to player: " + player.getName().asString());
-            PacketHandler.sendMsgSendVideo(player, video);
+            PacketHandler.sendMsgSendVideo(player, video, volume);
         }
 
         return Command.SINGLE_SUCCESS;

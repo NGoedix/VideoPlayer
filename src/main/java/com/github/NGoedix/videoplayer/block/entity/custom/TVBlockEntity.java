@@ -2,9 +2,12 @@ package com.github.NGoedix.videoplayer.block.entity.custom;
 
 import com.github.NGoedix.videoplayer.block.custom.TVBlock;
 import com.github.NGoedix.videoplayer.network.PacketHandler;
+import com.github.NGoedix.videoplayer.util.cache.TextureCache;
+import com.github.NGoedix.videoplayer.util.displayers.IDisplay;
 import com.github.NGoedix.videoplayer.util.math.AlignedBox;
 import com.github.NGoedix.videoplayer.util.math.Axis;
 import com.github.NGoedix.videoplayer.util.math.Facing;
+import com.github.NGoedix.videoplayer.util.math.Vec3d;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -83,7 +86,7 @@ public class TVBlockEntity extends BlockEntity {
             return null;
         if (display != null)
             return display;
-        return display = cache.createDisplay(new Vec3d(worldPosition), url, volume / 100f, minDistance, maxDistance, loop);
+        return display = cache.createDisplay(new Vec3d(getPos()), url, volume / 100f, minDistance, maxDistance, loop);
     }
 
     public void tryOpen(World level, BlockPos blockPos, PlayerEntity player) {
