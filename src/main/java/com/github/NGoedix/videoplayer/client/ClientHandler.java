@@ -1,8 +1,8 @@
 package com.github.NGoedix.videoplayer.client;
 
 import com.github.NGoedix.videoplayer.block.entity.custom.TVBlockEntity;
-import com.github.NGoedix.videoplayer.client.render.TVVideoScreen;
-import com.github.NGoedix.videoplayer.client.render.VideoScreen;
+import com.github.NGoedix.videoplayer.client.gui.TVVideoScreen;
+import com.github.NGoedix.videoplayer.client.gui.VideoScreen;
 import com.github.NGoedix.videoplayer.network.PacketHandler;
 import com.github.NGoedix.videoplayer.Constants;
 import net.fabricmc.api.ClientModInitializer;

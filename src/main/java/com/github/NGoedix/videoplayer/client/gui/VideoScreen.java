@@ -1,4 +1,4 @@
-package com.github.NGoedix.videoplayer.client.render;
+package com.github.NGoedix.videoplayer.client.gui;
 
 import com.github.NGoedix.videoplayer.Constants;
 import com.github.NGoedix.videoplayer.util.cache.TextureCache;

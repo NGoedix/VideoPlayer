@@ -1,4 +1,4 @@
-package com.github.NGoedix.videoplayer.client.render.components;
+package com.github.NGoedix.videoplayer.client.gui.components;
 
 
 import net.minecraft.client.gui.widget.SliderWidget;

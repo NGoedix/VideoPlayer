@@ -1,8 +1,8 @@
-package com.github.NGoedix.videoplayer.client.render;
+package com.github.NGoedix.videoplayer.client.gui;
 
 import com.github.NGoedix.videoplayer.Constants;
 import com.github.NGoedix.videoplayer.block.entity.custom.TVBlockEntity;
-import com.github.NGoedix.videoplayer.client.render.components.CustomSlider;
+import com.github.NGoedix.videoplayer.client.gui.components.CustomSlider;
 import com.github.NGoedix.videoplayer.network.PacketHandler;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.block.entity.BlockEntity;
