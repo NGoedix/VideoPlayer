@@ -1,6 +1,8 @@
 package com.github.NGoedix.videoplayer.network;
 
 import com.github.NGoedix.videoplayer.Constants;
+import com.github.NGoedix.videoplayer.network.packets.OpenFrameVideoMessage;
+import com.github.NGoedix.videoplayer.network.packets.SendVideoMessage;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
@@ -16,9 +18,14 @@ public class PacketHandler {
 
     public static final Identifier NET_ID = new Identifier(Constants.MOD_ID, "networking");
 
-    public static void registerClient(){
-        ClientPlayNetworking.registerGlobalReceiver(NET_ID, PacketManager::receiveSendVideo);
-        ClientPlayNetworking.registerGlobalReceiver(NET_ID, PacketManager::receiveFrameVideo);
+    public static void registerC2SPackets(){
+        ServerPlayNetworking.registerGlobalReceiver(NET_ID, PacketManager::receiveOpenVideoManager);
+        ServerPlayNetworking.registerGlobalReceiver(NET_ID, PacketManager::receive);
+    }
+
+    public static void registerS2CPackets() {
+        ClientPlayNetworking.registerGlobalReceiver(NET_ID, SendVideoMessage::receive);
+        ClientPlayNetworking.registerGlobalReceiver(NET_ID, OpenFrameVideoMessage::receive);
     }
 
     public static void sendMsgSendVideo(ServerPlayerEntity player, String url, int volume){
@@ -38,5 +45,27 @@ public class PacketHandler {
 
         for (ServerPlayerEntity player : PlayerLookup.tracking(world, chunk.getPos()))
             ServerPlayNetworking.send(player, NET_ID, packet);
+    }
+
+    public static void sendMsgOpenVideoManager(ServerPlayerEntity player, BlockPos blockPos, String url, int tick, int volume, boolean loop) {
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeBlockPos(blockPos);
+        buf.writeString(url);
+        buf.writeInt(tick);
+        buf.writeInt(volume);
+        buf.writeBoolean(loop);
+        ServerPlayNetworking.send(player, NET_ID, buf);
+    }
+
+    public static void sendMsgUpdateVideo(ServerPlayerEntity player, BlockPos blockPos, String url, int volume, boolean loop, boolean isPlaying, boolean reset) {
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeBlockPos(blockPos);
+        buf.writeString(url);
+        buf.writeInt(volume);
+        buf.writeBoolean(loop);
+        buf.writeBoolean(isPlaying);
+        buf.writeBoolean(reset);
+
+        ServerPlayNetworking.send(player, NET_ID, buf);
     }
 }

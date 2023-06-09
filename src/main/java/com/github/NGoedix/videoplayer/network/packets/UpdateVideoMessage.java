@@ -1,11 +1,8 @@
-package com.github.NGoedix.videoplayer.network;
+package com.github.NGoedix.videoplayer.network.packets;
 
 import com.github.NGoedix.videoplayer.Constants;
 import com.github.NGoedix.videoplayer.block.entity.custom.TVBlockEntity;
-import com.github.NGoedix.videoplayer.client.ClientHandler;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -14,21 +11,9 @@ import net.minecraft.util.math.BlockPos;
 
 import java.util.UUID;
 
-public class PacketManager {
+public class UpdateVideoMessage {
 
-    public static void receiveOpenVideoManager(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender sender) {
-        Constants.LOGGER.info("Received open video message");
-
-        BlockPos pos = buf.readBlockPos();
-        String url = buf.readString();
-        int tick = buf.readInt();
-        int volume = buf.readInt();
-        boolean loop = buf.readBoolean();
-
-        ClientHandler.openVideoGUI(client, pos, url, tick, volume, loop);
-    }
-
-    public static void receive(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+    public static void receiveUpdateVideo(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
         Constants.LOGGER.info("Received update video message");
 
         server.execute(() -> {

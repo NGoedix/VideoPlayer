@@ -18,6 +18,7 @@ import net.minecraft.network.ClientConnection;
 import net.minecraft.network.Packet;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -50,7 +51,7 @@ public class TVBlockEntity extends BlockEntity {
 
 
     public TVBlockEntity(BlockPos pWorldPosition, BlockState pBlockState) {
-        super(ModBlockEntities.TV_BLOCK_ENTITY.get(), pWorldPosition, pBlockState);
+        super(ModBlockEntities.TV_BLOCK_ENTITY, pWorldPosition, pBlockState);
     }
 
     @Environment(CLIENT)
@@ -109,7 +110,7 @@ public class TVBlockEntity extends BlockEntity {
 
     public void openVideoManagerGUI(BlockPos blockPos, PlayerEntity player) {
         setBeingUsed(player.getUuid());
-        PacketHandler.sendTo(new OpenVideoManagerScreen(blockPos, url, tick, volume, loop), player);
+        PacketHandler.sendMsgOpenVideoManager((ServerPlayerEntity) player, blockPos, url, tick, volume, loop);
     }
 
     public void setBeingUsed(UUID player) {

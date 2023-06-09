@@ -3,6 +3,7 @@ package com.github.NGoedix.videoplayer;
 import com.github.NGoedix.videoplayer.block.ModBlocks;
 import com.github.NGoedix.videoplayer.block.entity.ModBlockEntities;
 import com.github.NGoedix.videoplayer.commands.PlayVideoCommand;
+import com.github.NGoedix.videoplayer.network.PacketHandler;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
@@ -22,6 +23,7 @@ public class VideoPlayer implements ModInitializer {
         ModBlocks.registerModBlocks();
         ModBlockEntities.registerAllBlockEntities();
 
+        PacketHandler.registerC2SPackets();
         CommandRegistrationCallback.EVENT.register(PlayVideoCommand::register);
     }
 }

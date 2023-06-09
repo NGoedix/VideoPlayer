@@ -65,7 +65,6 @@ public class VideoScreen extends Screen {
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta){
-
         if (url.isBlank()) {
             if (display != null) display.release();
             return;
