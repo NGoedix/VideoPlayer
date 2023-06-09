@@ -30,16 +30,15 @@ public class PacketHandler {
         ClientPlayNetworking.registerGlobalReceiver(NET_ID, OpenVideoManagerMessage::receive);
     }
 
-    // SEND MESSAGES
-
-    public static void sendMsgSendVideo(ServerPlayerEntity player, String url, int volume){
+    // SEND MESSAGES S2C
+    public static void sendS2CSendVideo(ServerPlayerEntity player, String url, int volume){
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeString(url);
         buf.writeInt(volume);
         ServerPlayNetworking.send(player, NET_ID, buf);
     }
 
-    public static void sendMsgFrameVideo(WorldChunk chunk, BlockPos pos, boolean playing, int tick) {
+    public static void sendS2CFrameVideo(WorldChunk chunk, BlockPos pos, boolean playing, int tick) {
         ServerWorld world = (ServerWorld) chunk.getWorld();
         PacketByteBuf packet = PacketByteBufs.create();
 
@@ -51,7 +50,7 @@ public class PacketHandler {
             ServerPlayNetworking.send(player, NET_ID, packet);
     }
 
-    public static void sendMsgOpenVideoManager(ServerPlayerEntity player, BlockPos blockPos, String url, int tick, int volume, boolean loop) {
+    public static void sendS2COpenVideoManager(ServerPlayerEntity player, BlockPos blockPos, String url, int tick, int volume, boolean loop) {
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeBlockPos(blockPos);
         buf.writeString(url);
@@ -61,7 +60,8 @@ public class PacketHandler {
         ServerPlayNetworking.send(player, NET_ID, buf);
     }
 
-    public static void sendMsgUpdateVideo(ServerPlayerEntity player, BlockPos blockPos, String url, int volume, boolean loop, boolean isPlaying, boolean reset) {
+    // SEND MESSAGES C2S
+    public static void sendC2SUpdateVideo(ServerPlayerEntity player, BlockPos blockPos, String url, int volume, boolean loop, boolean isPlaying, boolean reset) {
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeBlockPos(blockPos);
         buf.writeString(url);
@@ -70,6 +70,6 @@ public class PacketHandler {
         buf.writeBoolean(isPlaying);
         buf.writeBoolean(reset);
 
-        ServerPlayNetworking.send(player, NET_ID, buf);
+        ClientPlayNetworking.send(NET_ID, buf);
     }
 }

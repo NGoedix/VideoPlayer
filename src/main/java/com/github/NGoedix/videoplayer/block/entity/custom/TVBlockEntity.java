@@ -14,15 +14,11 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.ClientConnection;
-import net.minecraft.network.Packet;
-import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -110,7 +106,7 @@ public class TVBlockEntity extends BlockEntity {
 
     public void openVideoManagerGUI(BlockPos blockPos, PlayerEntity player) {
         setBeingUsed(player.getUuid());
-        PacketHandler.sendMsgOpenVideoManager((ServerPlayerEntity) player, blockPos, url, tick, volume, loop);
+        PacketHandler.sendS2COpenVideoManager((ServerPlayerEntity) player, blockPos, url, tick, volume, loop);
     }
 
     public void setBeingUsed(UUID player) {
@@ -184,7 +180,7 @@ public class TVBlockEntity extends BlockEntity {
     }
 
     public void notifyPlayer() {
-        PacketHandler.sendMsgFrameVideo(getWorld().getWorldChunk(getPos()), getPos(), playing, tick);
+        PacketHandler.sendS2CFrameVideo(getWorld().getWorldChunk(getPos()), getPos(), playing, tick);
     }
 
     public float getSizeX() {

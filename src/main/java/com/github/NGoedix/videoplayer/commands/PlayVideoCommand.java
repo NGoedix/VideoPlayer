@@ -48,7 +48,7 @@ public class PlayVideoCommand {
 
         for (ServerPlayerEntity player : players) {
             Constants.LOGGER.info("Sending video to player: " + player.getName().asString());
-            PacketHandler.sendMsgSendVideo(player, video, volume);
+            PacketHandler.sendS2CSendVideo(player, video, volume);
         }
 
         return Command.SINGLE_SUCCESS;

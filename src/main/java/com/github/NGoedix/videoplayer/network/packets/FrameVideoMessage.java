@@ -2,7 +2,9 @@ package com.github.NGoedix.videoplayer.network.packets;
 
 import com.github.NGoedix.videoplayer.Constants;
 import com.github.NGoedix.videoplayer.client.ClientHandler;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
