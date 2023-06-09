@@ -61,7 +61,7 @@ public class PacketHandler {
     }
 
     // SEND MESSAGES C2S
-    public static void sendC2SUpdateVideo(ServerPlayerEntity player, BlockPos blockPos, String url, int volume, boolean loop, boolean isPlaying, boolean reset) {
+    public static void sendC2SUpdateVideo(BlockPos blockPos, String url, int volume, boolean loop, boolean isPlaying, boolean reset) {
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeBlockPos(blockPos);
         buf.writeString(url);

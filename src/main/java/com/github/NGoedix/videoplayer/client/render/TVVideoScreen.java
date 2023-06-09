@@ -14,6 +14,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 
 public class TVVideoScreen extends Screen {
 
@@ -66,22 +67,21 @@ public class TVVideoScreen extends Screen {
 
         // Play button
         addDrawableChild(new ButtonWidget(leftPos + 10, topPos + 80, imageWidth - 24, 20, new TranslatableText("gui.tv_video_screen.play"), button -> {
-            PacketHandler.(new UploadVideoUpdateMessage(be.getPos(), url, volume, true, true, true));
+            sendUpdate(be.getPos(), url, volume, true, true, true);
         }));
 
         // Pause button
         addDrawableChild(new ButtonWidget(leftPos + 10, topPos + 105, imageWidth - 24, 20, new TranslatableText("gui.tv_video_screen.pause"), button -> {
-            PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getPos(), url, volume, true, false, false));
+            sendUpdate(be.getPos(), url, volume, true, false, false);
         }));
 
         // Stop button
         addDrawableChild(new ButtonWidget(leftPos + 10, topPos + 130, imageWidth - 24, 20, new TranslatableText("gui.tv_video_screen.stop"), button -> {
-            PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getPos(), url, volume, true, false, true));
+            sendUpdate(be.getPos(), url, volume, true, false, true);
         }));
 
         // Save button
-        ButtonWidget saveButton;
-        addDrawableChild(saveButton = new ButtonWidget(leftPos + 10, topPos + 220, imageWidth - 24, 20, new TranslatableText("gui.tv_video_screen.save"), button -> {
+        addDrawableChild(new ButtonWidget(leftPos + 10, topPos + 220, imageWidth - 24, 20, new TranslatableText("gui.tv_video_screen.save"), button -> {
             int tempVolume = volumeSlider.getValue();
             String tempUrl = urlBox.getText();
 
@@ -92,11 +92,15 @@ public class TVVideoScreen extends Screen {
             ((TVBlockEntity) be).setVolume(tempVolume);
 
             changed = true;
-            PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getPos(), tempUrl, tempVolume, true, true, false));
+            sendUpdate(be.getPos(), tempUrl, tempVolume, true, true, false);
         }));
 
         // Volume slider
         addDrawableChild(volumeSlider = new CustomSlider(leftPos + 10, topPos + 155, imageWidth - 24, 20, new TranslatableText("gui.tv_video_screen.volume"), volume / 100f));
+    }
+
+    public void sendUpdate(BlockPos pos, String url, int volume, boolean loop, boolean isPlaying, boolean reset) {
+        PacketHandler.sendC2SUpdateVideo(pos, url, volume, loop, isPlaying, reset);
     }
 
     @Override
@@ -114,7 +118,7 @@ public class TVVideoScreen extends Screen {
     @Override
     public void removed() {
         if (!changed)
-            PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getBlockPos(), url, -1, true, true, false));
+            sendUpdate(be.getPos(), url, -1, true, true, false);
         MinecraftClient.getInstance().keyboard.setRepeatEvents(false);
     }
 
