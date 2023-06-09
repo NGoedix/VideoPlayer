@@ -1,13 +1,16 @@
 package com.github.NGoedix.videoplayer.client;
 
+import com.github.NGoedix.videoplayer.block.entity.ModBlockEntities;
 import com.github.NGoedix.videoplayer.block.entity.custom.TVBlockEntity;
 import com.github.NGoedix.videoplayer.client.gui.TVVideoScreen;
 import com.github.NGoedix.videoplayer.client.gui.VideoScreen;
+import com.github.NGoedix.videoplayer.client.render.TVBlockRenderer;
 import com.github.NGoedix.videoplayer.network.PacketHandler;
 import com.github.NGoedix.videoplayer.Constants;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.BlockPos;
@@ -20,6 +23,7 @@ public class ClientHandler implements ClientModInitializer {
         Constants.LOGGER.info("Initializing Client");
 
         PacketHandler.registerS2CPackets();
+        BlockEntityRendererRegistry.register(ModBlockEntities.TV_BLOCK_ENTITY, TVBlockRenderer::new);
     }
 
     public static void openVideo(MinecraftClient client, String url, int volume){

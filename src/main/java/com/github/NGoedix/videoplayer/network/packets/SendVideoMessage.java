@@ -6,8 +6,11 @@ import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.Identifier;
 
 public class SendVideoMessage {
+
+    public static final Identifier ID = new Identifier(Constants.MOD_ID, "send_video");
 
     public static void receive(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender sender) {
         Constants.LOGGER.info("Received video player message");

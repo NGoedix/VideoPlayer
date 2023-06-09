@@ -18,16 +18,14 @@ import net.minecraft.world.chunk.WorldChunk;
 
 public class PacketHandler {
 
-    public static final Identifier NET_ID = new Identifier(Constants.MOD_ID, "networking");
-
     public static void registerC2SPackets(){
-        ServerPlayNetworking.registerGlobalReceiver(NET_ID, UpdateVideoMessage::receive);
+        ServerPlayNetworking.registerGlobalReceiver(UpdateVideoMessage.ID, UpdateVideoMessage::receive);
     }
 
     public static void registerS2CPackets() {
-        ClientPlayNetworking.registerGlobalReceiver(NET_ID, SendVideoMessage::receive);
-        ClientPlayNetworking.registerGlobalReceiver(NET_ID, FrameVideoMessage::receive);
-        ClientPlayNetworking.registerGlobalReceiver(NET_ID, OpenVideoManagerMessage::receive);
+        ClientPlayNetworking.registerGlobalReceiver(SendVideoMessage.ID, SendVideoMessage::receive);
+        ClientPlayNetworking.registerGlobalReceiver(FrameVideoMessage.ID, FrameVideoMessage::receive);
+        ClientPlayNetworking.registerGlobalReceiver(OpenVideoManagerMessage.ID, OpenVideoManagerMessage::receive);
     }
 
     // SEND MESSAGES S2C
@@ -35,7 +33,7 @@ public class PacketHandler {
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeString(url);
         buf.writeInt(volume);
-        ServerPlayNetworking.send(player, NET_ID, buf);
+        ServerPlayNetworking.send(player, SendVideoMessage.ID, buf);
     }
 
     public static void sendS2CFrameVideo(WorldChunk chunk, BlockPos pos, boolean playing, int tick) {
@@ -47,7 +45,7 @@ public class PacketHandler {
         packet.writeInt(tick);
 
         for (ServerPlayerEntity player : PlayerLookup.tracking(world, chunk.getPos()))
-            ServerPlayNetworking.send(player, NET_ID, packet);
+            ServerPlayNetworking.send(player, FrameVideoMessage.ID, packet);
     }
 
     public static void sendS2COpenVideoManager(ServerPlayerEntity player, BlockPos blockPos, String url, int tick, int volume, boolean loop) {
@@ -57,7 +55,7 @@ public class PacketHandler {
         buf.writeInt(tick);
         buf.writeInt(volume);
         buf.writeBoolean(loop);
-        ServerPlayNetworking.send(player, NET_ID, buf);
+        ServerPlayNetworking.send(player, OpenVideoManagerMessage.ID, buf);
     }
 
     // SEND MESSAGES C2S
@@ -70,6 +68,6 @@ public class PacketHandler {
         buf.writeBoolean(isPlaying);
         buf.writeBoolean(reset);
 
-        ClientPlayNetworking.send(NET_ID, buf);
+        ClientPlayNetworking.send(UpdateVideoMessage.ID, buf);
     }
 }

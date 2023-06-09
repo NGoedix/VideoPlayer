@@ -4,6 +4,7 @@ import com.github.NGoedix.videoplayer.Constants;
 import com.github.NGoedix.videoplayer.util.cache.TextureCache;
 import com.github.NGoedix.videoplayer.util.displayers.IDisplay;
 import com.github.NGoedix.videoplayer.util.displayers.VideoDisplayer;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.lib720.caprica.vlcj.player.base.MediaPlayer;
 import me.lib720.caprica.vlcj.player.base.MediaPlayerEventAdapter;
@@ -112,11 +113,13 @@ public class VideoScreen extends Screen {
     private int createTexture(int width, int height, IntBuffer buffer) {
         // Generate a new texture object in memory and bind it
         int textureId = GL11.glGenTextures();
+
+        GlStateManager._pixelStore(3314, 0);
+        GlStateManager._pixelStore(3316, 0);
+        GlStateManager._pixelStore(3315, 0);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
 
         // Set texture parameters
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 
