@@ -1,0 +1,17 @@
+{
+  "itemGroup.videoplayer.video_player_tab": "Video Player",
+
+  "gui.tv_video_screen.title": "TV Video Screen",
+  "gui.tv_video_screen.save": "Save",
+
+  "item.videoplayer.tv_block": "TV",
+
+  "block.videoplayer.tv_block": "TV",
+  "gui.tv_video_screen.play": "Play",
+  "gui.tv_video_screen.pause": "Pause",
+  "gui.tv_video_screen.stop": "Stop",
+  "gui.tv_video_screen.url_text": "Url:",
+  "gui.tv_video_screen.volume": "Volume",
+
+  "customslider.videoplayer.value": "%s: %d"
+}
