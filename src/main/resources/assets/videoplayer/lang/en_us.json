@@ -1,5 +1,5 @@
 {
-  "itemGroup.videoplayer.items": "Video Player",
+  "itemGroup.videoplayer.video_player_tab": "Video Player",
 
   "gui.tv_video_screen.title": "TV Video Screen",
   "gui.tv_video_screen.save": "Save",
