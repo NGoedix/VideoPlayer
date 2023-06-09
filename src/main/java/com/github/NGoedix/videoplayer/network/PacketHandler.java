@@ -1,8 +1,10 @@
 package com.github.NGoedix.videoplayer.network;
 
 import com.github.NGoedix.videoplayer.Constants;
-import com.github.NGoedix.videoplayer.network.packets.OpenFrameVideoMessage;
+import com.github.NGoedix.videoplayer.network.packets.FrameVideoMessage;
+import com.github.NGoedix.videoplayer.network.packets.OpenVideoManagerMessage;
 import com.github.NGoedix.videoplayer.network.packets.SendVideoMessage;
+import com.github.NGoedix.videoplayer.network.packets.UpdateVideoMessage;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
@@ -19,14 +21,16 @@ public class PacketHandler {
     public static final Identifier NET_ID = new Identifier(Constants.MOD_ID, "networking");
 
     public static void registerC2SPackets(){
-        ServerPlayNetworking.registerGlobalReceiver(NET_ID, PacketManager::receiveOpenVideoManager);
-        ServerPlayNetworking.registerGlobalReceiver(NET_ID, PacketManager::receive);
+        ServerPlayNetworking.registerGlobalReceiver(NET_ID, UpdateVideoMessage::receive);
     }
 
     public static void registerS2CPackets() {
         ClientPlayNetworking.registerGlobalReceiver(NET_ID, SendVideoMessage::receive);
-        ClientPlayNetworking.registerGlobalReceiver(NET_ID, OpenFrameVideoMessage::receive);
+        ClientPlayNetworking.registerGlobalReceiver(NET_ID, FrameVideoMessage::receive);
+        ClientPlayNetworking.registerGlobalReceiver(NET_ID, OpenVideoManagerMessage::receive);
     }
+
+    // SEND MESSAGES
 
     public static void sendMsgSendVideo(ServerPlayerEntity player, String url, int volume){
         PacketByteBuf buf = PacketByteBufs.create();

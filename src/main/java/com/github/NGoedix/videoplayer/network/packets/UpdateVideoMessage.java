@@ -13,7 +13,7 @@ import java.util.UUID;
 
 public class UpdateVideoMessage {
 
-    public static void receiveUpdateVideo(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+    public static void receive(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
         Constants.LOGGER.info("Received update video message");
 
         server.execute(() -> {
