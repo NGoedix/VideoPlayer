@@ -19,14 +19,14 @@ public class UpdateVideoMessage {
     public static void receive(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
         Constants.LOGGER.info("Received update video message");
 
-        server.execute(() -> {
-            BlockPos pos = buf.readBlockPos();
-            String url = buf.readString();
-            int volume = buf.readInt();
-            boolean loop = buf.readBoolean();
-            boolean isPlaying = buf.readBoolean();
-            boolean reset = buf.readBoolean();
+        BlockPos pos = buf.readBlockPos();
+        String url = buf.readString();
+        int volume = buf.readInt();
+        boolean loop = buf.readBoolean();
+        boolean isPlaying = buf.readBoolean();
+        boolean reset = buf.readBoolean();
 
+        server.execute(() -> {
             if (player.world.getBlockEntity(pos) instanceof TVBlockEntity tvBlockEntity) {
                 tvBlockEntity.setBeingUsed(new UUID(0, 0));
                 if (volume == -1) // NO UPDATE

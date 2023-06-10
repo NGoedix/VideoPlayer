@@ -113,7 +113,7 @@ public class VideoDisplayer implements IDisplay {
         player.setVolume((int) volume);
         lastSetVolume = volume;
         player.setRepeatMode(loop);
-        player.start(url);
+        player.start(url,  new String[] { ":network-caching", "30000" });
     }
     
     public int getVolume(float volume, float minDistance, float maxDistance) {

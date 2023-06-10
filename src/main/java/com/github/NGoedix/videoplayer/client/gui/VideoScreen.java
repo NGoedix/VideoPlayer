@@ -1,6 +1,7 @@
 package com.github.NGoedix.videoplayer.client.gui;
 
 import com.github.NGoedix.videoplayer.Constants;
+import com.github.NGoedix.videoplayer.block.entity.custom.TVBlockEntity;
 import com.github.NGoedix.videoplayer.util.cache.TextureCache;
 import com.github.NGoedix.videoplayer.util.displayers.IDisplay;
 import com.github.NGoedix.videoplayer.util.displayers.VideoDisplayer;
@@ -131,7 +132,6 @@ public class VideoScreen extends Screen {
 
         return textureId;
     }
-
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
