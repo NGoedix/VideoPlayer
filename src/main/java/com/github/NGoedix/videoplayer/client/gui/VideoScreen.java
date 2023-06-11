@@ -1,14 +1,13 @@
 package com.github.NGoedix.videoplayer.client.gui;
 
 import com.github.NGoedix.videoplayer.Constants;
-import com.github.NGoedix.videoplayer.block.entity.custom.TVBlockEntity;
 import com.github.NGoedix.videoplayer.util.cache.TextureCache;
 import com.github.NGoedix.videoplayer.util.displayers.IDisplay;
 import com.github.NGoedix.videoplayer.util.displayers.VideoDisplayer;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import me.lib720.caprica.vlcj.player.base.MediaPlayer;
-import me.lib720.caprica.vlcj.player.base.MediaPlayerEventAdapter;
+import me.lib720.caprica.vlcj4.player.base.MediaPlayer;
+import me.lib720.caprica.vlcj4.player.base.MediaPlayerEventAdapter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
