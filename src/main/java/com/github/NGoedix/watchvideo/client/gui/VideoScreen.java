@@ -4,10 +4,11 @@ import com.github.NGoedix.watchvideo.VideoPlayer;
 import com.github.NGoedix.watchvideo.util.cache.TextureCache;
 import com.github.NGoedix.watchvideo.util.displayers.IDisplay;
 import com.github.NGoedix.watchvideo.util.displayers.VideoDisplayer;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import me.lib720.caprica.vlcj.player.base.MediaPlayer;
-import me.lib720.caprica.vlcj.player.base.MediaPlayerEventAdapter;
+import me.lib720.caprica.vlcj4.player.base.MediaPlayer;
+import me.lib720.caprica.vlcj4.player.base.MediaPlayerEventAdapter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -119,6 +120,9 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
 
         // Set texture parameters
+        GlStateManager._pixelStore(3314, 0);
+        GlStateManager._pixelStore(3316, 0);
+        GlStateManager._pixelStore(3315, 0);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);

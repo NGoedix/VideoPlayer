@@ -80,7 +80,8 @@ repositories {
 dependencies {
     minecraft 'net.minecraftforge:forge:1.19.3-44.1.23'
 
-    implementation fg.deobf("curse.maven:watermedia-869524:4568511")
+    implementation fg.deobf("curse.maven:watermedia-869524:4581410")
+
     implementation fg.deobf("curse.maven:jei-238222:4455246")
 
     if (System.getProperty('idea.sync.active') != 'true') {
