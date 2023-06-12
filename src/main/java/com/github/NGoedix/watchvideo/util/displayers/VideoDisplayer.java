@@ -5,9 +5,9 @@ import com.github.NGoedix.watchvideo.util.math.Vec3d;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.systems.RenderSystem;
-import me.lib720.caprica.vlcj.player.embedded.videosurface.callback.BufferFormat;
-import me.lib720.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCallback;
-import me.srrapero720.watermedia.api.media.players.WaterVLCPlayer;
+import me.lib720.caprica.vlcj4.player.embedded.videosurface.callback.BufferFormat;
+import me.lib720.caprica.vlcj4.player.embedded.videosurface.callback.BufferFormatCallback;
+import me.srrapero720.watermedia.api.media.players.VideoLanPlayer;
 import me.srrapero720.watermedia.internal.util.ThreadUtil;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL11;
@@ -33,7 +33,7 @@ public class VideoDisplayer implements IDisplay {
                 if (Minecraft.getInstance().isPaused()) {
                     var media = display.player;
                     if (display.stream && media.isPlaying()) media.setPauseMode(true);
-                    else if (media.getMediaLength() > 0 && media.isPlaying()) media.setPauseMode(true);
+                    else if (media.getDuration() > 0 && media.isPlaying()) media.setPauseMode(true);
                 }
             }
         }
@@ -62,7 +62,7 @@ public class VideoDisplayer implements IDisplay {
     public volatile int width = 1;
     public volatile int height = 1;
     
-    public WaterVLCPlayer player;
+    public VideoLanPlayer player;
     
     private final Vec3d pos;
     public volatile IntBuffer buffer;
@@ -79,7 +79,7 @@ public class VideoDisplayer implements IDisplay {
         this.pos = pos;
         texture = GlStateManager._genTexture();
 
-        player = new WaterVLCPlayer(url, (mediaPlayer, nativeBuffers, bufferFormat) -> {
+        player = new VideoLanPlayer((mediaPlayer, nativeBuffers, bufferFormat) -> {
             lock.lock();
             try {
                 buffer.put(nativeBuffers[0].asIntBuffer());
@@ -152,14 +152,14 @@ public class VideoDisplayer implements IDisplay {
             if (player.getRepeatMode() != loop)
                 player.setRepeatMode(loop);
             long tickTime = 50;
-            long newDuration = player.getMediaLength();
-            if (!stream && newDuration != -1 && newDuration != 0 && player.getDuration() == 0)
+            long newDuration = player.getDuration();
+            if (!stream && newDuration != -1 && newDuration != 0 && player.getStatusDuration() == 0)
                 stream = true;
             if (stream) {
                 if (player.isPlaying() != realPlaying)
                     player.setPauseMode(!realPlaying);
             } else {
-                if (player.getMediaLength() > 0) {
+                if (player.getDuration() > 0) {
                     if (player.isPlaying() != realPlaying)
                         player.setPauseMode(!realPlaying);
 
@@ -167,7 +167,7 @@ public class VideoDisplayer implements IDisplay {
                         Minecraft mc = Minecraft.getInstance();
                         long time = tick * tickTime + (realPlaying ? (long) (mc.isPaused() ? 1.0F : mc.getFrameTime() * tickTime) : 0);
                         if (time > player.getTime() && loop)
-                            time %= player.getMediaLength();
+                            time %= player.getDuration();
                         if (Math.abs(time - player.getTime()) > ACCEPTABLE_SYNC_TIME && Math.abs(time - lastCorrectedTime) > ACCEPTABLE_SYNC_TIME) {
                             lastCorrectedTime = time;
                             player.seekTo(time);
