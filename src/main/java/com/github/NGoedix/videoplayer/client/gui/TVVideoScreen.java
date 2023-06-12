@@ -113,8 +113,6 @@ public class TVVideoScreen extends Screen {
             sendUpdate(be.getPos(), url, -1, true, true, false);
     }
 
-
-
     @Override
     public boolean shouldPause() {
         return false;
