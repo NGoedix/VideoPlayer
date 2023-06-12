@@ -4,6 +4,7 @@ import com.github.NGoedix.watchvideo.VideoPlayer;
 import com.github.NGoedix.watchvideo.util.cache.TextureCache;
 import com.github.NGoedix.watchvideo.util.displayers.IDisplay;
 import com.github.NGoedix.watchvideo.util.displayers.VideoDisplayer;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import me.lib720.caprica.vlcj4.player.base.MediaPlayer;
@@ -119,6 +120,9 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
         int textureId = GL11.glGenTextures();
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
 
+        GlStateManager._pixelStore(3314, 0);
+        GlStateManager._pixelStore(3316, 0);
+        GlStateManager._pixelStore(3315, 0);
         // Set texture parameters
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
