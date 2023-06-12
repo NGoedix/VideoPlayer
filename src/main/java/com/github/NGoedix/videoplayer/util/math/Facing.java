@@ -3,7 +3,7 @@ package com.github.NGoedix.videoplayer.util.math;
 
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3f;
+import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3i;
 
 public enum Facing {
@@ -16,8 +16,8 @@ public enum Facing {
             return bb.minY;
         }
 
-        public Vec3f rotation() {
-            return Vec3f.NEGATIVE_Y;
+        public RotationAxis rotation() {
+            return RotationAxis.NEGATIVE_Y;
         }
     },
     UP(Axis.Y, true, new Vec3i(0, 1, 0), -1) {
@@ -29,8 +29,8 @@ public enum Facing {
             return bb.maxY;
         }
 
-        public Vec3f rotation() {
-            return Vec3f.POSITIVE_Y;
+        public RotationAxis rotation() {
+            return RotationAxis.POSITIVE_Y;
         }
     },
     NORTH(Axis.Z, false, new Vec3i(0, 0, -1), 2) {
@@ -42,8 +42,8 @@ public enum Facing {
             return bb.minZ;
         }
 
-        public Vec3f rotation() {
-            return Vec3f.NEGATIVE_Z;
+        public RotationAxis rotation() {
+            return RotationAxis.NEGATIVE_Z;
         }
     },
     SOUTH(Axis.Z, true, new Vec3i(0, 0, 1), 0) {
@@ -55,8 +55,8 @@ public enum Facing {
             return bb.maxZ;
         }
 
-        public Vec3f rotation() {
-            return Vec3f.POSITIVE_Z;
+        public RotationAxis rotation() {
+            return RotationAxis.POSITIVE_Z;
         }
     },
     WEST(Axis.X, false, new Vec3i(-1, 0, 0), 1) {
@@ -68,8 +68,8 @@ public enum Facing {
             return bb.minX;
         }
 
-        public Vec3f rotation() {
-            return Vec3f.NEGATIVE_X;
+        public RotationAxis rotation() {
+            return RotationAxis.NEGATIVE_X;
         }
     },
     EAST(Axis.X, true, new Vec3i(1, 0, 0), 3) {
@@ -81,8 +81,8 @@ public enum Facing {
             return bb.maxX;
         }
 
-        public Vec3f rotation() {
-            return Vec3f.POSITIVE_X;
+        public RotationAxis rotation() {
+            return RotationAxis.POSITIVE_X;
         }
     };
 
@@ -150,5 +150,5 @@ public enum Facing {
 
     public abstract double get(Box var1);
 
-    public abstract Vec3f rotation();
+    public abstract RotationAxis rotation();
 }

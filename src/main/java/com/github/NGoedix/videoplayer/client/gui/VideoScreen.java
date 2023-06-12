@@ -101,7 +101,7 @@ public class VideoScreen extends Screen {
 
         if (texture == -1) return;
 
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShader(GameRenderer::getPositionTexProgram);
         RenderSystem.setShaderTexture(0, texture);
 
         RenderSystem.enableBlend();

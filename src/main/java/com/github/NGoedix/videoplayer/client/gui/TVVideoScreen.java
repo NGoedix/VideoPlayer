@@ -57,30 +57,23 @@ public class TVVideoScreen extends Screen {
         leftPos = (width - imageWidth) / 2;
         topPos = (height - imageHeight) / 2;
 
-        MinecraftClient.getInstance().keyboard.setRepeatEvents(true);
-
         addDrawableChild(urlBox = new TextFieldWidget(textRenderer, leftPos + 10, topPos + 30, imageWidth - 26, 20, Text.of("")));
         // Set the text to the url
         urlBox.setMaxLength(32767);
         urlBox.setText(url == null ? "" : url);
 
         // Play button
-        addDrawableChild(new ButtonWidget(leftPos + 10, topPos + 80, imageWidth - 24, 20, Text.translatable("gui.tv_video_screen.play"), button -> {
-            sendUpdate(be.getPos(), url, volume, true, true, true);
-        }));
+        addDrawableChild(ButtonWidget.builder(Text.translatable("gui.tv_video_screen.play"), button -> sendUpdate(be.getPos(), url, volume, false, false, false)).dimensions(leftPos + 10, topPos + 80, imageWidth - 24, 20).build());
+
 
         // Pause button
-        addDrawableChild(new ButtonWidget(leftPos + 10, topPos + 105, imageWidth - 24, 20, Text.translatable("gui.tv_video_screen.pause"), button -> {
-            sendUpdate(be.getPos(), url, volume, true, false, false);
-        }));
+        addDrawableChild(ButtonWidget.builder(Text.translatable("gui.tv_video_screen.pause"), button -> sendUpdate(be.getPos(), url, volume, true, false, false)).dimensions(leftPos + 10, topPos + 105, imageWidth - 24, 20).build());
 
         // Stop button
-        addDrawableChild(new ButtonWidget(leftPos + 10, topPos + 130, imageWidth - 24, 20, Text.translatable("gui.tv_video_screen.stop"), button -> {
-            sendUpdate(be.getPos(), url, volume, true, false, true);
-        }));
+        addDrawableChild(ButtonWidget.builder(Text.translatable("gui.tv_video_screen.stop"), button -> sendUpdate(be.getPos(), url, volume, true, false, true)).dimensions(leftPos + 10, topPos + 130, imageWidth - 24, 20).build());
 
         // Save button
-        addDrawableChild(new ButtonWidget(leftPos + 10, topPos + 220, imageWidth - 24, 20, Text.translatable("gui.tv_video_screen.save"), button -> {
+        addDrawableChild(ButtonWidget.builder(Text.translatable("gui.tv_video_screen.save"), button ->{
             int tempVolume = volumeSlider.getValue();
             String tempUrl = urlBox.getText();
 
@@ -92,7 +85,7 @@ public class TVVideoScreen extends Screen {
 
             changed = true;
             sendUpdate(be.getPos(), tempUrl, tempVolume, true, true, false);
-        }));
+        }).dimensions(leftPos + 10, topPos + 220, imageWidth - 24, 20).build());
 
         // Volume slider
         addDrawableChild(volumeSlider = new CustomSlider(leftPos + 10, topPos + 155, imageWidth - 24, 20, Text.translatable("gui.tv_video_screen.volume"), volume / 100f));
@@ -118,7 +111,6 @@ public class TVVideoScreen extends Screen {
     public void removed() {
         if (!changed)
             sendUpdate(be.getPos(), url, -1, true, true, false);
-        MinecraftClient.getInstance().keyboard.setRepeatEvents(false);
     }
 
 

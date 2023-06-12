@@ -1,7 +1,8 @@
 package com.github.NGoedix.videoplayer.util.math;
 
 
-import net.minecraft.client.util.math.Vector3d;
+import org.joml.Vector3d;
+import org.joml.Vector3f;
 
 public class Vec3f extends VecNf<Vec3f> {
     public float x;
@@ -21,8 +22,8 @@ public class Vec3f extends VecNf<Vec3f> {
         super(vec);
     }
 
-    public Vec3f(net.minecraft.util.math.Vec3f vec) {
-        this(vec.getX(), vec.getY(), vec.getZ());
+    public Vec3f(Vector3f vec) {
+        this(vec.x(), vec.y(), vec.z());
     }
 
     public Vector3d toVanilla() {

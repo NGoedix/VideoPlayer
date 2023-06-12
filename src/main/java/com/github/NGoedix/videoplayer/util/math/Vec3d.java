@@ -1,10 +1,8 @@
 package com.github.NGoedix.videoplayer.util.math;
 
-
-import net.minecraft.client.util.math.Vector3d;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3f;
 import net.minecraft.util.math.Vec3i;
+import org.joml.Vector3d;
+import org.joml.Vector3f;
 
 public class Vec3d extends VecNd<Vec3d> {
     public double x;
@@ -32,17 +30,18 @@ public class Vec3d extends VecNd<Vec3d> {
         this(vec.x, vec.y, vec.z);
     }
 
-    public Vec3d(Vec3f step) {
-        this((double)step.getX(), (double)step.getY(), (double)step.getZ());
+    public Vec3d(net.minecraft.util.math.Vec3d vec) {
+        this(vec.x, vec.y, vec.z);
+    }
+
+    public Vec3d(Vector3f step) {
+        this((double)step.x(), (double)step.y(), (double)step.z());
     }
 
     public net.minecraft.util.math.Vec3d toVanilla() {
         return new net.minecraft.util.math.Vec3d(this.x, this.y, this.z);
     }
 
-    public BlockPos toBlockPos() {
-        return new BlockPos(this.x, this.y, this.z);
-    }
 
     public void set(Vec3d vec) {
         this.x = vec.x;

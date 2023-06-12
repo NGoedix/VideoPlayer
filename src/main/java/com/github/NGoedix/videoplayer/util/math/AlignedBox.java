@@ -1,11 +1,11 @@
 package com.github.NGoedix.videoplayer.util.math;
 
-import net.minecraft.client.util.math.Vector3d;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
+import org.joml.Vector3d;
 
 public class AlignedBox {
     public float minX;
@@ -117,7 +117,7 @@ public class AlignedBox {
     }
 
     public BlockPos getOffset() {
-        return new BlockPos((double)this.minX, (double)this.minY, (double)this.minZ);
+        return new BlockPos((int) this.minX, (int) this.minY, (int) this.minZ);
     }
 
     public float get(Facing facing) {

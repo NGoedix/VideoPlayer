@@ -18,6 +18,8 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.*;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
 @Environment(EnvType.CLIENT)
@@ -86,10 +88,10 @@ public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
         }
 
         matrices.translate(0.5, 0.5646, 0.5);
-        matrices.multiply(facing.rotation().getRadialQuaternion((float) Math.toRadians(0)));
+        matrices.multiply(facing.rotation().rotationDegrees((float) Math.toRadians(0)));
         matrices.translate(-0.5, -0.5, -0.5);
 
-        RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
+        RenderSystem.setShader(GameRenderer::getPositionTexColorNormalProgram);
         Tessellator tesselator = Tessellator.getInstance();
         BufferBuilder builder = tesselator.getBuffer();
         builder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR_NORMAL);
