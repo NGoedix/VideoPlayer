@@ -6,10 +6,7 @@ import com.github.NGoedix.watchvideo.util.displayers.IDisplay;
 import com.github.NGoedix.watchvideo.util.displayers.VideoDisplayer;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.*;
 import me.lib720.caprica.vlcj4.player.base.MediaPlayer;
 import me.lib720.caprica.vlcj4.player.base.MediaPlayerEventAdapter;
 import net.minecraft.client.Minecraft;
@@ -119,12 +116,12 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
 
         Matrix4f matrix4f = context.pose().last().pose();
         BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
-//        bufferBuilder.begin(VertexFormat.Mode.QUADS, VertexFormats.POSITION_TEXTURE);
-//        bufferBuilder.vertex(matrix4f, (float)0, (float)0, (float)0).uv(0, 0).();
-//        bufferBuilder.vertex(matrix4f, (float)0, (float)height, (float)0).texture(0, 1).next();
-//        bufferBuilder.vertex(matrix4f, (float)width, (float)height, (float)0).texture(1, 1).next();
-//        bufferBuilder.vertex(matrix4f, (float)width, (float)0, (float)0).texture(1, 0).next();
-//        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
+        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        bufferBuilder.vertex(matrix4f, (float)0, (float)0, (float)0).uv(0, 0).endVertex();
+        bufferBuilder.vertex(matrix4f, (float)0, (float)height, (float)0).uv(0, 1).endVertex();
+        bufferBuilder.vertex(matrix4f, (float)width, (float)height, (float)0).uv(1, 1).endVertex();
+        bufferBuilder.vertex(matrix4f, (float)width, (float)0, (float)0).uv(1, 0).endVertex();
+        BufferUploader.drawWithShader(bufferBuilder.end());
         RenderSystem.disableBlend();
     }
 

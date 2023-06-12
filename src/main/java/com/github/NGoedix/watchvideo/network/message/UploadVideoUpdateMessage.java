@@ -50,7 +50,7 @@ public class UploadVideoUpdateMessage implements IMessage<UploadVideoUpdateMessa
     public void handle(UploadVideoUpdateMessage message, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
-            if (player.level.getBlockEntity(message.blockPos) instanceof TVBlockEntity tvBlockEntity) {
+            if (player.level().getBlockEntity(message.blockPos) instanceof TVBlockEntity tvBlockEntity) {
                 tvBlockEntity.setBeingUsed(new UUID(0, 0));
                 if (message.volume == -1) // NO UPDATE
                     return;

@@ -7,6 +7,8 @@ import com.github.NGoedix.watchvideo.network.PacketHandler;
 import com.github.NGoedix.watchvideo.network.message.UploadVideoUpdateMessage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -97,15 +99,24 @@ public class TVVideoScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        renderBackground(pPoseStack);
+    public void render(GuiGraphics context, int pMouseX, int pMouseY, float pPartialTick) {
+        renderBackground(context);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem._setShaderTexture(0, TEXTURE);
-        blit(pPoseStack, leftPos, topPos, 320, 320, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
+        context.blit(TEXTURE, leftPos, topPos, 320, 320, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
 
-        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+        super.render(context, pMouseX, pMouseY, pPartialTick);
 
-        font.draw(pPoseStack, Component.translatable("gui.tv_video_screen.url_text"), width / 2 - font.width(Component.translatable("gui.tv_video_screen.url_text")) / 2, topPos + 16, 0xFFFFFF);
+        font.drawInBatch(Component.translatable("gui.tv_video_screen.url_text"),
+                width / 2 - font.width(Component.translatable("gui.tv_video_screen.url_text")) / 2,
+                topPos + 16,
+                0xFFFFFF,
+                false,
+                context.pose().last().pose(),
+                context.bufferSource(),
+                Font.DisplayMode.NORMAL,
+                15728880,
+                0xF000F0);
 
     }
 
