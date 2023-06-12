@@ -27,7 +27,7 @@ public class UpdateVideoMessage {
         boolean reset = buf.readBoolean();
 
         server.execute(() -> {
-            if (player.world.getBlockEntity(pos) instanceof TVBlockEntity tvBlockEntity) {
+            if (player.getWorld().getBlockEntity(pos) instanceof TVBlockEntity tvBlockEntity) {
                 tvBlockEntity.setBeingUsed(new UUID(0, 0));
                 if (volume == -1) // NO UPDATE
                     return;

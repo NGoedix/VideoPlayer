@@ -7,9 +7,12 @@ import com.github.NGoedix.videoplayer.network.PacketHandler;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.render.OutlineVertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -96,15 +99,28 @@ public class TVVideoScreen extends Screen {
     }
 
     @Override
-    public void render(MatrixStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        renderBackground(pPoseStack);
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        renderBackground(context);
+
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem._setShaderTexture(0, TEXTURE);
-        drawTexture(pPoseStack, leftPos, topPos, 320, 320, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
+        context.drawTexture(TEXTURE, leftPos, topPos, 320, 320, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
 
-        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+        super.render(context, mouseX, mouseY, delta);
 
-        textRenderer.draw(pPoseStack, Text.translatable("gui.tv_video_screen.url_text"), width / 2 - textRenderer.getWidth(Text.translatable("gui.tv_video_screen.url_text")) / 2, topPos + 16, 0xFFFFFF);
+        textRenderer.draw(
+                Text.translatable("gui.tv_video_screen.url_text"),
+                width / 2 - textRenderer.getWidth(Text.translatable("gui.tv_video_screen.url_text")) / 2,
+                topPos + 16,
+                0xFFFFFF,
+                false,
+                context.getMatrices().peek().getPositionMatrix(),
+                context.getVertexConsumers(),
+                TextRenderer.TextLayerType.NORMAL,
+                15728880,
+                0xF000F0
+        );
+
     }
 
     @Override

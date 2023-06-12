@@ -87,7 +87,7 @@ public class TVBlock extends Block implements BlockEntityProvider {
     }
 
     @Override
-    public boolean canMobSpawnInside() {
+    public boolean canMobSpawnInside(BlockState state) {
         return false;
     }
 

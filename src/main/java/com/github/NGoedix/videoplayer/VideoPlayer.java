@@ -15,8 +15,7 @@ import net.minecraft.util.Identifier;
 public class VideoPlayer implements ModInitializer {
 
     public static final ItemGroup VIDEO_PLAYER_TAB = FabricItemGroup.builder(
-            new Identifier(Constants.MOD_ID, "video_player_tab")
-    ).displayName(Text.translatable("itemGroup.videoplayer.video_player_tab"))
+            ).displayName(Text.translatable("itemGroup.videoplayer.video_player_tab"))
             .icon(() -> new ItemStack(ModBlocks.TV_BLOCK)).entries((displayContext, entries) -> {
                 entries.add(new ItemStack(ModBlocks.TV_BLOCK));
             }).build();

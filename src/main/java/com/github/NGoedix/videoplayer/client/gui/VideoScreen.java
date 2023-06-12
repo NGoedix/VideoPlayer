@@ -11,11 +11,13 @@ import me.lib720.caprica.vlcj4.player.base.MediaPlayerEventAdapter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
 import java.nio.IntBuffer;
@@ -65,7 +67,7 @@ public class VideoScreen extends Screen {
     }
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta){
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         if (url.isBlank()) {
             if (display != null) display.release();
             return;
@@ -106,7 +108,20 @@ public class VideoScreen extends Screen {
 
         RenderSystem.enableBlend();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        DrawableHelper.drawTexture(matrices, 0, 0, 0.0F, 0.0F, width, height, width, height);
+
+//        context.drawTexture();
+//
+//        context.drawTexture(new Identifier(""), 0, 0, 0.0F, 0.0F, width, height, width, height);
+//
+//        Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
+//        BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
+//        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
+//        bufferBuilder.vertex(matrix4f, (float)0, (float)0, (float)0).texture(0, 0).next();
+//        bufferBuilder.vertex(matrix4f, (float)0, (float)height, (float)0).texture(0, height).next();
+//        bufferBuilder.vertex(matrix4f, (float)width, (float)height, (float)0).texture(width, height).next();
+//        bufferBuilder.vertex(matrix4f, (float)width, (float)0, (float)0).texture(width, 0).next();
+//        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
+
         RenderSystem.disableBlend();
     }
 

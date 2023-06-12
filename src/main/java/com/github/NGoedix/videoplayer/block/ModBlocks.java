@@ -6,7 +6,6 @@ import com.github.NGoedix.videoplayer.block.custom.TVBlock;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.Block;
-import net.minecraft.block.Material;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -17,7 +16,7 @@ import net.minecraft.util.Identifier;
 
 public class ModBlocks {
     public static final Block TV_BLOCK = registerBlock("tv_block",
-            new TVBlock(FabricBlockSettings.of(Material.METAL).nonOpaque().requiresTool().sounds(BlockSoundGroup.METAL).strength(3.5F, 6.0F)),
+            new TVBlock(FabricBlockSettings.create().nonOpaque().requiresTool().sounds(BlockSoundGroup.METAL).strength(3.5F, 6.0F)),
             VideoPlayer.VIDEO_PLAYER_TAB);
 
     private static Block registerBlockWithoutBlockItem(String name, Block block, ItemGroup group) {
