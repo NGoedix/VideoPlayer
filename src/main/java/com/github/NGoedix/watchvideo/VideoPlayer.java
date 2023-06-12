@@ -10,18 +10,21 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.CreativeModeTabEvent;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -30,9 +33,12 @@ public class VideoPlayer
 {
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
+    public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Reference.MOD_ID);
 
-    public static CreativeModeTab videoPlayerTab;
-    private static final ResourceLocation VIDEO_PLAYER_TAB_ID = new ResourceLocation(Reference.MOD_ID, "video_player_tab");
+    public static final RegistryObject<CreativeModeTab> VIDEO_PLAYER_TAB = CREATIVE_TABS.register("tab", () -> new CreativeModeTab.Builder(CreativeModeTab.Row.TOP,0)
+            .icon(() -> new ItemStack(ModBlocks.TV_BLOCK.get()))
+            .title(Component.translatable("itemGroup.videoplayer.video_player_tab")).build()
+    );
 
     public VideoPlayer()
     {
@@ -49,7 +55,6 @@ public class VideoPlayer
         eventBus.addListener(this::onCommonSetup);
         eventBus.addListener(this::onClientSetup);
         eventBus.addListener(this::onCreativeTabRegistration);
-        eventBus.addListener(this::addCreative);
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
@@ -65,13 +70,10 @@ public class VideoPlayer
         BlockEntityRenderers.register(ModBlockEntities.TV_BLOCK_ENTITY.get(), TVBlockRenderer::new);
     }
 
-    private void onCreativeTabRegistration(CreativeModeTabEvent.Register event) {
+    private void onCreativeTabRegistration(BuildCreativeModeTabContentsEvent event) {
         LOGGER.info("Registering creative tab...");
-        videoPlayerTab = event.registerCreativeModeTab(VIDEO_PLAYER_TAB_ID, (icon) -> new ItemStack(ModBlocks.TV_BLOCK.get()));
-    }
-
-    private void addCreative(CreativeModeTabEvent.BuildContents event) {
-        LOGGER.info("Adding items to creative tab...");
-        event.accept(ModBlocks.TV_BLOCK);
+        if (event.getTabKey() == VIDEO_PLAYER_TAB.getKey()) {
+            event.accept(ModBlocks.TV_BLOCK);
+        }
     }
 }

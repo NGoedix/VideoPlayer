@@ -6,11 +6,14 @@ import com.github.NGoedix.watchvideo.util.displayers.IDisplay;
 import com.github.NGoedix.watchvideo.util.displayers.VideoDisplayer;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import me.lib720.caprica.vlcj4.player.base.MediaPlayer;
 import me.lib720.caprica.vlcj4.player.base.MediaPlayerEventAdapter;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -18,6 +21,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
 import java.nio.IntBuffer;
@@ -66,10 +70,12 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     }
 
     @Override
-    protected void renderLabels(PoseStack pPoseStack, int pMouseX, int pMouseY) {}
+    protected void renderLabels(GuiGraphics p_281635_, int p_282681_, int p_283686_) {
+        super.renderLabels(p_281635_, p_282681_, p_283686_);
+    }
 
     @Override
-    protected void renderBg(@NotNull PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {
+    protected void renderBg(GuiGraphics context, float p_97788_, int p_97789_, int p_97790_) {
         if (url.isBlank()) {
             if (display != null) display.release();
             return;
@@ -110,7 +116,15 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
 
         RenderSystem.enableBlend();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        GuiComponent.blit(pPoseStack, 0, 0, 0.0F, 0.0F, Minecraft.getInstance().screen.width, Minecraft.getInstance().screen.height, Minecraft.getInstance().screen.width, Minecraft.getInstance().screen.height);
+
+        Matrix4f matrix4f = context.pose().last().pose();
+        BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
+//        bufferBuilder.begin(VertexFormat.Mode.QUADS, VertexFormats.POSITION_TEXTURE);
+//        bufferBuilder.vertex(matrix4f, (float)0, (float)0, (float)0).uv(0, 0).();
+//        bufferBuilder.vertex(matrix4f, (float)0, (float)height, (float)0).texture(0, 1).next();
+//        bufferBuilder.vertex(matrix4f, (float)width, (float)height, (float)0).texture(1, 1).next();
+//        bufferBuilder.vertex(matrix4f, (float)width, (float)0, (float)0).texture(1, 0).next();
+//        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
         RenderSystem.disableBlend();
     }
 
