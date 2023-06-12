@@ -21,7 +21,7 @@ plugins {
 }
 apply plugin: 'org.spongepowered.mixin'
 
-version = '2.0-FORGE-1.19-1.19.1-1.19.2'
+version = '2.0.1-FORGE-1.19-1.19.1-1.19.2'
 group = 'com.github.NGoedix.VideoPlayer' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'VideoPlayer'
 

@@ -97,6 +97,8 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
 
         int texture;
         if (display instanceof VideoDisplayer) {
+            if (!((VideoDisplayer) display).player.isPlaying())
+                return;
             texture = createTexture(display.getWidth(), display.getHeight(), ((VideoDisplayer) display).buffer);
         } else {
             display.prepare(url, 200, 1, 1, true, false, tick);
