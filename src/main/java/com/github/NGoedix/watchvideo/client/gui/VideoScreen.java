@@ -67,9 +67,7 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     }
 
     @Override
-    protected void renderLabels(GuiGraphics p_281635_, int p_282681_, int p_283686_) {
-        super.renderLabels(p_281635_, p_282681_, p_283686_);
-    }
+    protected void renderLabels(GuiGraphics p_281635_, int p_282681_, int p_283686_) {}
 
     @Override
     protected void renderBg(GuiGraphics context, float p_97788_, int p_97789_, int p_97790_) {
@@ -99,6 +97,8 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
 
         int texture;
         if (display instanceof VideoDisplayer) {
+            if (!((VideoDisplayer) display).player.isPlaying())
+                return;
             texture = createTexture(display.getWidth(), display.getHeight(), ((VideoDisplayer) display).buffer);
         } else {
             display.prepare(url, 200, 1, 1, true, false, tick);
