@@ -109,18 +109,14 @@ public class VideoScreen extends Screen {
         RenderSystem.enableBlend();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
-//        context.drawTexture();
-//
-//        context.drawTexture(new Identifier(""), 0, 0, 0.0F, 0.0F, width, height, width, height);
-//
-//        Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
-//        BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
-//        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
-//        bufferBuilder.vertex(matrix4f, (float)0, (float)0, (float)0).texture(0, 0).next();
-//        bufferBuilder.vertex(matrix4f, (float)0, (float)height, (float)0).texture(0, height).next();
-//        bufferBuilder.vertex(matrix4f, (float)width, (float)height, (float)0).texture(width, height).next();
-//        bufferBuilder.vertex(matrix4f, (float)width, (float)0, (float)0).texture(width, 0).next();
-//        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
+        Matrix4f matrix4f = context.getMatrices().peek().getPositionMatrix();
+        BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
+        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
+        bufferBuilder.vertex(matrix4f, (float)0, (float)0, (float)0).texture(0, 0).next();
+        bufferBuilder.vertex(matrix4f, (float)0, (float)height, (float)0).texture(0, 1).next();
+        bufferBuilder.vertex(matrix4f, (float)width, (float)height, (float)0).texture(1, 1).next();
+        bufferBuilder.vertex(matrix4f, (float)width, (float)0, (float)0).texture(1, 0).next();
+        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
 
         RenderSystem.disableBlend();
     }
