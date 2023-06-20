@@ -7,8 +7,6 @@ import com.github.NGoedix.watchvideo.util.displayers.VideoDisplayer;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import me.lib720.caprica.vlcj4.player.base.MediaPlayer;
-import me.lib720.caprica.vlcj4.player.base.MediaPlayerEventAdapter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -17,7 +15,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
@@ -82,15 +79,9 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
         if (!firstIteration) {
             firstIteration = true;
             if (display instanceof VideoDisplayer) {
-                ((VideoDisplayer) display).player.getRawPlayer().mediaPlayer().events().addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
-                    @Override
-                    public void finished(MediaPlayer mediaPlayer) {
-                        long time = mediaPlayer.status().time();
-                        if (time > 10) {
-                            VideoPlayer.LOGGER.warn("Video finished");
-                            onClose();
-                        }
-                    }
+                ((VideoDisplayer) display).player.events.setMediaFinishEvent((videoLanPlayer, eventData) -> {
+                    VideoPlayer.LOGGER.warn("Video finished");
+                    onClose();
                 });
             }
         }
@@ -171,9 +162,9 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     @Override
     public void onClose() {
         Minecraft.getInstance().getSoundManager().resume();
+        super.onClose();
         if (display != null)
             display.release();
-        super.onClose();
     }
 }
 
