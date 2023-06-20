@@ -6,7 +6,7 @@ import com.github.NGoedix.watchvideo.util.displayers.VideoDisplayer;
 import com.github.NGoedix.watchvideo.util.math.Vec3d;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import me.srrapero720.watermedia.api.util.GifDecoder;
+import me.srrapero720.watermedia.api.external.GifDecoder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.sounds.SoundSource;
 import net.minecraftforge.event.world.WorldEvent;
