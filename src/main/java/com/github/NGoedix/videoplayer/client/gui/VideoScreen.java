@@ -6,8 +6,6 @@ import com.github.NGoedix.videoplayer.util.displayers.IDisplay;
 import com.github.NGoedix.videoplayer.util.displayers.VideoDisplayer;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import me.lib720.caprica.vlcj4.player.base.MediaPlayer;
-import me.lib720.caprica.vlcj4.player.base.MediaPlayerEventAdapter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -77,15 +75,9 @@ public class VideoScreen extends Screen {
         if (!firstIteration) {
             firstIteration = true;
             if (display instanceof VideoDisplayer) {
-                ((VideoDisplayer) display).player.getRawPlayer().mediaPlayer().events().addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
-                    @Override
-                    public void finished(MediaPlayer mediaPlayer) {
-                        long time = mediaPlayer.status().time();
-                        if (time > 10) {
-                            Constants.LOGGER.warn("Video finished");
-                            close();
-                        }
-                    }
+                ((VideoDisplayer) display).player.events.setMediaFinishEvent((videoLanPlayer, eventData) -> {
+                    Constants.LOGGER.warn("Video finished");
+                    close();
                 });
             }
         }
@@ -151,8 +143,8 @@ public class VideoScreen extends Screen {
     @Override
     public void close() {
         MinecraftClient.getInstance().getSoundManager().resumeAll();
+        super.close();
         if (display != null)
             display.release();
-        super.close();
     }
 }

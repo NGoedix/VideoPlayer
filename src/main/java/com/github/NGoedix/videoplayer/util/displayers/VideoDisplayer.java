@@ -4,10 +4,10 @@ import com.github.NGoedix.videoplayer.util.cache.TextureCache;
 import com.github.NGoedix.videoplayer.util.math.Vec3d;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import me.lib720.caprica.vlcj4.player.embedded.videosurface.callback.BufferFormat;
-import me.lib720.caprica.vlcj4.player.embedded.videosurface.callback.BufferFormatCallback;
-import me.srrapero720.watermedia.api.media.players.VideoLanPlayer;
-import me.srrapero720.watermedia.internal.util.ThreadUtil;
+import me.lib720.caprica.vlcj.player.embedded.videosurface.callback.BufferFormat;
+import me.lib720.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCallback;
+import me.srrapero720.watermedia.api.external.ThreadUtil;
+import me.srrapero720.watermedia.api.video.players.VideoLanPlayer;
 import net.minecraft.client.MinecraftClient;
 import org.lwjgl.opengl.GL11;
 import net.minecraft.client.util.GlAllocationUtils;
@@ -49,6 +49,7 @@ public class VideoDisplayer implements IDisplay {
     public static IDisplay createVideoDisplay(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop) {
         return ThreadUtil.tryAndReturn((defaultVar) -> {
             var display = new VideoDisplayer(pos, url, volume, minDistance, maxDistance, loop);
+            if (display.player.getRawPlayerComponent() == null) throw new IllegalStateException("MediaDisplay uses a broken player");
             OPEN_DISPLAYS.add(display);
             return display;
 
@@ -79,7 +80,7 @@ public class VideoDisplayer implements IDisplay {
         this.pos = pos;
         texture = GlStateManager._genTexture();
 
-        player = new VideoLanPlayer((mediaPlayer, nativeBuffers, bufferFormat) -> {
+        player = new VideoLanPlayer(null, (mediaPlayer, nativeBuffers, bufferFormat) -> {
             lock.lock();
             try {
                 buffer.put(nativeBuffers[0].asIntBuffer());
