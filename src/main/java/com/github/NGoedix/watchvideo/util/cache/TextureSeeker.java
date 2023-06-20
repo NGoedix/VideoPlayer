@@ -1,7 +1,7 @@
 package com.github.NGoedix.watchvideo.util.cache;
 
 import com.github.NGoedix.watchvideo.VideoPlayer;
-import me.srrapero720.watermedia.api.util.GifDecoder;
+import me.srrapero720.watermedia.api.external.GifDecoder;
 import net.minecraft.client.Minecraft;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
