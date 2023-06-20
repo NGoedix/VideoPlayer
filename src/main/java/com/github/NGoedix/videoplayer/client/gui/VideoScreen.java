@@ -22,7 +22,6 @@ public class VideoScreen extends Screen {
 
     private final String url;
     private final int volume;
-    private int tick;
 
     private boolean firstIteration;
 
@@ -88,7 +87,7 @@ public class VideoScreen extends Screen {
                 return;
             texture = createTexture(display.getWidth(), display.getHeight(), ((VideoDisplayer) display).buffer);
         } else {
-            display.prepare(url, 200, 1, 1, true, false, tick);
+            display.prepare(url, 200, 1, 1, true, false, 0);
 
             texture = display.texture();
         }
