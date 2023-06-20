@@ -75,11 +75,8 @@ public class VideoScreen extends Screen {
             firstIteration = true;
             if (display instanceof VideoDisplayer) {
                 ((VideoDisplayer) display).player.events.setMediaFinishEvent((videoLanPlayer, eventData) -> {
-                    long time = videoLanPlayer.getTime();
-                    if (time > 10) {
-                        Constants.LOGGER.warn("Video finished");
-                        close();
-                    }
+                    Constants.LOGGER.warn("Video finished");
+                    close();
                 });
             }
         }
