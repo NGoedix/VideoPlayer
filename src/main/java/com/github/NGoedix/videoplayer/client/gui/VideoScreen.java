@@ -144,8 +144,8 @@ public class VideoScreen extends Screen {
     @Override
     public void close() {
         MinecraftClient.getInstance().getSoundManager().resumeAll();
+        super.close();
         if (display != null)
             display.release();
-        super.close();
     }
 }
