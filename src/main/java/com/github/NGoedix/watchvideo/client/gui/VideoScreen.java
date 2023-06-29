@@ -36,8 +36,10 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
 
     @Override
     protected void init() {
-        this.imageWidth = Minecraft.getInstance().screen.width;
-        this.imageHeight = Minecraft.getInstance().screen.height;
+        if (Minecraft.getInstance().screen != null) {
+            this.imageWidth = Minecraft.getInstance().screen.width;
+            this.imageHeight = Minecraft.getInstance().screen.height;
+        }
         super.init();
     }
 

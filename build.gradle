@@ -68,7 +68,7 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    implementation fg.deobf("curse.maven:watermedia-869524:4598820")
+    implementation fg.deobf("curse.maven:watermedia-869524:4607766")
 }
 
 def resourceTargets = ['META-INF/mods.toml', 'pack.mcmeta']
