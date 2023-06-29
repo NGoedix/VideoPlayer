@@ -64,26 +64,22 @@ public class TVVideoScreen extends Screen {
         urlBox.setValue(url == null ? "" : url);
 
         // Play button
-        Button playButton;
-        addRenderableWidget(playButton = new Button(leftPos + 10, topPos + 80, imageWidth - 24, 20, Component.translatable("gui.tv_video_screen.play"), button -> {
+        addRenderableWidget(new Button(leftPos + 10, topPos + 80, imageWidth - 24, 20, Component.translatable("gui.tv_video_screen.play"), button -> {
             PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getBlockPos(), url, volume, true, true, true));
         }));
 
         // Pause button
-        Button pauseButton;
-        addRenderableWidget(pauseButton = new Button(leftPos + 10, topPos + 105, imageWidth - 24, 20, Component.translatable("gui.tv_video_screen.pause"), button -> {
+        addRenderableWidget(new Button(leftPos + 10, topPos + 105, imageWidth - 24, 20, Component.translatable("gui.tv_video_screen.pause"), button -> {
             PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getBlockPos(), url, volume, true, false, false));
         }));
 
         // Stop button
-        Button stopButton;
-        addRenderableWidget(stopButton = new Button(leftPos + 10, topPos + 130, imageWidth - 24, 20, Component.translatable("gui.tv_video_screen.stop"), button -> {
+        addRenderableWidget(new Button(leftPos + 10, topPos + 130, imageWidth - 24, 20, Component.translatable("gui.tv_video_screen.stop"), button -> {
             PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getBlockPos(), url, volume, true, false, true));
         }));
 
         // Save button
-        Button saveButton;
-        addRenderableWidget(saveButton = new Button(leftPos + 10, topPos + 220, imageWidth - 24, 20, Component.translatable("gui.tv_video_screen.save"), button -> {
+        addRenderableWidget(new Button(leftPos + 10, topPos + 220, imageWidth - 24, 20, Component.translatable("gui.tv_video_screen.save"), button -> {
             int tempVolume = volumeSlider.getValue();
             String tempUrl = urlBox.getValue();
 
@@ -99,6 +95,9 @@ public class TVVideoScreen extends Screen {
 
         // Volume slider
         addRenderableWidget(volumeSlider = new CustomSlider(leftPos + 10, topPos + 155, imageWidth - 24, 20, Component.translatable("gui.tv_video_screen.volume"), volume / 100f));
+
+        // Cast the block entity to the correct type and set the volume
+        ((TVBlockEntity) be).setVolume(volume);
     }
 
     @Override
