@@ -30,7 +30,7 @@ public class TVBlockEntity extends BlockEntity {
     private boolean playing = true;
     private int tick = 0;
 
-    public  float volume = 1;
+    public float volume = 1;
 
     public float minDistance = 5;
     public float maxDistance = 20;
