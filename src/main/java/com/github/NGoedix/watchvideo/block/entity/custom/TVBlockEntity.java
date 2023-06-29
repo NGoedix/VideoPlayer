@@ -34,7 +34,7 @@ public class TVBlockEntity extends BlockEntity {
     private boolean playing = true;
     private int tick = 0;
 
-    public int volume = 100;
+    public float volume = 1;
 
     public float minDistance = 5;
     public float maxDistance = 20;
@@ -69,7 +69,7 @@ public class TVBlockEntity extends BlockEntity {
     }
 
     public void setVolume(int volume) {
-        this.volume = volume;
+        this.volume = volume / 100F;
     }
 
     public void setLoop(boolean loop) {
@@ -88,7 +88,7 @@ public class TVBlockEntity extends BlockEntity {
             return null;
         if (display != null)
             return display;
-        return display = cache.createDisplay(new Vec3d(worldPosition), url, volume / 100f, minDistance, maxDistance, loop);
+        return display = cache.createDisplay(new Vec3d(worldPosition), url, volume, minDistance, maxDistance, loop);
     }
 
     public void tryOpen(Level level, BlockPos blockPos, Player player) {
@@ -110,7 +110,7 @@ public class TVBlockEntity extends BlockEntity {
 
     public void openVideoManagerGUI(BlockPos blockPos, Player player) {
         setBeingUsed(player.getUUID());
-        PacketHandler.sendTo(new OpenVideoManagerScreen(blockPos, url, tick, volume, loop), player);
+        PacketHandler.sendTo(new OpenVideoManagerScreen(blockPos, url, tick, (int) (volume * 100), loop), player);
     }
 
     public void setBeingUsed(UUID player) {
@@ -176,7 +176,7 @@ public class TVBlockEntity extends BlockEntity {
         pTag.putUUID("beingUsed", playerUsing == null ? new UUID(0, 0) : playerUsing);
         pTag.putBoolean("playing", playing);
         pTag.putInt("tick", tick);
-        pTag.putInt("volume", volume);
+        pTag.putFloat("volume", volume);
     }
 
     @Override
@@ -191,7 +191,7 @@ public class TVBlockEntity extends BlockEntity {
         playerUsing = nbt.getUUID("beingUsed");
         playing = nbt.getBoolean("playing");
         tick = nbt.getInt("tick");
-        volume = nbt.getInt("volume");
+        volume = nbt.getFloat("volume");
     }
 
     public void notifyPlayer() {

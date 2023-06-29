@@ -36,8 +36,10 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
 
     @Override
     protected void init() {
-        this.imageWidth = Minecraft.getInstance().screen.width;
-        this.imageHeight = Minecraft.getInstance().screen.height;
+        if (Minecraft.getInstance().screen != null) {
+            this.imageWidth = Minecraft.getInstance().screen.width;
+            this.imageHeight = Minecraft.getInstance().screen.height;
+        }
         super.init();
     }
 
@@ -104,7 +106,7 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
 
         RenderSystem.enableBlend();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        GuiComponent.blit(pPoseStack, 0, 0, 0.0F, 0.0F, Minecraft.getInstance().screen.width, Minecraft.getInstance().screen.height, Minecraft.getInstance().screen.width, Minecraft.getInstance().screen.height);
+        GuiComponent.blit(pPoseStack, 0, 0, 0.0F, 0.0F, imageWidth, imageHeight, imageWidth, imageHeight);
         RenderSystem.disableBlend();
     }
 
