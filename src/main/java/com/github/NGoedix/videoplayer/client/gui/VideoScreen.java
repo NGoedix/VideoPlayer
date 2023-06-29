@@ -34,8 +34,10 @@ public class VideoScreen extends Screen {
 
     @Override
     protected void init() {
-        this.width = MinecraftClient.getInstance().currentScreen.width;
-        this.height = MinecraftClient.getInstance().currentScreen.height;
+        if (MinecraftClient.getInstance().currentScreen != null) {
+            this.width = MinecraftClient.getInstance().currentScreen.width;
+            this.height = MinecraftClient.getInstance().currentScreen.height;
+        }
         super.init();
     }
 

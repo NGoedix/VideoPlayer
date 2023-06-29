@@ -96,6 +96,9 @@ public class TVVideoScreen extends Screen {
 
         // Volume slider
         addDrawableChild(volumeSlider = new CustomSlider(leftPos + 10, topPos + 155, imageWidth - 24, 20, Text.translatable("gui.tv_video_screen.volume"), volume / 100f));
+
+        // Cast the block entity to the correct type and set the volume
+        ((TVBlockEntity) be).setVolume(volume);
     }
 
     public void sendUpdate(BlockPos pos, String url, int volume, boolean loop, boolean isPlaying, boolean reset) {

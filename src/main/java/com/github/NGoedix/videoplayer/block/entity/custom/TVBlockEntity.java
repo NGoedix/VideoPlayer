@@ -30,7 +30,7 @@ public class TVBlockEntity extends BlockEntity {
     private boolean playing = true;
     private int tick = 0;
 
-    public int volume = 100;
+    public float volume = 1;
 
     public float minDistance = 5;
     public float maxDistance = 20;
@@ -65,7 +65,7 @@ public class TVBlockEntity extends BlockEntity {
     }
 
     public void setVolume(int volume) {
-        this.volume = volume;
+        this.volume = volume / 100F;
     }
 
     public void setLoop(boolean loop) {
@@ -84,7 +84,7 @@ public class TVBlockEntity extends BlockEntity {
             return null;
         if (display != null)
             return display;
-        return display = cache.createDisplay(new Vec3d(getPos()), url, volume / 100f, minDistance, maxDistance, loop);
+        return display = cache.createDisplay(new Vec3d(getPos()), url, volume, minDistance, maxDistance, loop);
     }
 
     public void tryOpen(World level, BlockPos blockPos, PlayerEntity player) {
@@ -106,7 +106,7 @@ public class TVBlockEntity extends BlockEntity {
 
     public void openVideoManagerGUI(BlockPos blockPos, PlayerEntity player) {
         setBeingUsed(player.getUuid());
-        PacketHandler.sendS2COpenVideoManager((ServerPlayerEntity) player, blockPos, url, tick, volume, loop);
+        PacketHandler.sendS2COpenVideoManager((ServerPlayerEntity) player, blockPos, url, tick, (int) (volume * 100), loop);
     }
 
     public void setBeingUsed(UUID player) {
@@ -161,7 +161,7 @@ public class TVBlockEntity extends BlockEntity {
         nbt.putUuid("beingUsed", playerUsing == null ? new UUID(0, 0) : playerUsing);
         nbt.putBoolean("playing", playing);
         nbt.putInt("tick", tick);
-        nbt.putInt("volume", volume);
+        nbt.putFloat("volume", volume);
     }
 
     @Override
@@ -176,7 +176,7 @@ public class TVBlockEntity extends BlockEntity {
         playerUsing = nbt.getUuid("beingUsed");
         playing = nbt.getBoolean("playing");
         tick = nbt.getInt("tick");
-        volume = nbt.getInt("volume");
+        volume = nbt.getFloat("volume");
     }
 
     public void notifyPlayer() {
