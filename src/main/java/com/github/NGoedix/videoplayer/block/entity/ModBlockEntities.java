@@ -13,7 +13,7 @@ public class ModBlockEntities {
 
     public static void registerAllBlockEntities() {
         TV_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE,
-                new Identifier(Constants.MOD_ID, "mythril_blaster"),
+                new Identifier(Constants.MOD_ID, "tv_block_entity"),
                 FabricBlockEntityTypeBuilder.create(TVBlockEntity::new,
                         ModBlocks.TV_BLOCK).build(null));
     }
