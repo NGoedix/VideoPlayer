@@ -8,7 +8,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.lib720.caprica.vlcj.player.embedded.videosurface.callback.BufferFormat;
 import me.lib720.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCallback;
 import me.srrapero720.watermedia.api.external.ThreadUtil;
-import me.srrapero720.watermedia.api.video.players.VideoLanPlayer;
+import me.srrapero720.watermedia.api.video.VideoLANPlayer;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL11;
 
@@ -49,7 +49,7 @@ public class VideoDisplayer implements IDisplay {
     public static IDisplay createVideoDisplay(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop) {
         return ThreadUtil.tryAndReturn((defaultVar) -> {
             var display = new VideoDisplayer(pos, url, volume, minDistance, maxDistance, loop);
-            if (display.player.getRawPlayerComponent() == null) throw new IllegalStateException("MediaDisplay uses a broken player");
+            if (display.player.getRaw() == null) throw new IllegalStateException("MediaDisplay uses a broken player");
             OPEN_DISPLAYS.add(display);
             return display;
 
@@ -63,7 +63,7 @@ public class VideoDisplayer implements IDisplay {
     public volatile int width = 1;
     public volatile int height = 1;
     
-    public VideoLanPlayer player;
+    public VideoLANPlayer player;
     
     private final Vec3d pos;
     public volatile IntBuffer buffer;
@@ -80,7 +80,7 @@ public class VideoDisplayer implements IDisplay {
         this.pos = pos;
         texture = GlStateManager._genTexture();
 
-        player = new VideoLanPlayer(null, (mediaPlayer, nativeBuffers, bufferFormat) -> {
+        player = new VideoLANPlayer(null, (mediaPlayer, nativeBuffers, bufferFormat) -> {
             lock.lock();
             try {
                 buffer.put(nativeBuffers[0].asIntBuffer());
@@ -154,7 +154,7 @@ public class VideoDisplayer implements IDisplay {
                 player.setRepeatMode(loop);
             long tickTime = 50;
             long newDuration = player.getDuration();
-            if (!stream && newDuration != -1 && newDuration != 0 && player.getStatusDuration() == 0)
+            if (!stream && newDuration != -1 && newDuration != 0 && player.getMediaInfoDuration() == 0)
                 stream = true;
             if (stream) {
                 if (player.isPlaying() != realPlaying)
@@ -181,8 +181,7 @@ public class VideoDisplayer implements IDisplay {
     
     @Override
     public void prepare(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
-        if (player == null)
-            return;
+        if (player == null) return;
         lock.lock();
         try {
             if (needsUpdate) {
