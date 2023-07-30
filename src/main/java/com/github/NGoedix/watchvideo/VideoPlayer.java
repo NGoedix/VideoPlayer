@@ -5,11 +5,17 @@ import com.github.NGoedix.watchvideo.block.entity.ModBlockEntities;
 import com.github.NGoedix.watchvideo.client.render.TVBlockRenderer;
 import com.github.NGoedix.watchvideo.commands.RegisterCommands;
 import com.github.NGoedix.watchvideo.item.ModItems;
+import com.github.NGoedix.watchvideo.util.cache.TextureCache;
+import com.github.NGoedix.watchvideo.util.displayers.VideoDisplayer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.world.level.block.LevelEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -46,5 +52,27 @@ public class VideoPlayer {
 
     private void onCommonSetup(FMLCommonSetupEvent event) {
         event.enqueueWork(CommonHandler::setup);
+    }
+
+    @Mod.EventBusSubscriber(modid = "videoplayer", bus = Mod.EventBusSubscriber.Bus.FORGE)
+    public static final class Events {
+
+        @SubscribeEvent
+        public static void onRenderTickEvent(TickEvent.RenderTickEvent event) {
+            if (event.phase == TickEvent.Phase.END) TextureCache.tick();
+        }
+
+        @SubscribeEvent
+        public static void onClientTickEvent(TickEvent.ClientTickEvent event) {
+            if (event.phase == TickEvent.Phase.END) VideoDisplayer.tick();
+        }
+
+        @SubscribeEvent
+        public static void onUnloadingLevel(WorldEvent.Unload unload) {
+            if (unload.getWorld() != null && unload.getWorld().isClientSide()) {
+                TextureCache.unload(unload);
+                VideoDisplayer.unload();
+            }
+        }
     }
 }
