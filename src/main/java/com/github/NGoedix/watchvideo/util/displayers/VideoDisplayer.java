@@ -8,7 +8,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.lib720.caprica.vlcj.player.embedded.videosurface.callback.BufferFormat;
 import me.lib720.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCallback;
 import me.srrapero720.watermedia.api.external.ThreadUtil;
-import me.srrapero720.watermedia.api.video.VideoLANPlayer;
+import me.srrapero720.watermedia.api.video.SafeVideoLANPlayer;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL11;
 
@@ -49,7 +49,7 @@ public class VideoDisplayer implements IDisplay {
     public static IDisplay createVideoDisplay(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop) {
         return ThreadUtil.tryAndReturn((defaultVar) -> {
             var display = new VideoDisplayer(pos, url, volume, minDistance, maxDistance, loop);
-            if (display.player.getRaw() == null) throw new IllegalStateException("MediaDisplay uses a broken player");
+            if (display.player.raw() == null) throw new IllegalStateException("MediaDisplay uses a broken player");
             OPEN_DISPLAYS.add(display);
             return display;
 
@@ -63,7 +63,7 @@ public class VideoDisplayer implements IDisplay {
     public volatile int width = 1;
     public volatile int height = 1;
     
-    public VideoLANPlayer player;
+    public SafeVideoLANPlayer player;
     
     private final Vec3d pos;
     public volatile IntBuffer buffer;
@@ -80,7 +80,7 @@ public class VideoDisplayer implements IDisplay {
         this.pos = pos;
         texture = GlStateManager._genTexture();
 
-        player = new VideoLANPlayer(null, (mediaPlayer, nativeBuffers, bufferFormat) -> {
+        player = new SafeVideoLANPlayer(null, (mediaPlayer, nativeBuffers, bufferFormat) -> {
             lock.lock();
             try {
                 buffer.put(nativeBuffers[0].asIntBuffer());
