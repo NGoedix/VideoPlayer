@@ -73,6 +73,10 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     @Override
     protected void renderLabels(PoseStack pPoseStack, int pMouseX, int pMouseY) {}
 
+    private synchronized static void checkIfCurrentThreadHaveClassLoader() {
+        if (Thread.currentThread().getContextClassLoader() == null) Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+    }
+
     @Override
     protected void renderBg(@NotNull PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {
         if (url.isBlank()) {
@@ -89,144 +93,144 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
                 ((VideoDisplayer) display).player.raw().mediaPlayer().events().addMediaPlayerEventListener(new MediaPlayerEventListener() {
                     @Override
                     public void mediaChanged(MediaPlayer mediaPlayer, MediaRef mediaRef) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
 
                     @Override
                     public void opening(MediaPlayer mediaPlayer) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
 
                     @Override
                     public void buffering(MediaPlayer mediaPlayer, float v) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
 
                     @Override
                     public void playing(MediaPlayer mediaPlayer) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
 
                     @Override
                     public void paused(MediaPlayer mediaPlayer) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
 
                     @Override
                     public void stopped(MediaPlayer mediaPlayer) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                         ENDED.set(true);
                     }
 
                     @Override
                     public void forward(MediaPlayer mediaPlayer) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
 
                     @Override
                     public void backward(MediaPlayer mediaPlayer) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
 
                     @Override
                     public void finished(MediaPlayer mediaPlayer) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
 
                     @Override
                     public void timeChanged(MediaPlayer mediaPlayer, long l) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
 
                     @Override
                     public void positionChanged(MediaPlayer mediaPlayer, float v) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
 
                     @Override
                     public void seekableChanged(MediaPlayer mediaPlayer, int i) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
 
                     @Override
                     public void pausableChanged(MediaPlayer mediaPlayer, int i) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
 
                     @Override
                     public void titleChanged(MediaPlayer mediaPlayer, int i) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
 
                     @Override
                     public void snapshotTaken(MediaPlayer mediaPlayer, String s) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
 
                     @Override
                     public void lengthChanged(MediaPlayer mediaPlayer, long l) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
 
                     @Override
                     public void videoOutput(MediaPlayer mediaPlayer, int i) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
 
                     @Override
                     public void scrambledChanged(MediaPlayer mediaPlayer, int i) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
 
                     @Override
                     public void elementaryStreamAdded(MediaPlayer mediaPlayer, TrackType trackType, int i) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
 
                     @Override
                     public void elementaryStreamDeleted(MediaPlayer mediaPlayer, TrackType trackType, int i) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
 
                     @Override
                     public void elementaryStreamSelected(MediaPlayer mediaPlayer, TrackType trackType, int i) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
 
                     @Override
                     public void corked(MediaPlayer mediaPlayer, boolean b) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
 
                     @Override
                     public void muted(MediaPlayer mediaPlayer, boolean b) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
 
                     @Override
                     public void volumeChanged(MediaPlayer mediaPlayer, float v) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
 
                     @Override
                     public void audioDeviceChanged(MediaPlayer mediaPlayer, String s) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
 
                     @Override
                     public void chapterChanged(MediaPlayer mediaPlayer, int i) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
 
                     @Override
                     public void error(MediaPlayer mediaPlayer) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                         ENDED.set(true);
                     }
 
                     @Override
                     public void mediaPlayerReady(MediaPlayer mediaPlayer) {
-                        Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+                        checkIfCurrentThreadHaveClassLoader();
                     }
                 });
             }
