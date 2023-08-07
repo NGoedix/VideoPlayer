@@ -21,7 +21,7 @@ plugins {
 }
 apply plugin: 'org.spongepowered.mixin'
 
-version = '2.1.0-FORGE-1.19-1.19.1-1.19.2'
+version = '2.3.0-FORGE-1.19-1.19.1-1.19.2'
 group = 'com.github.NGoedix.VideoPlayer' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'VideoPlayer'
 
@@ -84,7 +84,7 @@ repositories {
 dependencies {
     minecraft 'net.minecraftforge:forge:1.19-41.1.0'
 
-    implementation fg.deobf("curse.maven:watermedia-869524:4621611")
+    implementation "curse.maven:watermedia-869524:4673740"
     implementation fg.deobf("curse.maven:jei-238222:4494410")
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
