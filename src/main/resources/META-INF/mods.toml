@@ -13,6 +13,6 @@ credits="Thanks J-RAP for the help with the API"
 [[dependencies.videoplayer]]
     modId="watermedia"
     mandatory=true
-    versionRange="[1.3.33,)"
+    versionRange="[1.3.35,)"
     ordering="AFTER"
     side="CLIENT"
