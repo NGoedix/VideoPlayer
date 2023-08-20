@@ -1,12 +1,15 @@
 package com.github.NGoedix.watchvideo.client.gui;
 
-import com.github.NGoedix.watchvideo.VideoPlayer;
 import com.github.NGoedix.watchvideo.util.cache.TextureCache;
 import com.github.NGoedix.watchvideo.util.displayers.IDisplay;
 import com.github.NGoedix.watchvideo.util.displayers.VideoDisplayer;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import me.lib720.caprica.vlcj.media.MediaRef;
+import me.lib720.caprica.vlcj.media.TrackType;
+import me.lib720.caprica.vlcj.player.base.MediaPlayer;
+import me.lib720.caprica.vlcj.player.base.MediaPlayerEventListener;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -19,12 +22,14 @@ import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 
 import java.nio.IntBuffer;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> {
-
+    private static final Thread THREAD = Thread.currentThread();
     private final String url;
     private final int volume;
     private int tick;
+    private final AtomicBoolean ENDED = new AtomicBoolean(false);
 
     private boolean firstIteration;
 
@@ -68,6 +73,10 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     @Override
     protected void renderLabels(PoseStack pPoseStack, int pMouseX, int pMouseY) {}
 
+    private synchronized static void checkIfCurrentThreadHaveClassLoader() {
+        if (Thread.currentThread().getContextClassLoader() == null) Thread.currentThread().setContextClassLoader(THREAD.getContextClassLoader());
+    }
+
     @Override
     protected void renderBg(@NotNull PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {
         if (url.isBlank()) {
@@ -81,17 +90,160 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
         if (!firstIteration) {
             firstIteration = true;
             if (display instanceof VideoDisplayer) {
-                ((VideoDisplayer) display).player.events.setMediaFinishEvent((videoLanPlayer, eventData) -> {
-                    VideoPlayer.LOGGER.warn("Video finished");
-                    onClose();
+                ((VideoDisplayer) display).player.raw().mediaPlayer().events().addMediaPlayerEventListener(new MediaPlayerEventListener() {
+                    @Override
+                    public void mediaChanged(MediaPlayer mediaPlayer, MediaRef mediaRef) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
+
+                    @Override
+                    public void opening(MediaPlayer mediaPlayer) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
+
+                    @Override
+                    public void buffering(MediaPlayer mediaPlayer, float v) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
+
+                    @Override
+                    public void playing(MediaPlayer mediaPlayer) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
+
+                    @Override
+                    public void paused(MediaPlayer mediaPlayer) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
+
+                    @Override
+                    public void stopped(MediaPlayer mediaPlayer) {
+                        checkIfCurrentThreadHaveClassLoader();
+                        ENDED.set(true);
+                    }
+
+                    @Override
+                    public void forward(MediaPlayer mediaPlayer) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
+
+                    @Override
+                    public void backward(MediaPlayer mediaPlayer) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
+
+                    @Override
+                    public void finished(MediaPlayer mediaPlayer) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
+
+                    @Override
+                    public void timeChanged(MediaPlayer mediaPlayer, long l) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
+
+                    @Override
+                    public void positionChanged(MediaPlayer mediaPlayer, float v) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
+
+                    @Override
+                    public void seekableChanged(MediaPlayer mediaPlayer, int i) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
+
+                    @Override
+                    public void pausableChanged(MediaPlayer mediaPlayer, int i) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
+
+                    @Override
+                    public void titleChanged(MediaPlayer mediaPlayer, int i) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
+
+                    @Override
+                    public void snapshotTaken(MediaPlayer mediaPlayer, String s) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
+
+                    @Override
+                    public void lengthChanged(MediaPlayer mediaPlayer, long l) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
+
+                    @Override
+                    public void videoOutput(MediaPlayer mediaPlayer, int i) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
+
+                    @Override
+                    public void scrambledChanged(MediaPlayer mediaPlayer, int i) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
+
+                    @Override
+                    public void elementaryStreamAdded(MediaPlayer mediaPlayer, TrackType trackType, int i) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
+
+                    @Override
+                    public void elementaryStreamDeleted(MediaPlayer mediaPlayer, TrackType trackType, int i) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
+
+                    @Override
+                    public void elementaryStreamSelected(MediaPlayer mediaPlayer, TrackType trackType, int i) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
+
+                    @Override
+                    public void corked(MediaPlayer mediaPlayer, boolean b) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
+
+                    @Override
+                    public void muted(MediaPlayer mediaPlayer, boolean b) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
+
+                    @Override
+                    public void volumeChanged(MediaPlayer mediaPlayer, float v) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
+
+                    @Override
+                    public void audioDeviceChanged(MediaPlayer mediaPlayer, String s) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
+
+                    @Override
+                    public void chapterChanged(MediaPlayer mediaPlayer, int i) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
+
+                    @Override
+                    public void error(MediaPlayer mediaPlayer) {
+                        checkIfCurrentThreadHaveClassLoader();
+                        ENDED.set(true);
+                    }
+
+                    @Override
+                    public void mediaPlayerReady(MediaPlayer mediaPlayer) {
+                        checkIfCurrentThreadHaveClassLoader();
+                    }
                 });
             }
         }
 
         int texture;
         if (display instanceof VideoDisplayer) {
-            if (!((VideoDisplayer) display).player.isPlaying())
+            if (ENDED.get()) {
+                onClose();
                 return;
+            }
+
+            if (!((VideoDisplayer) display).player.isPlaying()) return;
             texture = createTexture(display.getWidth(), display.getHeight(), ((VideoDisplayer) display).buffer);
         } else {
             display.prepare(url, 200, 1, 1, true, false, tick);

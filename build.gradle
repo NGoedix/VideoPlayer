@@ -23,7 +23,7 @@ apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'org.spongepowered.mixin'
 
 
-version = '2.2.0-FORGE-1.18.X'
+version = '2.3.0-FORGE-1.18.X'
 group = 'com.github.NGoedix.VideoPlayer' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'VideoPlayer'
 
@@ -80,11 +80,11 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.18.2-40.1.23'
-    implementation fg.deobf("curse.maven:watermedia-869524:4621611")
-    implementation fg.deobf("curse.maven:jei-238222:4434393")
-
+    minecraft 'net.minecraftforge:forge:1.18.2-40.2.10'
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+
+    implementation "curse.maven:watermedia-869524:4673740"
+    implementation fg.deobf("curse.maven:jei-238222:4434393")
 }
 
 jar {
