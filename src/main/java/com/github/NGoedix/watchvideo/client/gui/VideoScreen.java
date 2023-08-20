@@ -96,7 +96,7 @@ public class VideoScreen extends Screen {
         if (player.isEnded() || player.isStopped() || player.getPlayerState().equals(State.ERROR)) {
             if (fadeLevel == 1 || closing) {
                 closing = true;
-                if (closingOnTick == -1) closingOnTick = tick + 40;
+                if (closingOnTick == -1) closingOnTick = tick + 20;
                 if (tick >= closingOnTick) fadeLevel = Math.max(fadeLevel - (pPartialTicks / 8), 0.0f);
                 renderBlackBackground(stack);
                 renderLoadingGif(stack);
