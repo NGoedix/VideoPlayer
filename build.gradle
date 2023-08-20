@@ -143,7 +143,7 @@ dependencies {
     implementation fileTree('libs') { include '*.jar' }
 
     // API
-    implementation "curse.maven:watermedia-869524:4713097"
+    implementation "curse.maven:watermedia-869524:4713139"
 
     // PERFORMANCE TOOLS
     implementation fg.deobf("curse.maven:lazy-dfu-forge-460819:3249059")
