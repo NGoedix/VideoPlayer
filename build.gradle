@@ -1,21 +1,32 @@
 buildscript {
     repositories {
-        maven { url = 'https://maven.minecraftforge.net' }
-        maven { url = 'https://maven.parchmentmc.org' }
         mavenCentral()
+        maven { url 'https://maven.minecraftforge.net' }
+        maven { url 'https://repo.spongepowered.org/maven' }
+        maven { url 'https://maven.parchmentmc.org' }
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+        classpath "org.spongepowered:mixingradle:0.7-SNAPSHOT"
         classpath 'org.parchmentmc:librarian:1.+'
     }
 }
+
+plugins {
+    id 'idea'
+//    id 'net.minecraftforge.gradle'
+//    id 'org.spongepowered.mixin'
+//    id 'org.parchmentmc.librarian.forgegradle'
+
+}
+
+//apply plugin: 'idea'
 apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
-// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
-apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '0.5.5-BETA-1.16.5'
+version = '0.8.0-BETA-1.16.5'
 group = 'com.github.NGoedix.WatchVideoMod' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'VideoPlayer'
 
@@ -128,31 +139,18 @@ repositories {
 }
 
 dependencies {
-    // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
-    // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
-    // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft 'net.minecraftforge:forge:1.16.5-36.2.34'
-
     implementation fileTree('libs') { include '*.jar' }
-    implementation "curse.maven:watermedia-869524:4705533"
-    // You may put jars on which you depend on in ./libs or you may define them like so..
-    // compile "some.group:artifact:version:classifier"
-    // compile "some.group:artifact:version"
 
-    // Real examples
-    // compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
-    // compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
+    // API
+    implementation "curse.maven:watermedia-869524:4713097"
 
-    // The 'provided' configuration is for optional dependencies that exist at compile-time but might not at runtime.
-    // provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
-
-    // These dependencies get remapped to your current MCP mappings
-    // deobf 'com.mod-buildcraft:buildcraft:6.0.8:dev'
-
-    // For more info...
-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
-
+    // PERFORMANCE TOOLS
+    implementation fg.deobf("curse.maven:lazy-dfu-forge-460819:3249059")
+    implementation fg.deobf("curse.maven:ferritecore-429235:4074330")
+    implementation fg.deobf("curse.maven:smooth-boot-forge-420913:3224252")
+    implementation fg.deobf("curse.maven:lightspeedmod-821790:4594802")
+    implementation fg.deobf("curse.maven:betterloadingscreen-594044:3722048")
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..

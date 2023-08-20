@@ -24,6 +24,6 @@ This mod allows the playback of videos in the user interface (GUI), you can play
 [[dependencies.videoplayer]]
     modId="watermedia"
     mandatory=true
-    versionRange="[2.0.0-beta1,)"
+    versionRange="[2.0.0-beta15,)"
     ordering="AFTER"
     side="CLIENT"
