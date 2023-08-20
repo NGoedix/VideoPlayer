@@ -185,7 +185,7 @@ public class VideoScreen extends Screen {
 
     @Override
     public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
-        if (pKeyCode != 256) return super.keyPressed(pKeyCode, pScanCode, pModifiers);
+        if (pKeyCode != 256) return false;
         this.player.stop();
         return false;
     }
