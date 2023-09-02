@@ -66,10 +66,12 @@ public class TVBlockEntity extends BlockEntity {
 
     public void setUrl(String url) {
         this.url = url;
+        this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
     }
 
     public void setVolume(int volume) {
         this.volume = volume / 100F;
+        this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
     }
 
     public void setLoop(boolean loop) {
@@ -79,7 +81,7 @@ public class TVBlockEntity extends BlockEntity {
     public IDisplay requestDisplay() {
         String url = getUrl();
         if (cache == null || !cache.url.equals(url)) {
-            cache = TextureCache.get(url);
+            cache = new TextureCache(url);
             if (display != null)
                 display.release();
             display = null;
@@ -88,7 +90,7 @@ public class TVBlockEntity extends BlockEntity {
             return null;
         if (display != null)
             return display;
-        return display = cache.createDisplay(new Vec3d(worldPosition), url, volume, minDistance, maxDistance, loop);
+        return display = cache.createDisplay(new Vec3d(worldPosition), url, volume, minDistance, maxDistance, loop, playing);
     }
 
     public void tryOpen(Level level, BlockPos blockPos, Player player) {

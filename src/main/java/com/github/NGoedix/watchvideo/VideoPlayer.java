@@ -59,18 +59,23 @@ public class VideoPlayer {
 
         @SubscribeEvent
         public static void onRenderTickEvent(TickEvent.RenderTickEvent event) {
-            if (event.phase == TickEvent.Phase.END) TextureCache.tick();
+            if (event.phase == TickEvent.Phase.END) {
+                TextureCache.renderTick();
+            }
         }
 
         @SubscribeEvent
         public static void onClientTickEvent(TickEvent.ClientTickEvent event) {
-            if (event.phase == TickEvent.Phase.END) VideoDisplayer.tick();
+            if (event.phase == TickEvent.Phase.END) {
+                TextureCache.clientTick();
+                VideoDisplayer.tick();
+            }
         }
 
         @SubscribeEvent
         public static void onUnloadingLevel(WorldEvent.Unload unload) {
             if (unload.getWorld() != null && unload.getWorld().isClientSide()) {
-                TextureCache.unload(unload);
+                TextureCache.unload();
                 VideoDisplayer.unload();
             }
         }

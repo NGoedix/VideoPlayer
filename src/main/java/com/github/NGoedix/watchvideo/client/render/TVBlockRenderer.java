@@ -1,6 +1,5 @@
 package com.github.NGoedix.watchvideo.client.render;
 
-import com.github.NGoedix.watchvideo.VideoPlayer;
 import com.github.NGoedix.watchvideo.block.custom.TVBlock;
 import com.github.NGoedix.watchvideo.block.entity.custom.TVBlockEntity;
 import com.github.NGoedix.watchvideo.util.displayers.IDisplay;
@@ -13,7 +12,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
+import me.lib720.caprica.vlcj.player.base.State;
+import me.srrapero720.watermedia.api.WaterMediaAPI;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -25,6 +27,8 @@ import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
 
 public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
+
+    private float tick;
 
     public TVBlockRenderer(BlockEntityRendererProvider.Context dispatcher) {}
 
@@ -46,22 +50,33 @@ public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
         }
 
         IDisplay display = frame.requestDisplay();
-        if (display == null) return;
+        if (display == null) {
+            if (!frame.isPlaying()) return;
+            renderTexture(frame, WaterMediaAPI.api_getTexture(WaterMediaAPI.img_getLoading(), (int) tick, 1, true), pose, pBufferSource, pPackedLight, pPackedOverlay);
+            tick += pPartialTick / 2F;
+            return;
+        }
 
-        display.prepare(frame.getUrl(), frame.volume * Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER), frame.minDistance, frame.maxDistance, frame.isPlaying(), frame.loop, frame.getTick());
+        int texture = display.prepare(frame.getUrl(), frame.volume * Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER), frame.minDistance, frame.maxDistance, frame.isPlaying(), frame.loop, frame.getTick());
 
+        if (texture == -1) {
+            return;
+        }
+
+        renderTexture(frame, texture, pose, pBufferSource, pPackedLight, pPackedOverlay);
+    }
+
+    private void renderTexture(TVBlockEntity frame, int texture, PoseStack pose, MultiBufferSource pBufferSource, int pPackedLight, int pPackedOverlay) {
         RenderSystem.enableDepthTest();
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         RenderSystem.setShaderColor(1, 1, 1, 1);
-        int texture = display.texture();
 
-        if (texture == -1) return;
         RenderSystem.bindTexture(texture);
         RenderSystem.setShaderTexture(0, texture);
 
-        RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-        RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 
         Direction d = frame.getBlockState().getValue(TVBlock.FACING);
         if (d == Direction.NORTH) {
@@ -114,7 +129,8 @@ public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
                     .uv(corner.isFacing(face.getTexU()) ? 1 : 0, corner.isFacing(face.getTexV()) ? 1 : 0).color(-1)
                     .normal(mat3f, normal.getX(), normal.getY(), normal.getZ()).endVertex();
         tesselator.end();
-
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
         pose.popPose();
 
         // Reset OpenGL state

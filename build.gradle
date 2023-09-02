@@ -4,6 +4,7 @@ buildscript {
         maven { url = 'https://maven.minecraftforge.net' }
         maven { url = 'https://repo.spongepowered.org/maven' }
         maven { url = 'https://maven.parchmentmc.org' }
+        maven { url 'https://jitpack.io' }
         mavenCentral()
         jcenter()
     }
@@ -23,7 +24,7 @@ apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'org.spongepowered.mixin'
 
 
-version = '2.3.0-FORGE-1.18.X'
+version = '2.5.0-FORGE-1.18.X'
 group = 'com.github.NGoedix.VideoPlayer' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'VideoPlayer'
 
@@ -83,7 +84,7 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.18.2-40.2.10'
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
-    implementation "curse.maven:watermedia-869524:4673740"
+    implementation 'com.github.SrRapero720.watermedia:build:2.0.0-rc13'
     implementation fg.deobf("curse.maven:jei-238222:4434393")
 }
 
