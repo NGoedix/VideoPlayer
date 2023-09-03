@@ -29,7 +29,7 @@ public class VideoDisplayer implements IDisplay {
             for (var display: OPEN_DISPLAYS) {
                 if (Minecraft.getInstance().isPaused()) {
                     var media = display.player;
-                    if (display.stream && media.isPlaying()) media.setPauseMode(true);
+                    if (display.player.isLive() && media.isPlaying()) media.setPauseMode(true);
                     else if (media.getDuration() > 0 && media.isPlaying()) media.setPauseMode(true);
                 }
             }
@@ -51,7 +51,7 @@ public class VideoDisplayer implements IDisplay {
             return display;
 
         }, ((Supplier<IDisplay>) () -> {
-            var cache = new TextureCache(VLC_FAILED);
+            var cache = TextureCache.get(VLC_FAILED);
             if (cache.ready()) return cache.createDisplay(pos, VLC_FAILED, volume, minDistance, maxDistance, loop, playing);
             return null;
         }).get());
@@ -60,7 +60,6 @@ public class VideoDisplayer implements IDisplay {
     public SyncVideoPlayer player;
     
     private final Vec3d pos;
-    private boolean stream = false;
     private float lastSetVolume;
     private long lastCorrectedTime = Long.MIN_VALUE;
     
@@ -107,17 +106,14 @@ public class VideoDisplayer implements IDisplay {
             player.setVolume((int) volume);
             lastSetVolume = volume;
         }
-        
+
         if (player.isValid()) {
             boolean realPlaying = playing && !Minecraft.getInstance().isPaused();
-            
+
             if (player.getRepeatMode() != loop)
                 player.setRepeatMode(loop);
             long tickTime = 50;
-            long newDuration = player.getDuration();
-            if (!stream && newDuration != -1 && newDuration != 0 && player.getMediaInfoDuration() == 0)
-                stream = true;
-            if (stream) {
+            if (player.isLive()) {
                 if (player.isPlaying() != realPlaying)
                     player.setPauseMode(!realPlaying);
             } else {

@@ -22,10 +22,21 @@ public class TextureCache {
     private volatile boolean isVideo = false;
     private final AtomicInteger usage = new AtomicInteger();
 
-    public TextureCache(String url) {
+    private TextureCache(String url) {
         this.url = url;
         use();
         attemptToLoad();
+    }
+
+    public static TextureCache get(String url) {
+        TextureCache cache = CACHE.get(url);
+        if (cache != null) {
+            cache.use();
+            return cache;
+        }
+        cache = new TextureCache(url);
+        CACHE.put(url, cache);
+        return cache;
     }
 
     private synchronized void attemptToLoad() {

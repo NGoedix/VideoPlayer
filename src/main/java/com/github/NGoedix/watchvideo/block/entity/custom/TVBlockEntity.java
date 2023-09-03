@@ -81,7 +81,7 @@ public class TVBlockEntity extends BlockEntity {
     public IDisplay requestDisplay() {
         String url = getUrl();
         if (cache == null || !cache.url.equals(url)) {
-            cache = new TextureCache(url);
+            cache = TextureCache.get(url);
             if (display != null)
                 display.release();
             display = null;
