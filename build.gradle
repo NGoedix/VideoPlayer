@@ -84,7 +84,7 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.18.2-40.2.10'
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
-    implementation 'com.github.SrRapero720.watermedia:build:2.0.0-rc13'
+    implementation 'com.github.SrRapero720.watermedia:build:2.0.0'
     implementation fg.deobf("curse.maven:jei-238222:4434393")
 }
 
