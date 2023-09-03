@@ -3,6 +3,7 @@ package com.github.NGoedix.watchvideo.client.render;
 import com.github.NGoedix.watchvideo.block.custom.TVBlock;
 import com.github.NGoedix.watchvideo.block.entity.custom.TVBlockEntity;
 import com.github.NGoedix.watchvideo.util.displayers.IDisplay;
+import com.github.NGoedix.watchvideo.util.displayers.ImageDisplayer;
 import com.github.NGoedix.watchvideo.util.math.*;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -11,6 +12,7 @@ import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import me.lib720.caprica.vlcj.player.base.State;
 import me.srrapero720.watermedia.api.WaterMediaAPI;
+import me.srrapero720.watermedia.api.image.ImageRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.renderer.GameRenderer;
@@ -24,12 +26,22 @@ import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
 
+    private static BufferedImage blackTextureBuffer = null;
+    private static ImageRenderer blackTexture = null;
+
     private float tick;
 
-    public TVBlockRenderer(BlockEntityRendererProvider.Context dispatcher) {}
+    public TVBlockRenderer(BlockEntityRendererProvider.Context dispatcher) {
+        if (blackTextureBuffer == null) {
+            blackTextureBuffer = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+            blackTextureBuffer.setRGB(0, 0, Color.BLACK.getRGB());
+            blackTexture = new ImageRenderer(blackTextureBuffer);
+        }
+    }
 
     @Override
     public boolean shouldRenderOffScreen(TVBlockEntity frame) {
@@ -51,7 +63,7 @@ public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
         IDisplay display = frame.requestDisplay();
         if (display == null) {
             if (!frame.isPlaying()) return;
-            renderTexture(frame, null, WaterMediaAPI.api_getTexture(WaterMediaAPI.img_getLoading(), (int) tick, 1, true), pose, pBufferSource, pPackedLight, pPackedOverlay);
+            renderTexture(frame, null, WaterMediaAPI.api_getTexture(WaterMediaAPI.img_getLoading(), (int) tick, 1, true), pose, true);
             tick += pPartialTick / 2F;
             return;
         }
@@ -62,10 +74,11 @@ public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
             return;
         }
 
-        renderTexture(frame, display, texture, pose, pBufferSource, pPackedLight, pPackedOverlay);
+        renderTexture(frame, display, WaterMediaAPI.api_getTexture(blackTexture, 1, 1, false), pose, false);
+        renderTexture(frame, display, texture, pose, true);
     }
 
-    private void renderTexture(TVBlockEntity frame, IDisplay display, int texture, PoseStack pose, MultiBufferSource pBufferSource, int pPackedLight, int pPackedOverlay) {
+    private void renderTexture(TVBlockEntity frame, IDisplay display, int texture, PoseStack pose, boolean aspectRatio) {
         RenderSystem.enableDepthTest();
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
@@ -87,58 +100,63 @@ public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
         Facing facing = Facing.get(d);
         AlignedBox box = frame.getBox();
 
-        float videoAspectRatio = 1.0f;
-        if (display != null) {
-            Dimension dimensions = display.getDimensions();
-            if (dimensions != null) {
-                // Adjust based on dimensions
-                videoAspectRatio = (float) (dimensions.getWidth() / (float) dimensions.getHeight());
+        // BEGIN ASPECT RATIO
+        if (aspectRatio) {
+            float videoAspectRatio = 1.0f;
+            if (display != null) {
+                Dimension dimensions = display.getDimensions();
+                if (dimensions != null) {
+                    // Adjust based on dimensions
+                    videoAspectRatio = (float) (dimensions.getWidth() / (float) dimensions.getHeight());
+                }
             }
-        }
 
-        float height = box.maxY - box.minY;
-        float width = 0F;
-        switch (facing) {
-            case WEST, EAST -> width = box.maxZ - box.minZ;
-            case NORTH, SOUTH -> width = box.maxX - box.minX;
-        }
+            float height = box.maxY - box.minY;
+            float width = 0F;
+            switch (facing) {
+                case WEST, EAST -> width = box.maxZ - box.minZ;
+                case NORTH, SOUTH -> width = box.maxX - box.minX;
+            }
 
-        float screenAspectRatio = width / height;
-        float w = height * videoAspectRatio;
-        float h = width / videoAspectRatio;
+            float screenAspectRatio = width / height;
+            float w = height * videoAspectRatio;
+            float h = width / videoAspectRatio;
 
-        if(videoAspectRatio > screenAspectRatio) {
-            box.setMax(Axis.Y, h);
-            pose.translate(0, (height - h) / 2F, 0);
-        } else {
-            box.setMax(facing.axis == Axis.Z ? Axis.X : Axis.Z, w);
-            pose.translate(facing.axis == Axis.Z ? (width - w) / 2F : 0, 0, facing.axis == Axis.Z ? 0 : (width - w) / 2F);
-        }
-
-        if (facing == Facing.SOUTH) {
-            box.setMax(Axis.X, box.maxX - 0.02F);
-        }
-
-
-        // Calculate the difference between height and width
-        float difference = height - width;
-
-        // If the height is greater than width, adjust both dimensions.
-        if (difference > 0) {
-            // Adjust the dimensions of the box
-            box.grow(Axis.Y, -difference/2); // Shrink the height
-            if (facing.axis == Axis.Z) {
-                box.grow(Axis.X, difference/2); // Grow the width if facing axis is Z
+            if(videoAspectRatio > screenAspectRatio) {
+                box.setMax(Axis.Y, h);
+                pose.translate(0, (height - h) / 2F, 0);
             } else {
-                box.grow(Axis.Z, difference/2); // Grow the width if facing axis is not Z
+                box.setMax(facing.axis == Axis.Z ? Axis.X : Axis.Z, w);
+                pose.translate(facing.axis == Axis.Z ? (width - w) / 2F : 0, 0, facing.axis == Axis.Z ? 0 : (width - w) / 2F);
+            }
+
+            if (facing == Facing.SOUTH) {
+                box.setMax(Axis.X, box.maxX - 0.02F);
+            }
+
+            // Calculate the difference between height and width
+            float difference = height - width;
+
+            // If the height is greater than width, adjust both dimensions.
+            if (difference > 0) {
+                // Adjust the dimensions of the box
+                box.grow(Axis.Y, -difference/2); // Shrink the height
+                if (facing.axis == Axis.Z) {
+                    box.grow(Axis.X, difference/2); // Grow the width if facing axis is Z
+                } else {
+                    box.grow(Axis.Z, difference/2); // Grow the width if facing axis is not Z
+                }
             }
         }
+        // END ASPECT RATIO
+
+        float offset = aspectRatio ? 0.001f : 0;
 
         // Incorporate widthFactor to adjust the box based on the texture's dimensions
         if (d == Direction.WEST || d == Direction.EAST) {
-            box.grow(facing.axis, 0.99F);
+            box.grow(facing.axis, 0.99F + offset);
         } else {
-            box.grow(facing.axis, -0.95F);
+            box.grow(facing.axis, -0.95F + offset);
         }
         BoxFace face = BoxFace.get(facing);
 
