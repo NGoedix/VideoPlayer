@@ -3,6 +3,8 @@ package com.github.NGoedix.watchvideo.util.displayers;
 import me.srrapero720.watermedia.api.image.ImageRenderer;
 import net.minecraft.client.Minecraft;
 
+import java.awt.*;
+
 public class ImageDisplayer implements IDisplay {
 
     public final ImageRenderer picture;
@@ -31,5 +33,10 @@ public class ImageDisplayer implements IDisplay {
     @Override
     public void release() {
         picture.release();
+    }
+
+    @Override
+    public Dimension getDimensions() {
+        return new Dimension(picture.width, picture.height);
     }
 }

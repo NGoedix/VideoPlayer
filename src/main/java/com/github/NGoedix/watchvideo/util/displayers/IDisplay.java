@@ -1,5 +1,7 @@
 package com.github.NGoedix.watchvideo.util.displayers;
 
+import java.awt.*;
+
 public interface IDisplay {
 
     int prepare(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick);
@@ -15,4 +17,6 @@ public interface IDisplay {
     void resume(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick);
 
     void release();
+
+    Dimension getDimensions();
 }

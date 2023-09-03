@@ -18,6 +18,7 @@ import net.minecraftforge.fml.loading.FMLLoader;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 
+import java.awt.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -109,16 +110,47 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     }
 
     private void renderTexture(PoseStack stack, int texture) {
+        if (player.getDimensions() == null) return; // Checking if video available
+
+        RenderSystem.enableBlend();
+        fill(stack, 0, 0, width, height, WaterMediaAPI.math_colorARGB(255, 0, 0, 0));
+        RenderSystem.disableBlend();
+
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, texture);
+
+        // Get video dimensions
+        Dimension videoDimensions = player.getDimensions();
+        double videoWidth = videoDimensions.getWidth();
+        double videoHeight = videoDimensions.getHeight();
+
+        // Calculate aspect ratios for both the screen and the video
+        float screenAspectRatio = (float) imageWidth / imageHeight;
+        float videoAspectRatio = (float) ((float) videoWidth / videoHeight);
+
+        // New dimensions for rendering video texture
+        int renderWidth, renderHeight;
+
+        // If video's aspect ratio is greater than screen's, it means video's width needs to be scaled down to screen's width
+        if(videoAspectRatio > screenAspectRatio) {
+            renderWidth = imageWidth;
+            renderHeight = (int) (imageWidth / videoAspectRatio);
+        } else {
+            renderWidth = (int) (imageHeight * videoAspectRatio);
+            renderHeight = imageHeight;
+        }
+
+        int xOffset = (imageWidth - renderWidth) / 2; // xOffset for centering the video
+        int yOffset = (imageHeight - renderHeight) / 2; // yOffset for centering the video
 
         RenderSystem.enableBlend();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-        GuiComponent.blit(stack, 0, 0, 0.0F, 0.0F, imageWidth, imageHeight, imageWidth, imageHeight);
+        GuiComponent.blit(stack, xOffset, yOffset, 0.0F, 0.0F, renderWidth, renderHeight, renderWidth, renderHeight);
         RenderSystem.disableBlend();
     }
+
 
     private void renderBlackBackground(PoseStack stack) {
         RenderSystem.enableBlend();
@@ -154,7 +186,6 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     @Override
     public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
         if (hasShiftDown() && pKeyCode == 256) {
-            this.player.stop();
             this.onClose();
         }
         return super.keyPressed(pKeyCode, pScanCode, pModifiers);
@@ -169,6 +200,7 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     public void onClose() {
         super.onClose();
         if (started) {
+            this.player.stop();
             started = false;
             Minecraft.getInstance().getSoundManager().resume();
             GlStateManager._deleteTexture(videoTexture);

@@ -205,7 +205,7 @@ public class TVBlockEntity extends BlockEntity {
     }
 
     public float getSizeY() {
-        return 0.85F;
+        return 0.81F;
     }
 
     public AlignedBox getBox() {

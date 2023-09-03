@@ -10,6 +10,7 @@ import me.srrapero720.watermedia.api.player.SyncVideoPlayer;
 import me.srrapero720.watermedia.api.player.VideoPlayer;
 import net.minecraft.client.Minecraft;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -180,5 +181,11 @@ public class VideoDisplayer implements IDisplay {
         if (player == null) return;
         player.seekTo(tick);
         player.play();
+    }
+
+    @Override
+    public Dimension getDimensions() {
+        if (player == null) return null;
+        return player.getDimensions();
     }
 }
