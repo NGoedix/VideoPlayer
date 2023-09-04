@@ -68,7 +68,7 @@ public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
             return;
         }
 
-        int texture = display.prepare(frame.getUrl(), frame.volume * Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER), frame.minDistance, frame.maxDistance, frame.isPlaying(), frame.loop, frame.getTick());
+        int texture = display.prepare(frame.getUrl(), frame.getVolume() * Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER), frame.minDistance, frame.maxDistance, frame.isPlaying(), frame.isLoop(), frame.getTick());
 
         if (texture == -1) {
             return;

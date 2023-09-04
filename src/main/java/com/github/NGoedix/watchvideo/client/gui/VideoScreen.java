@@ -7,7 +7,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import me.lib720.caprica.vlcj.player.base.State;
 import me.srrapero720.watermedia.api.WaterMediaAPI;
 import me.srrapero720.watermedia.api.player.SyncVideoPlayer;
-import me.srrapero720.watermedia.api.player.VideoPlayer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
