@@ -7,12 +7,14 @@ import com.github.NGoedix.watchvideo.network.PacketHandler;
 import com.github.NGoedix.watchvideo.network.message.UploadVideoUpdateMessage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.jetbrains.annotations.NotNull;
 
 public class TVVideoScreen extends Screen {
 
@@ -21,14 +23,12 @@ public class TVVideoScreen extends Screen {
 
     private final BlockEntity be;
     private String url;
-    private final int tick;
     private int volume;
-    private final boolean loop;
 
 
     // GUI
-    private int imageWidth = 256;
-    private int imageHeight = 256;
+    private final int imageWidth = 256;
+    private final int imageHeight = 256;
     private int leftPos;
     private int topPos;
 
@@ -36,17 +36,14 @@ public class TVVideoScreen extends Screen {
     private EditBox urlBox;
     private CustomSlider volumeSlider;
 
-
     private boolean changed;
 
 
-    public TVVideoScreen(BlockEntity be, String url, int tick, int volume, boolean loop) {
+    public TVVideoScreen(BlockEntity be, String url, int volume) {
         super(Component.translatable("gui.tv_video_screen.title"));
         this.be = be;
         this.url = url;
-        this.tick = tick;
         this.volume = volume;
-        this.loop = loop;
     }
 
     @Override
@@ -56,7 +53,7 @@ public class TVVideoScreen extends Screen {
         leftPos = (width - imageWidth) / 2;
         topPos = (height - imageHeight) / 2;
 
-        minecraft.keyboardHandler.setSendRepeatsToGui(true);
+        Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(true);
 
         addRenderableWidget(urlBox = new EditBox(font, leftPos + 10, topPos + 30, imageWidth - 26, 20, Component.literal("")));
         // Set the text to the url
@@ -101,7 +98,7 @@ public class TVVideoScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void render(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         renderBackground(pPoseStack);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem._setShaderTexture(0, TEXTURE);
@@ -109,7 +106,7 @@ public class TVVideoScreen extends Screen {
 
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
 
-        font.draw(pPoseStack, Component.translatable("gui.tv_video_screen.url_text"), width / 2 - font.width(Component.translatable("gui.tv_video_screen.url_text")) / 2, topPos + 16, 0xFFFFFF);
+        font.draw(pPoseStack, Component.translatable("gui.tv_video_screen.url_text"), width / 2f - font.width(Component.translatable("gui.tv_video_screen.url_text")) / 2f, topPos + 16, 0xFFFFFF);
 
     }
 
@@ -117,7 +114,7 @@ public class TVVideoScreen extends Screen {
     public void removed() {
         if (!changed)
             PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getBlockPos(), url, -1, true, true, false));
-        minecraft.keyboardHandler.setSendRepeatsToGui(false);
+        Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(false);
     }
 
     @Override

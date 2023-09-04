@@ -5,8 +5,6 @@
   "refmap": "videoplayer.mixin.refmap.json",
   "mixins": [
   ],
-  "client": [
-    "MinecraftMixin"
-  ],
+  "client": [],
   "minVersion": "0.8"
 }

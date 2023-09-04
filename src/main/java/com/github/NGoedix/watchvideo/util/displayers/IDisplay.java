@@ -2,13 +2,11 @@ package com.github.NGoedix.watchvideo.util.displayers;
 
 import com.mojang.blaze3d.platform.NativeImage;
 
+import java.awt.*;
+
 public interface IDisplay {
 
-    int getWidth();
-
-    int getHeight();
-
-    void prepare(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick);
+    int prepare(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick);
 
     void tick(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick);
 
@@ -20,7 +18,7 @@ public interface IDisplay {
 
     void resume(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick);
 
-    int texture();
-
     void release();
+
+    Dimension getDimensions();
 }

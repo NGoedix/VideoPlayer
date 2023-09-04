@@ -6,17 +6,20 @@ import com.github.NGoedix.watchvideo.client.render.TVBlockRenderer;
 import com.github.NGoedix.watchvideo.commands.RegisterCommands;
 import com.github.NGoedix.watchvideo.common.CommonHandler;
 import com.github.NGoedix.watchvideo.item.ModItems;
+import com.github.NGoedix.watchvideo.util.cache.TextureCache;
+import com.github.NGoedix.watchvideo.util.displayers.VideoDisplayer;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.level.LevelEvent.Unload;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
@@ -57,11 +60,30 @@ public class VideoPlayer
         BlockEntityRenderers.register(ModBlockEntities.TV_BLOCK_ENTITY.get(), TVBlockRenderer::new);
     }
 
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
-    @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event)
-    {
-        // Do something when the server starts
-        LOGGER.info("HELLO from server starting");
+    @Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+    public static final class Events {
+
+        @SubscribeEvent
+        public static void onRenderTickEvent(TickEvent.RenderTickEvent event) {
+            if (event.phase == TickEvent.Phase.END) {
+                TextureCache.renderTick();
+            }
+        }
+
+        @SubscribeEvent
+        public static void onClientTickEvent(TickEvent.ClientTickEvent event) {
+            if (event.phase == TickEvent.Phase.END) {
+                TextureCache.clientTick();
+                VideoDisplayer.tick();
+            }
+        }
+
+        @SubscribeEvent
+        public static void onUnloadingLevel(Unload unload) {
+            if (unload.getLevel() != null && unload.getLevel().isClientSide()) {
+                TextureCache.unload();
+                VideoDisplayer.unload();
+            }
+        }
     }
 }

@@ -22,9 +22,9 @@ public class PlayVideoCommand {
         dispatcher.register(Commands.literal("playvideo")
                 .requires(source -> source.hasPermission(2))
                 .then(Commands.argument("target", EntityArgument.players())
-                        .then(Commands.argument("volume", IntegerArgumentType.integer(0, 100))
-                                .then(Commands.argument("url", StringArgumentType.greedyString())
-                                        .executes(PlayVideoCommand::execute)))));
+                .then(Commands.argument("volume", IntegerArgumentType.integer(0, 100))
+                .then(Commands.argument("url", StringArgumentType.greedyString())
+                .executes(PlayVideoCommand::execute)))));
     }
 
     private static int execute(CommandContext<CommandSourceStack> command){

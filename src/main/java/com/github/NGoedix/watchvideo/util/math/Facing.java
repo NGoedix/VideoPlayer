@@ -108,7 +108,8 @@ public enum Facing {
         if (direction == null) {
             return null;
         } else {
-            Facing var10000 = switch (direction) {
+
+            return switch (direction) {
                 case DOWN -> DOWN;
                 case UP -> UP;
                 case NORTH -> NORTH;
@@ -116,8 +117,6 @@ public enum Facing {
                 case WEST -> WEST;
                 case EAST -> EAST;
             };
-
-            return var10000;
         }
     }
 
