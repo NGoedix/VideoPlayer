@@ -37,7 +37,6 @@ public class TVVideoScreen extends Screen {
     private EditBox urlBox;
     private CustomSlider volumeSlider;
 
-
     private boolean changed;
 
 

@@ -4,10 +4,8 @@ import com.github.NGoedix.watchvideo.util.cache.TextureCache;
 import com.github.NGoedix.watchvideo.util.math.Vec3d;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.MemoryTracker;
-import me.lib720.caprica.vlcj.player.base.State;
 import me.lib720.watermod.safety.TryCore;
 import me.srrapero720.watermedia.api.player.SyncVideoPlayer;
-import me.srrapero720.watermedia.api.player.VideoPlayer;
 import net.minecraft.client.Minecraft;
 
 import java.awt.*;

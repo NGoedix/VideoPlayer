@@ -54,7 +54,7 @@ public class VideoPlayer {
         event.enqueueWork(CommonHandler::setup);
     }
 
-    @Mod.EventBusSubscriber(modid = "videoplayer", bus = Mod.EventBusSubscriber.Bus.FORGE)
+    @Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
     public static final class Events {
 
         @SubscribeEvent
