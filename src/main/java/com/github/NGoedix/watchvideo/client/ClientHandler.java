@@ -19,9 +19,9 @@ public class ClientHandler {
             tv.setTick(tick);
             if (tv.display != null) {
                 if (playing)
-                    tv.display.resume(tv.getUrl(), tv.volume, tv.minDistance, tv.maxDistance, tv.isPlaying(), tv.loop, tv.getTick());
+                    tv.display.resume(tv.getUrl(), tv.getVolume(), tv.minDistance, tv.maxDistance, tv.isPlaying(), tv.isLoop(), tv.getTick());
                 else
-                    tv.display.pause(tv.getUrl(), tv.volume, tv.minDistance, tv.maxDistance, tv.isPlaying(), tv.loop, tv.getTick());
+                    tv.display.pause(tv.getUrl(), tv.getVolume(), tv.minDistance, tv.maxDistance, tv.isPlaying(), tv.isLoop(), tv.getTick());
             }
         }
     }
@@ -31,9 +31,9 @@ public class ClientHandler {
         if (be instanceof TVBlockEntity tv) {
             tv.setUrl(url);
             tv.setTick(tick);
-            tv.volume = volume;
-            tv.loop = loop;
-            Minecraft.getInstance().setScreen(new TVVideoScreen(be, url, tick, volume, loop));
+            tv.setVolume(volume);
+            tv.setLoop(loop);
+            Minecraft.getInstance().setScreen(new TVVideoScreen(be, url, volume));
         }
     }
 }

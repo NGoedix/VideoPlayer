@@ -6,6 +6,8 @@ import com.github.NGoedix.watchvideo.client.render.TVBlockRenderer;
 import com.github.NGoedix.watchvideo.commands.RegisterCommands;
 import com.github.NGoedix.watchvideo.common.CommonHandler;
 import com.github.NGoedix.watchvideo.item.ModItems;
+import com.github.NGoedix.watchvideo.util.cache.TextureCache;
+import com.github.NGoedix.watchvideo.util.displayers.VideoDisplayer;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
@@ -15,6 +17,8 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.CreativeModeTabEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -73,5 +77,32 @@ public class VideoPlayer
     private void addCreative(CreativeModeTabEvent.BuildContents event) {
         LOGGER.info("Adding items to creative tab...");
         event.accept(ModBlocks.TV_BLOCK);
+    }
+
+    @Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+    public static final class Events {
+
+        @SubscribeEvent
+        public static void onRenderTickEvent(TickEvent.RenderTickEvent event) {
+            if (event.phase == TickEvent.Phase.END) {
+                TextureCache.renderTick();
+            }
+        }
+
+        @SubscribeEvent
+        public static void onClientTickEvent(TickEvent.ClientTickEvent event) {
+            if (event.phase == TickEvent.Phase.END) {
+                TextureCache.clientTick();
+                VideoDisplayer.tick();
+            }
+        }
+
+        @SubscribeEvent
+        public static void onUnloadingLevel(LevelEvent.Unload unload) {
+            if (unload.getLevel() != null && unload.getLevel().isClientSide()) {
+                TextureCache.unload();
+                VideoDisplayer.unload();
+            }
+        }
     }
 }
