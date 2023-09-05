@@ -34,12 +34,12 @@ public class TVBlockEntity extends BlockEntity {
     private boolean playing = true;
     private int tick = 0;
 
-    public float volume = 1;
+    private float volume = 1;
 
     public float minDistance = 5;
     public float maxDistance = 20;
 
-    public boolean loop = true;
+    private boolean loop = true;
 
     private UUID playerUsing;
 
@@ -66,14 +66,24 @@ public class TVBlockEntity extends BlockEntity {
 
     public void setUrl(String url) {
         this.url = url;
+        this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
     }
 
     public void setVolume(int volume) {
         this.volume = volume / 100F;
+        this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
+    }
+
+    public float getVolume() {
+        return volume;
     }
 
     public void setLoop(boolean loop) {
         this.loop = loop;
+    }
+
+    public boolean isLoop() {
+        return loop;
     }
 
     public IDisplay requestDisplay() {
@@ -88,7 +98,7 @@ public class TVBlockEntity extends BlockEntity {
             return null;
         if (display != null)
             return display;
-        return display = cache.createDisplay(new Vec3d(worldPosition), url, volume, minDistance, maxDistance, loop);
+        return display = cache.createDisplay(new Vec3d(worldPosition), url, volume, minDistance, maxDistance, loop, playing);
     }
 
     public void tryOpen(Level level, BlockPos blockPos, Player player) {
@@ -203,7 +213,7 @@ public class TVBlockEntity extends BlockEntity {
     }
 
     public float getSizeY() {
-        return 0.85F;
+        return 0.81F;
     }
 
     public AlignedBox getBox() {

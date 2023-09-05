@@ -21,9 +21,7 @@ public class TVVideoScreen extends Screen {
 
     private final BlockEntity be;
     private String url;
-    private final int tick;
     private int volume;
-    private final boolean loop;
 
 
     // GUI
@@ -40,13 +38,11 @@ public class TVVideoScreen extends Screen {
     private boolean changed;
 
 
-    public TVVideoScreen(BlockEntity be, String url, int tick, int volume, boolean loop) {
+    public TVVideoScreen(BlockEntity be, String url, int volume) {
         super(Component.translatable("gui.tv_video_screen.title"));
         this.be = be;
         this.url = url;
-        this.tick = tick;
         this.volume = volume;
-        this.loop = loop;
     }
 
     @Override
@@ -109,7 +105,6 @@ public class TVVideoScreen extends Screen {
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
 
         font.draw(pPoseStack, Component.translatable("gui.tv_video_screen.url_text"), width / 2 - font.width(Component.translatable("gui.tv_video_screen.url_text")) / 2, topPos + 16, 0xFFFFFF);
-
     }
 
     @Override
