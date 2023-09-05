@@ -1,9 +1,7 @@
 package com.github.NGoedix.watchvideo.util.math;
 
-import com.github.NGoedix.watchvideo.util.math.Axis;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.AABB;
 
 public enum Facing {
@@ -13,11 +11,6 @@ public enum Facing {
         @Override
         public Facing opposite() {
             return Facing.UP;
-        }
-
-        @Override
-        public Direction toVanilla() {
-            return Direction.DOWN;
         }
 
         @Override
@@ -44,11 +37,6 @@ public enum Facing {
         }
 
         @Override
-        public Direction toVanilla() {
-            return Direction.UP;
-        }
-
-        @Override
         public double get(AABB bb) {
             return bb.maxY;
         }
@@ -69,11 +57,6 @@ public enum Facing {
         @Override
         public Facing opposite() {
             return SOUTH;
-        }
-
-        @Override
-        public Direction toVanilla() {
-            return Direction.NORTH;
         }
 
         @Override
@@ -100,11 +83,6 @@ public enum Facing {
         }
 
         @Override
-        public Direction toVanilla() {
-            return Direction.SOUTH;
-        }
-
-        @Override
         public double get(AABB bb) {
             return bb.maxZ;
         }
@@ -125,11 +103,6 @@ public enum Facing {
         @Override
         public Facing opposite() {
             return Facing.EAST;
-        }
-
-        @Override
-        public Direction toVanilla() {
-            return Direction.WEST;
         }
 
         @Override
@@ -156,11 +129,6 @@ public enum Facing {
         }
 
         @Override
-        public Direction toVanilla() {
-            return Direction.EAST;
-        }
-
-        @Override
         public double get(AABB bb) {
             return bb.maxX;
         }
@@ -177,10 +145,6 @@ public enum Facing {
     };
 
     public static final Facing[] VALUES = new Facing[] { DOWN, UP, NORTH, SOUTH, WEST, EAST };
-    public static final Facing[] HORIZONTA_VALUES = new Facing[] { SOUTH, WEST, NORTH, EAST };
-
-    public static final String[] FACING_NAMES = new String[] { "down", "up", "north", "south", "west", "east" };
-    public static final String[] HORIZONTAL_FACING_NAMES = new String[] { "north", "south", "west", "east" };
 
     public static Facing get(int index) {
         return VALUES[index];
@@ -204,33 +168,7 @@ public enum Facing {
             case X -> positive ? Facing.EAST : Facing.WEST;
             case Y -> positive ? Facing.UP : Facing.DOWN;
             case Z -> positive ? Facing.SOUTH : Facing.NORTH;
-            default -> throw new IllegalArgumentException();
         };
-    }
-
-    public static Facing getHorizontal(int index) {
-        return HORIZONTA_VALUES[index];
-    }
-
-    /** gets the direction from the first position to the second. It assumes the positions are next to each other.
-     *
-     * @param pos
-     * @param second
-     * @return */
-    public static Facing direction(Vec3i pos, Vec3i second) {
-        if (pos.getX() == second.getX())
-            if (pos.getY() == second.getY())
-                if (pos.getZ() == second.getZ() + 1)
-                    return Facing.SOUTH;
-                else
-                    return Facing.NORTH;
-            else if (pos.getY() == second.getY() + 1)
-                return Facing.UP;
-            else
-                return Facing.DOWN;
-        else if (pos.getX() == second.getX() + 1)
-            return Facing.EAST;
-        return Facing.WEST;
     }
 
     public final String name;
@@ -247,23 +185,7 @@ public enum Facing {
         this.horizontalIndex = horizontalIndex;
     }
 
-    public int offset() {
-        return positive ? 1 : -1;
-    }
-
-    public int offset(Axis axis) {
-        if (this.axis == axis)
-            return offset();
-        return 0;
-    }
-
-    public Component translate() {
-        return Component.translatable("facing." + name);
-    }
-
     public abstract Facing opposite();
-
-    public abstract Direction toVanilla();
 
     public Axis one() {
         return axis.one();
