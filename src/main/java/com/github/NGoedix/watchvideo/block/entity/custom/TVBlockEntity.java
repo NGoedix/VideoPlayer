@@ -16,6 +16,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
@@ -27,7 +28,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-public class TVBlockEntity extends TileEntity {
+public class TVBlockEntity extends TileEntity implements ITickableTileEntity {
 
     private String url = "";
     private boolean playing = true;
@@ -154,19 +155,6 @@ public class TVBlockEntity extends TileEntity {
         return this.save(new CompoundNBT());
     }
 
-    public static void tick(World level, BlockPos pos, BlockState state, TileEntity blockEntity) {
-        if (blockEntity instanceof TVBlockEntity) {
-            TVBlockEntity be = (TVBlockEntity) blockEntity;
-            if (level.isClientSide) {
-                IDisplay display = be.requestDisplay();
-                if (display != null)
-                    display.tick(be.url, be.volume, be.minDistance, be.maxDistance, be.playing, be.loop, be.tick);
-            }
-            if (be.playing)
-                be.tick++;
-        }
-    }
-
     @Override
     public void setRemoved() {
         if (isClient() && display != null)
@@ -257,5 +245,17 @@ public class TVBlockEntity extends TileEntity {
 
     public void setTick(int tick) {
         this.tick = tick;
+    }
+
+    @Override
+    public void tick() {
+        TVBlockEntity be = this;
+        if (level.isClientSide) {
+            IDisplay display = be.requestDisplay();
+            if (display != null)
+                display.tick(be.url, be.volume, be.minDistance, be.maxDistance, be.playing, be.loop, be.tick);
+        }
+        if (be.playing)
+            be.tick++;
     }
 }
