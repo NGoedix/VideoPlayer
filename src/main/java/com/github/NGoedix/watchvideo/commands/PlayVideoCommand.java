@@ -4,6 +4,7 @@ import com.github.NGoedix.watchvideo.network.PacketHandler;
 import com.github.NGoedix.watchvideo.network.message.SendVideoMessage;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -19,9 +20,11 @@ public class PlayVideoCommand {
 
     public static void register(CommandDispatcher<CommandSource> dispatcher){
         dispatcher.register(Commands.literal("playvideo")
+                .requires(source -> source.hasPermission(2))
                 .then(Commands.argument("target", EntityArgument.players())
-                        .then(Commands.argument("url", StringArgumentType.greedyString())
-                                .executes(PlayVideoCommand::execute))));
+                .then(Commands.argument("volume", IntegerArgumentType.integer(0, 100))
+                .then(Commands.argument("url", StringArgumentType.greedyString())
+                .executes(PlayVideoCommand::execute)))));
     }
 
     private static int execute(CommandContext<CommandSource> command){
@@ -33,7 +36,7 @@ public class PlayVideoCommand {
             return Command.SINGLE_SUCCESS;
         }
         for (ServerPlayerEntity player : players) {
-            PacketHandler.sendTo(new SendVideoMessage(StringArgumentType.getString(command, "url")), player);
+            PacketHandler.sendTo(new SendVideoMessage(StringArgumentType.getString(command, "url"), IntegerArgumentType.getInteger(command, "volume")), player);
         }
         return Command.SINGLE_SUCCESS;
     }

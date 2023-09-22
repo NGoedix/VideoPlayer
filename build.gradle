@@ -26,7 +26,7 @@ apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'maven-publish'
 
-version = '0.8.1-BETA-1.16.5'
+version = '2.5.2-BETA-1.16.5'
 group = 'com.github.NGoedix.WatchVideoMod' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'VideoPlayer'
 
@@ -143,14 +143,14 @@ dependencies {
     implementation fileTree('libs') { include '*.jar' }
 
     // API
-    implementation "curse.maven:watermedia-869524:4713139"
+    implementation 'com.github.SrRapero720.watermedia:build:2.0.1'
 
     // PERFORMANCE TOOLS
-    implementation fg.deobf("curse.maven:lazy-dfu-forge-460819:3249059")
-    implementation fg.deobf("curse.maven:ferritecore-429235:4074330")
-    implementation fg.deobf("curse.maven:smooth-boot-forge-420913:3224252")
-    implementation fg.deobf("curse.maven:lightspeedmod-821790:4594802")
-    implementation fg.deobf("curse.maven:betterloadingscreen-594044:3722048")
+//    implementation fg.deobf("curse.maven:lazy-dfu-forge-460819:3249059")
+//    implementation fg.deobf("curse.maven:ferritecore-429235:4074330")
+//    implementation fg.deobf("curse.maven:smooth-boot-forge-420913:3224252")
+//    implementation fg.deobf("curse.maven:lightspeedmod-821790:4594802")
+//    implementation fg.deobf("curse.maven:betterloadingscreen-594044:3722048")
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..

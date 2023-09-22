@@ -3,7 +3,7 @@ loaderVersion="[36,)"
 license="GNU GLP 3.0"
 [[mods]]
 modId="videoplayer"
-version="0.4"
+version="2.5.2"
 displayName="VideoPlayer"
 authors="Goedix"
 description='''
@@ -24,6 +24,6 @@ This mod allows the playback of videos in the user interface (GUI), you can play
 [[dependencies.videoplayer]]
     modId="watermedia"
     mandatory=true
-    versionRange="[2.0.0-beta15,)"
+    versionRange="[2.0.0,)"
     ordering="AFTER"
     side="CLIENT"
