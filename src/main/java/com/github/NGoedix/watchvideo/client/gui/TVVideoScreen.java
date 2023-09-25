@@ -62,7 +62,7 @@ public class TVVideoScreen extends Screen {
 
         // Play button
         addRenderableWidget(new Button(leftPos + 10, topPos + 80, imageWidth - 24, 20, Component.translatable("gui.tv_video_screen.play"), button -> {
-            PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getBlockPos(), url, volume, true, true, true));
+            PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getBlockPos(), url, volume, true, true, false));
         }));
 
         // Pause button
