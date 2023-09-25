@@ -18,7 +18,6 @@ public class SendVideoMessage implements IMessage<SendVideoMessage> {
     private String url;
     private int volume;
 
-
     public SendVideoMessage() {}
 
     public SendVideoMessage(String url, int volume) {
