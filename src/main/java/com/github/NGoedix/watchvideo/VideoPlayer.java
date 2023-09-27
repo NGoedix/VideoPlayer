@@ -32,10 +32,9 @@ import com.github.NGoedix.watchvideo.common.CommonHandler;
 @Mod(Reference.MOD_ID)
 public class VideoPlayer {
 
-    public static final Logger LOGGER = LogManager.getLogger(Reference.MOD_ID);
 
     public VideoPlayer() {
-        LOGGER.info("Initializing mod...");
+        Reference.LOGGER.info("Initializing mod...");
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         MinecraftForge.EVENT_BUS.register(RegisterCommands.class);
