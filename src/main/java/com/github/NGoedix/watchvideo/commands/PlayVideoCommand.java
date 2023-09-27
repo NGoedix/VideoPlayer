@@ -1,10 +1,12 @@
 package com.github.NGoedix.watchvideo.commands;
 
+import com.github.NGoedix.watchvideo.commands.arguments.SymbolStringArgumentType;
 import com.github.NGoedix.watchvideo.network.PacketHandler;
 import com.github.NGoedix.watchvideo.network.message.SendVideoMessage;
 import com.google.common.collect.ImmutableList;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -26,9 +28,13 @@ public class PlayVideoCommand {
                 .requires(source -> source.hasPermission(2))
                 .then(Commands.argument("target", EntityArgument.players())
                 .then(Commands.argument("volume", IntegerArgumentType.integer(0, 100))
-                .then(Commands.argument("url", StringArgumentType.greedyString())
-                .executes(PlayVideoCommand::execute)))));
+                .then(Commands.argument("url", SymbolStringArgumentType.symbolString()) // Making url argument mandatory
+                    .executes(PlayVideoCommand::execute) // This executes if blocked argument is not provided
+                    .then(Commands.argument("blocked", BoolArgumentType.bool()) // Making blocked argument optional
+                        .executes(PlayVideoCommand::execute)))))); // This executes if blocked argument is provided
     }
+
+
 
     private static int execute(CommandContext<CommandSourceStack> command){
         Collection<ServerPlayer> players;

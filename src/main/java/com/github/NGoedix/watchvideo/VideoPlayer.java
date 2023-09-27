@@ -4,12 +4,17 @@ import com.github.NGoedix.watchvideo.block.ModBlocks;
 import com.github.NGoedix.watchvideo.block.entity.ModBlockEntities;
 import com.github.NGoedix.watchvideo.client.render.TVBlockRenderer;
 import com.github.NGoedix.watchvideo.commands.RegisterCommands;
+import com.github.NGoedix.watchvideo.commands.arguments.SymbolStringArgumentSerializer;
+import com.github.NGoedix.watchvideo.commands.arguments.SymbolStringArgumentType;
 import com.github.NGoedix.watchvideo.item.ModItems;
 import com.github.NGoedix.watchvideo.util.cache.TextureCache;
 import com.github.NGoedix.watchvideo.util.displayers.VideoDisplayer;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.commands.synchronization.ArgumentTypes;
+import net.minecraft.commands.synchronization.brigadier.StringArgumentSerializer;
 import net.minecraft.world.level.block.LevelEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
@@ -51,6 +56,7 @@ public class VideoPlayer {
     }
 
     private void onCommonSetup(FMLCommonSetupEvent event) {
+        ArgumentTypes.register("brigadier:symbol_string", SymbolStringArgumentType.class, new SymbolStringArgumentSerializer());
         event.enqueueWork(CommonHandler::setup);
     }
 
