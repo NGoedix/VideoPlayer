@@ -53,7 +53,7 @@ public class UploadVideoUpdateMessage implements IMessage<UploadVideoUpdateMessa
             if (player == null) return;
             if (player.level.getBlockEntity(message.blockPos) instanceof TVBlockEntity tvBlockEntity) {
                 tvBlockEntity.setBeingUsed(new UUID(0, 0));
-                if (message.volume == -1) // NO UPDATE
+                if (message.volume == -1) // NO CHANGES - NO UPDATE
                     return;
 
                 tvBlockEntity.setUrl(message.url);
