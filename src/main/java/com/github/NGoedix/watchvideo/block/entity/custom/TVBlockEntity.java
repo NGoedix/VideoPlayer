@@ -20,8 +20,11 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.RedStoneOreBlock;
+import net.minecraft.world.level.block.RedstoneLampBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.redstone.Redstone;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
@@ -31,7 +34,7 @@ import java.util.UUID;
 public class TVBlockEntity extends BlockEntity {
 
     private String url = "";
-    private boolean playing = true;
+    private boolean playing = false;
     private int tick = 0;
 
     private float volume = 1;
@@ -159,6 +162,7 @@ public class TVBlockEntity extends BlockEntity {
             }
             if (be.playing)
                 be.tick++;
+            level.setBlock(pos, state.setValue(TVBlock.LIT, be.playing), 3);
         }
     }
 
@@ -242,6 +246,7 @@ public class TVBlockEntity extends BlockEntity {
     }
 
     public void setPlaying(boolean playing) {
+        getBlockState().setValue(TVBlock.LIT, playing);
         this.playing = playing;
     }
 
