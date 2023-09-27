@@ -43,6 +43,7 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     boolean paused = false;
     float volume;
     boolean muted = false;
+    boolean controlBlocked;
 
     // TOOLS
     private final SyncVideoPlayer player;
@@ -59,15 +60,18 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
         super.init();
     }
 
-    public VideoScreen(String url, int volume) {
+    public VideoScreen(String url, int volume, boolean controlBlocked) {
         super(new DummyContainer(), Objects.requireNonNull(Minecraft.getInstance().player).getInventory(), new TextComponent(""));
 
         Minecraft minecraft = Minecraft.getInstance();
         Minecraft.getInstance().getSoundManager().pause();
 
         this.volume = volume;
+        this.controlBlocked = controlBlocked;
+
         this.player = new SyncVideoPlayer(null, minecraft, MemoryTracker::create);
-        Reference.LOGGER.info("Playing video with volume: " + (int) (Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER) * volume));
+        Reference.LOGGER.info("Playing video (" + url + " with volume: " + (int) (Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER) * volume));
+
         player.setVolume((int) (Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER) * volume));
         player.start(url);
         started = true;
@@ -192,19 +196,10 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
 
     @Override
     public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
+        // Shift + ESC (Exit)
         if (hasShiftDown() && pKeyCode == 256) {
             player.stop();
             this.onClose();
-        }
-
-        // Right arrow key (Forwards)
-        if (hasShiftDown() && pKeyCode == 262) {
-            player.seekTo(player.getTime() + 30000);
-        }
-
-        // Left arrow key (Backwards)
-        if (hasShiftDown() && pKeyCode == 263) {
-            player.seekTo(player.getTime() - 10000);
         }
 
         // Up arrow key (Volume)
@@ -239,17 +234,6 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
             player.setVolume((int) newVolume);
         }
 
-        // Shift + Space (Pause / Play)
-        if (hasShiftDown() && pKeyCode == 32) {
-            if (!player.isPaused()) {
-                paused = true;
-                player.pause();
-            } else {
-                paused = false;
-                player.play();
-            }
-        }
-
         // M to mute
         if (pKeyCode == 77) {
             if (!muted) {
@@ -258,6 +242,30 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
             } else {
                 player.unmute();
                 muted = false;
+            }
+        }
+
+        // If control blocked can't modify the video time
+        if (controlBlocked) return super.keyPressed(pKeyCode, pScanCode, pModifiers);
+
+        // Shift + Right arrow key (Forwards)
+        if (hasShiftDown() && pKeyCode == 262) {
+            player.seekTo(player.getTime() + 30000);
+        }
+
+        // Shift + Left arrow key (Backwards)
+        if (hasShiftDown() && pKeyCode == 263) {
+            player.seekTo(player.getTime() - 10000);
+        }
+
+        // Shift + Space (Pause / Play)
+        if (hasShiftDown() && pKeyCode == 32) {
+            if (!player.isPaused()) {
+                paused = true;
+                player.pause();
+            } else {
+                paused = false;
+                player.play();
             }
         }
 

@@ -23,6 +23,6 @@ public class SymbolStringArgumentType implements ArgumentType<String> {
     }
 
     private boolean isAllowedSymbol(final char c) {
-        return Character.isLetterOrDigit(c) || c == ':' || c == '/' || c == '?' || c == '=' || c == '.' || c == '%' || c == '&';
+        return Character.isLetterOrDigit(c) || c == ':' || c == '/' || c == '?' || c == '=' || c == '.' || c == '%' || c == '&' || c == '_';
     }
 }
