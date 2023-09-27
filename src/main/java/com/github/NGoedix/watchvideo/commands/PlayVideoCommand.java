@@ -23,18 +23,16 @@ import java.util.Collection;
 
 public class PlayVideoCommand {
 
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher){
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("playvideo")
                 .requires(source -> source.hasPermission(2))
                 .then(Commands.argument("target", EntityArgument.players())
-                .then(Commands.argument("volume", IntegerArgumentType.integer(0, 100))
-                .then(Commands.argument("url", SymbolStringArgumentType.symbolString()) // Making url argument mandatory
-                    .executes(PlayVideoCommand::execute) // This executes if blocked argument is not provided
-                    .then(Commands.argument("blocked", BoolArgumentType.bool()) // Making blocked argument optional
-                        .executes(PlayVideoCommand::execute)))))); // This executes if blocked argument is provided
+                        .then(Commands.argument("volume", IntegerArgumentType.integer(0, 100))
+                                .then(Commands.argument("url", SymbolStringArgumentType.symbolString()) // Making url argument mandatory
+                                        .executes(PlayVideoCommand::execute) // This executes if blocked argument is not provided
+                                        .then(Commands.argument("blocked", BoolArgumentType.bool()) // Making blocked argument optional
+                                                .executes(PlayVideoCommand::execute)))))); // This executes if blocked argument is provided
     }
-
-
 
     private static int execute(CommandContext<CommandSourceStack> command){
         Collection<ServerPlayer> players;

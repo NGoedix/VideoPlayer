@@ -1,17 +1,20 @@
 package com.github.NGoedix.watchvideo.client.gui;
 
+import com.github.NGoedix.watchvideo.Reference;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import me.lib720.caprica.vlcj.player.base.State;
 import me.srrapero720.watermedia.api.WaterMediaAPI;
+import me.srrapero720.watermedia.api.image.ImageAPI;
 import me.srrapero720.watermedia.api.player.SyncVideoPlayer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraftforge.fml.loading.FMLLoader;
 import org.jetbrains.annotations.NotNull;
@@ -37,6 +40,9 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     float fadeLevel = 0;
     boolean started;
     boolean closing = false;
+    boolean paused = false;
+    float volume;
+    boolean muted = false;
 
     // TOOLS
     private final SyncVideoPlayer player;
@@ -59,8 +65,10 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
         Minecraft minecraft = Minecraft.getInstance();
         Minecraft.getInstance().getSoundManager().pause();
 
+        this.volume = volume;
         this.player = new SyncVideoPlayer(null, minecraft, MemoryTracker::create);
-        player.setVolume(volume);
+        Reference.LOGGER.info("Playing video with volume: " + (int) (Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER) * volume));
+        player.setVolume((int) (Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER) * volume));
         player.start(url);
         started = true;
     }
@@ -115,7 +123,7 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
         fill(stack, 0, 0, width, height, WaterMediaAPI.math_colorARGB(255, 0, 0, 0));
         RenderSystem.disableBlend();
 
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         RenderSystem.setShaderTexture(0, texture);
 
         // Get video dimensions
@@ -153,7 +161,7 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
 
     private void renderBlackBackground(PoseStack stack) {
         RenderSystem.enableBlend();
-        fill(stack, 0, 0, width, height, WaterMediaAPI.math_colorARGB((int) (fadeLevel * 255), 0, 0, 0));
+        fill(stack, 0, 0, width, height, WaterMediaAPI.math_colorARGB(paused ? 255 : (int) (fadeLevel * 255), 0, 0, 0));
         RenderSystem.disableBlend();
     }
 
@@ -162,8 +170,8 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     }
 
     private void renderLoadingGif(PoseStack stack) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, WaterMediaAPI.api_getTexture(WaterMediaAPI.img_getLoading(), tick, 1, true));
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        RenderSystem.setShaderTexture(0, ImageAPI.loadingGif().texture(tick, 1, true));
 
         RenderSystem.enableBlend();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -185,8 +193,74 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     @Override
     public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
         if (hasShiftDown() && pKeyCode == 256) {
+            player.stop();
             this.onClose();
         }
+
+        // Right arrow key (Forwards)
+        if (hasShiftDown() && pKeyCode == 262) {
+            player.seekTo(player.getTime() + 30000);
+        }
+
+        // Left arrow key (Backwards)
+        if (hasShiftDown() && pKeyCode == 263) {
+            player.seekTo(player.getTime() - 10000);
+        }
+
+        // Up arrow key (Volume)
+        if (pKeyCode == 265) {
+            if (volume <= 95) {
+                volume += 5;
+            } else {
+                volume = 100;
+                float masterVolume = Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER);
+                if (masterVolume <= 0.95)
+                    Minecraft.getInstance().options.setSoundCategoryVolume(SoundSource.MASTER, masterVolume + 0.05F);
+                else
+                    Minecraft.getInstance().options.setSoundCategoryVolume(SoundSource.MASTER, 1);
+            }
+
+            float actualVolume = Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER);
+            float newVolume = volume * actualVolume;
+            Reference.LOGGER.info("Volume UP to: " + newVolume);
+            player.setVolume((int) newVolume);
+        }
+
+        // Down arrow key (Volume)
+        if (pKeyCode == 264) {
+            if (volume >= 5) {
+                volume -= 5;
+            } else {
+                volume = 0;
+            }
+            float actualVolume = Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER);
+            float newVolume = volume * actualVolume;
+            Reference.LOGGER.info("Volume DOWN to: " + newVolume);
+            player.setVolume((int) newVolume);
+        }
+
+        // Shift + Space (Pause / Play)
+        if (hasShiftDown() && pKeyCode == 32) {
+            if (!player.isPaused()) {
+                paused = true;
+                player.pause();
+            } else {
+                paused = false;
+                player.play();
+            }
+        }
+
+        // M to mute
+        if (pKeyCode == 77) {
+            if (!muted) {
+                player.mute();
+                muted = true;
+            } else {
+                player.unmute();
+                muted = false;
+            }
+        }
+
         return super.keyPressed(pKeyCode, pScanCode, pModifiers);
     }
 
@@ -199,7 +273,6 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     public void onClose() {
         super.onClose();
         if (started) {
-            this.player.stop();
             started = false;
             Minecraft.getInstance().getSoundManager().resume();
             GlStateManager._deleteTexture(videoTexture);
