@@ -182,7 +182,7 @@ public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
         pose.mulPose(facing.rotation().rotation((float) Math.toRadians(0)));
         pose.translate(-0.5, -0.5, -0.5);
 
-        RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         Tesselator tesselator = Tesselator.getInstance();
         BufferBuilder builder = tesselator.getBuilder();
         builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
