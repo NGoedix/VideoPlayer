@@ -17,7 +17,7 @@ public class SymbolStringArgumentType implements ArgumentType<String> {
             reader.skip();
         }
         if (reader.getCursor() == start) {
-            throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerExpectedSymbol().createWithContext(reader, ":/?=");
+            throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerExpectedSymbol().createWithContext(reader, ":/?=-%&_.");
         }
         return reader.getString().substring(start, reader.getCursor());
     }
