@@ -2,7 +2,6 @@ buildscript {
     repositories {
         // These repositories are only for Gradle plugins, put any other repositories in the repository block further below
         maven { url = 'https://maven.minecraftforge.net' }
-        maven { url = 'https://repo.spongepowered.org/maven' }
         maven { url = 'https://maven.parchmentmc.org' }
         maven { url 'https://jitpack.io' }
         mavenCentral()
@@ -21,8 +20,6 @@ plugins {
 }
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
-apply plugin: 'org.spongepowered.mixin'
-
 
 version = '2.6-FORGE-1.18.X'
 group = 'com.github.NGoedix.VideoPlayer' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
@@ -45,9 +42,6 @@ minecraft {
                     source sourceSets.main
                 }
             }
-
-            arg '--mixin.config'
-            arg 'videoplayer.mixin.json'
         }
 
         server {
@@ -60,9 +54,6 @@ minecraft {
                     source sourceSets.main
                 }
             }
-
-            arg '--mixin.config'
-            arg 'videoplayer.mixin.json'
         }
     }
 }
