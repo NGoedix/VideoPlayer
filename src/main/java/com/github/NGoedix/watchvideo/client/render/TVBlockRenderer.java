@@ -31,8 +31,6 @@ public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
     private static BufferedImage blackTextureBuffer = null;
     private static ImageRenderer blackTexture = null;
 
-    private float tick;
-
     public TVBlockRenderer(BlockEntityRendererProvider.Context dispatcher) {
         if (blackTextureBuffer == null) {
             blackTextureBuffer = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
@@ -61,8 +59,7 @@ public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
         IDisplay display = frame.requestDisplay();
         if (display == null) {
             if (!frame.isPlaying()) return;
-            renderTexture(frame, null, ImageAPI.loadingGif().texture((int) tick, 1, true), pose, true);
-            tick += pPartialTick / 2F;
+            renderTexture(frame, null, ImageAPI.loadingGif().texture((int) (Minecraft.getInstance().level.getGameTime()), 1, true), pose, true);
             return;
         }
 
@@ -180,7 +177,7 @@ public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
         pose.mulPose(facing.rotation().rotation((float) Math.toRadians(0)));
         pose.translate(-0.5, -0.5, -0.5);
 
-        RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         Tesselator tesselator = Tesselator.getInstance();
         BufferBuilder builder = tesselator.getBuilder();
         builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
