@@ -3,18 +3,15 @@ package com.github.NGoedix.watchvideo.client.render;
 import com.github.NGoedix.watchvideo.block.custom.TVBlock;
 import com.github.NGoedix.watchvideo.block.entity.custom.TVBlockEntity;
 import com.github.NGoedix.watchvideo.util.displayers.IDisplay;
-import com.github.NGoedix.watchvideo.util.displayers.ImageDisplayer;
 import com.github.NGoedix.watchvideo.util.math.*;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
-import me.lib720.caprica.vlcj.player.base.State;
-import me.srrapero720.watermedia.api.WaterMediaAPI;
+import me.srrapero720.watermedia.api.image.ImageAPI;
 import me.srrapero720.watermedia.api.image.ImageRenderer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -23,6 +20,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -39,7 +37,7 @@ public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
         if (blackTextureBuffer == null) {
             blackTextureBuffer = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
             blackTextureBuffer.setRGB(0, 0, Color.BLACK.getRGB());
-            blackTexture = new ImageRenderer(blackTextureBuffer);
+            blackTexture = ImageAPI.renderer(blackTextureBuffer);
         }
     }
 
@@ -49,12 +47,12 @@ public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
     }
 
     @Override
-    public boolean shouldRender(TVBlockEntity frame, Vec3 vec) {
+    public boolean shouldRender(TVBlockEntity frame, @NotNull Vec3 vec) {
         return Vec3.atCenterOf(frame.getBlockPos()).closerThan(vec, 128);
     }
 
     @Override
-    public void render(TVBlockEntity frame, float pPartialTick, PoseStack pose, MultiBufferSource pBufferSource, int pPackedLight, int pPackedOverlay) {
+    public void render(TVBlockEntity frame, float pPartialTick, @NotNull PoseStack pose, @NotNull MultiBufferSource pBufferSource, int pPackedLight, int pPackedOverlay) {
         if (frame.isURLEmpty()) {
             if (frame.display != null) frame.display.release();
             return;
@@ -63,7 +61,7 @@ public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
         IDisplay display = frame.requestDisplay();
         if (display == null) {
             if (!frame.isPlaying()) return;
-            renderTexture(frame, null, WaterMediaAPI.api_getTexture(WaterMediaAPI.img_getLoading(), (int) tick, 1, true), pose, true);
+            renderTexture(frame, null, ImageAPI.loadingGif().texture((int) tick, 1, true), pose, true);
             tick += pPartialTick / 2F;
             return;
         }
@@ -74,7 +72,7 @@ public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
             return;
         }
 
-        renderTexture(frame, display, WaterMediaAPI.api_getTexture(blackTexture, 1, 1, false), pose, false);
+        renderTexture(frame, display, blackTexture.texture(1, 1, false), pose, false);
         renderTexture(frame, display, texture, pose, true);
     }
 
@@ -182,10 +180,10 @@ public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
         pose.mulPose(facing.rotation().rotation((float) Math.toRadians(0)));
         pose.translate(-0.5, -0.5, -0.5);
 
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
         Tesselator tesselator = Tesselator.getInstance();
         BufferBuilder builder = tesselator.getBuilder();
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
+        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         Matrix4f mat = pose.last().pose();
         Matrix3f mat3f = pose.last().normal();
         Vec3i normal = face.facing.normal;
@@ -202,6 +200,4 @@ public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
         RenderSystem.disableBlend();
         RenderSystem.disableDepthTest();
     }
-
-
 }

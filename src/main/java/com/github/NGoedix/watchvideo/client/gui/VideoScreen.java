@@ -121,6 +121,7 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     }
 
     private void renderTexture(PoseStack stack, int texture) {
+        if (!started) return;
         if (player.getDimensions() == null) return; // Checking if video available
 
         RenderSystem.enableBlend();
@@ -198,7 +199,6 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
         // Shift + ESC (Exit)
         if (hasShiftDown() && pKeyCode == 256) {
-            player.stop();
             this.onClose();
         }
 
@@ -282,6 +282,7 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
         super.onClose();
         if (started) {
             started = false;
+            player.stop();
             Minecraft.getInstance().getSoundManager().resume();
             GlStateManager._deleteTexture(videoTexture);
             player.release();

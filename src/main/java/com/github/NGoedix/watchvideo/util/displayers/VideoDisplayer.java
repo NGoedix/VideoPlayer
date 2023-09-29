@@ -27,7 +27,7 @@ public class VideoDisplayer implements IDisplay {
             for (var display: OPEN_DISPLAYS) {
                 if (Minecraft.getInstance().isPaused()) {
                     var media = display.player;
-                    if (display.player.isLive() && media.isPlaying()) media.setPauseMode(true);
+                    if (media.isPlaying() && display.player.isLive()) media.setPauseMode(true);
                     else if (media.getDuration() > 0 && media.isPlaying()) media.setPauseMode(true);
                 }
             }
@@ -96,7 +96,7 @@ public class VideoDisplayer implements IDisplay {
     
     @Override
     public void tick(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
-        if (player == null)
+        if (player == null || url == null)
             return;
         
         volume = pos != null ? getVolume(volume, minDistance, maxDistance) : volume;
