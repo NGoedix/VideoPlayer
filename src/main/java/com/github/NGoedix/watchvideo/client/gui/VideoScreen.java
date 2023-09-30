@@ -231,9 +231,9 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
                 volume = 100;
                 float masterVolume = Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER);
                 if (masterVolume <= 0.95)
-                    Minecraft.getInstance().getSoundManager().updateSourceVolume(SoundSource.MASTER, masterVolume + 0.05F);
+                    Minecraft.getInstance().options.getSoundSourceOptionInstance(SoundSource.MASTER).set((double) (masterVolume + 0.05F));
                 else
-                    Minecraft.getInstance().getSoundManager().updateSourceVolume(SoundSource.MASTER, 1);
+                    Minecraft.getInstance().options.getSoundSourceOptionInstance(SoundSource.MASTER).set(1.0);
             }
 
             float actualVolume = Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER);
