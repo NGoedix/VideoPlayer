@@ -1,5 +1,6 @@
 package com.github.NGoedix.watchvideo.network.message;
 
+import com.github.NGoedix.watchvideo.Reference;
 import com.github.NGoedix.watchvideo.VideoPlayer;
 import com.github.NGoedix.watchvideo.block.entity.custom.TVBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -56,7 +57,7 @@ public class UploadVideoUpdateMessage implements IMessage<UploadVideoUpdateMessa
                     return;
 
                 tvBlockEntity.setUrl(message.url);
-                VideoPlayer.LOGGER.info("Received url: " + message.url);
+                Reference.LOGGER.info("Received url: " + message.url);
                 tvBlockEntity.setVolume(message.volume);
                 tvBlockEntity.setLoop(message.loop);
                 tvBlockEntity.setPlaying(message.isPlaying);
