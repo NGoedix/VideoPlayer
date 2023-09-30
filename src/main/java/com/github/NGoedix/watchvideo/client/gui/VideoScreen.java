@@ -181,7 +181,7 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     }
 
     private void renderIcon(PoseStack stack, ImageRenderer image) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
         RenderSystem.setShaderTexture(0, image.texture(tick, 1, true));
 
         RenderSystem.enableBlend();
