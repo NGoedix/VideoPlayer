@@ -10,6 +10,9 @@ import com.github.NGoedix.watchvideo.item.ModItems;
 import com.github.NGoedix.watchvideo.util.cache.TextureCache;
 import com.github.NGoedix.watchvideo.util.displayers.VideoDisplayer;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import me.srrapero720.watermedia.api.image.ImageAPI;
+import me.srrapero720.watermedia.api.image.ImageRenderer;
+import me.srrapero720.watermedia.core.tools.JarTool;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -32,6 +35,9 @@ import com.github.NGoedix.watchvideo.common.CommonHandler;
 @Mod(Reference.MOD_ID)
 public class VideoPlayer {
 
+    private static ImageRenderer IMG_PAUSED;
+
+    public static ImageRenderer pausedImage() { return IMG_PAUSED; }
 
     public VideoPlayer() {
         Reference.LOGGER.info("Initializing mod...");
@@ -52,6 +58,8 @@ public class VideoPlayer {
     private void onClientSetup(FMLClientSetupEvent event) {
         ItemBlockRenderTypes.setRenderLayer(ModBlocks.TV_BLOCK.get(), RenderType.cutout());
         BlockEntityRenderers.register(ModBlockEntities.TV_BLOCK_ENTITY.get(), TVBlockRenderer::new);
+
+        IMG_PAUSED = ImageAPI.renderer(JarTool.readImage(VideoPlayer.class.getClassLoader(), "/pictures/paused.png"), true);
     }
 
     private void onCommonSetup(FMLCommonSetupEvent event) {

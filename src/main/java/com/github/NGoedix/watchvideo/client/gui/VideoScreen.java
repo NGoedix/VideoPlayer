@@ -1,6 +1,7 @@
 package com.github.NGoedix.watchvideo.client.gui;
 
 import com.github.NGoedix.watchvideo.Reference;
+import com.github.NGoedix.watchvideo.VideoPlayer;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -8,6 +9,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import me.lib720.caprica.vlcj.player.base.State;
 import me.srrapero720.watermedia.api.WaterMediaAPI;
 import me.srrapero720.watermedia.api.image.ImageAPI;
+import me.srrapero720.watermedia.api.image.ImageRenderer;
 import me.srrapero720.watermedia.api.player.SyncVideoPlayer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -92,13 +94,13 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
                 if (closingOnTick == -1) closingOnTick = tick + 20;
                 if (tick >= closingOnTick) fadeLevel = Math.max(fadeLevel - (pPartialTick / 8), 0.0f);
                 renderBlackBackground(pPoseStack);
-                renderLoadingGif(pPoseStack);
+                renderIcon(pPoseStack, ImageAPI.loadingGif());
                 if (fadeLevel == 0) onClose();
                 return;
             }
         }
 
-        boolean playingState = player.isPlaying() && player.getRawPlayerState().equals(State.PLAYING);
+        boolean playingState = (player.isPlaying() || player.isPaused()) && (player.getRawPlayerState().equals(State.PLAYING) || player.getRawPlayerState().equals(State.PAUSED));
         fadeLevel = (playingState) ? Math.max(fadeLevel - (pPartialTick / 8), 0.0f) : Math.min(fadeLevel + (pPartialTick / 16), 1.0f);
 
         // RENDER VIDEO
@@ -107,10 +109,17 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
         }
 
         // BLACK SCREEN
-        renderBlackBackground(pPoseStack);
+        if (!paused)
+            renderBlackBackground(pPoseStack);
 
         // RENDER GIF
-        if (!player.isPlaying() || !player.getRawPlayerState().equals(State.PLAYING)) renderLoadingGif(pPoseStack);
+        if (!player.isPlaying() || !player.getRawPlayerState().equals(State.PLAYING)) {
+            if (player.isPaused() && player.getRawPlayerState().equals(State.PAUSED)) {
+                renderIcon(pPoseStack, VideoPlayer.pausedImage());
+            } else {
+                renderIcon(pPoseStack, ImageAPI.loadingGif());
+            }
+        }
 
         // DEBUG RENDERING
         if (!FMLLoader.isProduction()) {
@@ -166,7 +175,7 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
 
     private void renderBlackBackground(PoseStack stack) {
         RenderSystem.enableBlend();
-        fill(stack, 0, 0, width, height, WaterMediaAPI.math_colorARGB(paused ? 255 : (int) (fadeLevel * 255), 0, 0, 0));
+        fill(stack, 0, 0, width, height, WaterMediaAPI.math_colorARGB((int) (fadeLevel * 255), 0, 0, 0));
         RenderSystem.disableBlend();
     }
 
@@ -174,9 +183,9 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
         return (height / 2) + offset;
     }
 
-    private void renderLoadingGif(PoseStack stack) {
+    private void renderIcon(PoseStack stack, ImageRenderer image) {
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-        RenderSystem.setShaderTexture(0, ImageAPI.loadingGif().texture(tick, 1, true));
+        RenderSystem.setShaderTexture(0, image.texture(tick, 1, true));
 
         RenderSystem.enableBlend();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
