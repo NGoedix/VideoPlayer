@@ -8,7 +8,6 @@ buildscript {
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        classpath "org.spongepowered:mixingradle:0.7-SNAPSHOT"
         classpath 'org.parchmentmc:librarian:1.+'
     }
 }
@@ -19,9 +18,8 @@ plugins {
     id 'net.minecraftforge.gradle' version '5.1.+'
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
 }
-apply plugin: 'org.spongepowered.mixin'
 
-version = '2.5.3-FORGE-1.19-1.19.1-1.19.2'
+version = '2.6-FORGE-1.19-1.19.1-1.19.2'
 group = 'com.github.NGoedix.VideoPlayer' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'VideoPlayer'
 
@@ -39,8 +37,6 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
 
             property 'forge.enabledGameTestNamespaces', 'watchvideomod'
-            arg '--mixin.config'
-            arg 'videoplayer.mixin.json'
             mods {
                 watchvideomod {
                     source sourceSets.main
@@ -56,8 +52,6 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
 
             property 'forge.enabledGameTestNamespaces', 'watchvideomod'
-            arg '--mixin.config'
-            arg 'videoplayer.mixin.json'
             mods {
                 watchvideomod {
                     source sourceSets.main
@@ -84,10 +78,8 @@ repositories {
 dependencies {
     minecraft 'net.minecraftforge:forge:1.19-41.1.0'
 
-    implementation 'com.github.SrRapero720.watermedia:build:2.0.1'
+    implementation 'com.github.SrRapero720.watermedia:build:2.0.5'
     implementation fg.deobf("curse.maven:jei-238222:4494410")
-
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
 // Example for how to get properties into the manifest for reading at runtime.
@@ -110,12 +102,6 @@ jar {
 jar.finalizedBy('reobfJar')
 // However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
 // publish.dependsOn('reobfJar')
-
-mixin {
-    add sourceSets.main, 'videoplayer.mixin.refmap.json'
-
-    config 'videoplayer.mixin.json'
-}
 
 publishing {
     publications {
