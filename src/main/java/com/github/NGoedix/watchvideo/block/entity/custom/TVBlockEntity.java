@@ -31,7 +31,7 @@ import java.util.UUID;
 public class TVBlockEntity extends BlockEntity {
 
     private String url = "";
-    private boolean playing = true;
+    private boolean playing = false;
     private int tick = 0;
 
     private float volume = 1;
@@ -159,6 +159,7 @@ public class TVBlockEntity extends BlockEntity {
             }
             if (be.playing)
                 be.tick++;
+            level.setBlock(pos, state.setValue(TVBlock.LIT, be.playing), 3);
         }
     }
 
@@ -242,6 +243,7 @@ public class TVBlockEntity extends BlockEntity {
     }
 
     public void setPlaying(boolean playing) {
+        getBlockState().setValue(TVBlock.LIT, playing);
         this.playing = playing;
     }
 

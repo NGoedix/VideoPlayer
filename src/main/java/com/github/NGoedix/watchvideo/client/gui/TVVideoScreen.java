@@ -25,8 +25,8 @@ public class TVVideoScreen extends Screen {
 
 
     // GUI
-    private int imageWidth = 256;
-    private int imageHeight = 256;
+    private final int imageWidth = 256;
+    private final int imageHeight = 256;
     private int leftPos;
     private int topPos;
 
