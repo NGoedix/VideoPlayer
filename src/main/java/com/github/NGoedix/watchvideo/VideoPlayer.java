@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
@@ -81,7 +82,7 @@ public class VideoPlayer
 
     private void onCreativeTabRegistration(CreativeModeTabEvent.Register event) {
         Reference.LOGGER.info("Registering creative tab...");
-        videoPlayerTab = event.registerCreativeModeTab(VIDEO_PLAYER_TAB_ID, (icon) -> new ItemStack(ModBlocks.TV_BLOCK.get()));
+        videoPlayerTab = event.registerCreativeModeTab(VIDEO_PLAYER_TAB_ID, builder -> builder.icon(() -> new ItemStack(ModBlocks.TV_BLOCK.get())).title(Component.translatable("itemGroup.videoplayer.video_player_tab")));
     }
 
     private void addCreative(CreativeModeTabEvent.BuildContents event) {
