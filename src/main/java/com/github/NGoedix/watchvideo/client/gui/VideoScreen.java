@@ -83,7 +83,7 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     protected void renderLabels(@NotNull GuiGraphics pPoseStack, int pMouseX, int pMouseY) {}
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
+    protected void renderBg(@NotNull GuiGraphics guiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
         if (!started) return;
 
         videoTexture = player.prepareTexture();
