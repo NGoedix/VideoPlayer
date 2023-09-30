@@ -7,26 +7,20 @@ buildscript {
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        classpath "org.spongepowered:mixingradle:0.7-SNAPSHOT"
         classpath 'org.parchmentmc:librarian:1.+'
     }
 }
 
 plugins {
     id 'idea'
-//    id 'net.minecraftforge.gradle'
-//    id 'org.spongepowered.mixin'
-//    id 'org.parchmentmc.librarian.forgegradle'
-
 }
 
 //apply plugin: 'idea'
 apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'maven-publish'
 
-version = '2.5.3-FORGE-1.16.5'
+version = '2.6-FORGE-1.16.5'
 group = 'com.github.NGoedix.WatchVideoMod' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'VideoPlayer'
 
@@ -59,20 +53,6 @@ minecraft {
                 }
             }
         }
-
-        data {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            args '--mod', 'watchvideomod', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-
-            mods {
-                watchvideomod {
-                    source sourceSets.main
-                }
-            }
-        }
     }
 }
 
@@ -92,10 +72,9 @@ repositories {
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.16.5-36.2.34'
-    implementation fileTree('libs') { include '*.jar' }
 
     // API
-    implementation 'com.github.SrRapero720.watermedia:build:2.0.1'
+    implementation 'com.github.SrRapero720.watermedia:build:2.0.5'
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..

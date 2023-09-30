@@ -31,7 +31,7 @@ import java.util.UUID;
 public class TVBlockEntity extends TileEntity implements ITickableTileEntity {
 
     private String url = "";
-    private boolean playing = true;
+    private boolean playing = false;
     private int tick = 0;
 
     private float volume = 1;
@@ -236,6 +236,7 @@ public class TVBlockEntity extends TileEntity implements ITickableTileEntity {
     }
 
     public void setPlaying(boolean playing) {
+        getBlockState().setValue(TVBlock.LIT, playing);
         this.playing = playing;
     }
 
@@ -257,5 +258,6 @@ public class TVBlockEntity extends TileEntity implements ITickableTileEntity {
         }
         if (be.playing)
             be.tick++;
+        level.setBlock(getBlockPos(), getBlockState().setValue(TVBlock.LIT, be.playing), 3);
     }
 }

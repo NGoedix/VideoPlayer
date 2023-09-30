@@ -9,8 +9,8 @@ import net.minecraft.util.math.BlockPos;
 
 public class ClientHandler {
 
-    public static void openVideo(String url, int volume) {
-        Minecraft.getInstance().setScreen(new VideoScreen(url, volume));
+    public static void openVideo(String url, int volume, boolean controlBlocked) {
+        Minecraft.getInstance().setScreen(new VideoScreen(url, volume, controlBlocked));
     }
 
     public static void manageVideo(BlockPos pos, boolean playing, int tick) {

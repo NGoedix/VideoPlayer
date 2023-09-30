@@ -1,5 +1,6 @@
 package com.github.NGoedix.watchvideo.util.displayers;
 
+import com.github.NGoedix.watchvideo.Reference;
 import com.github.NGoedix.watchvideo.util.MemoryTracker;
 import com.github.NGoedix.watchvideo.util.cache.TextureCache;
 import com.github.NGoedix.watchvideo.util.math.Vec3d;
@@ -19,7 +20,7 @@ public class VideoDisplayer implements IDisplay {
     private static final String VLC_FAILED = "https://i.imgur.com/XCcN2uX.png";
 
     private static final int ACCEPTABLE_SYNC_TIME = 1000;
-    
+
     private static final List<VideoDisplayer> OPEN_DISPLAYS = new ArrayList<>();
 
     public static void tick() {
@@ -27,7 +28,7 @@ public class VideoDisplayer implements IDisplay {
             for (VideoDisplayer display: OPEN_DISPLAYS) {
                 if (Minecraft.getInstance().isPaused()) {
                     SyncVideoPlayer media = display.player;
-                    if (display.player.isLive() && media.isPlaying()) media.setPauseMode(true);
+                    if (media.isPlaying() && display.player.isLive()) media.setPauseMode(true);
                     else if (media.getDuration() > 0 && media.isPlaying()) media.setPauseMode(true);
                 }
             }
@@ -54,13 +55,13 @@ public class VideoDisplayer implements IDisplay {
             return null;
         }).get());
     }
-    
+
     public SyncVideoPlayer player;
-    
+
     private final Vec3d pos;
     private float lastSetVolume;
     private long lastCorrectedTime = Long.MIN_VALUE;
-    
+
     public VideoDisplayer(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop) {
         super();
         this.pos = pos;
@@ -74,10 +75,11 @@ public class VideoDisplayer implements IDisplay {
         player.setRepeatMode(loop);
         player.start(url);
     }
-    
+
     public int getVolume(float volume, float minDistance, float maxDistance) {
         if (player == null)
             return 0;
+
         Minecraft mc = Minecraft.getInstance();
         float distance = (float) pos.distance(Objects.requireNonNull(Minecraft.getInstance().player).getPosition(mc.isPaused() ? 1.0F : mc.getFrameTime()));
         if (minDistance > maxDistance) {
@@ -85,7 +87,7 @@ public class VideoDisplayer implements IDisplay {
             maxDistance = minDistance;
             minDistance = temp;
         }
-        
+
         if (distance > minDistance)
             if (distance > maxDistance)
                 volume = 0;
@@ -93,12 +95,14 @@ public class VideoDisplayer implements IDisplay {
                 volume *= 1 - ((distance - minDistance) / (maxDistance - minDistance));
         return (int) (volume * 100F);
     }
-    
+
     @Override
     public void tick(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
-        if (player == null)
+        if (player == null || url == null)
             return;
-        
+
+        Reference.LOGGER.info("Tick: " + tick);
+
         volume = pos != null ? getVolume(volume, minDistance, maxDistance) : volume;
         if (volume != lastSetVolume) {
             player.setVolume((int) volume);
@@ -144,7 +148,7 @@ public class VideoDisplayer implements IDisplay {
         if (player == null) return -1;
         return player.prepareTexture();
     }
-    
+
     public void free() {
         if (player != null) {
             player.release();
@@ -154,7 +158,7 @@ public class VideoDisplayer implements IDisplay {
             player = null;
         }
     }
-    
+
     @Override
     public void release() {
         free();

@@ -1,15 +1,20 @@
 package com.github.NGoedix.watchvideo.client.gui;
 
+import com.github.NGoedix.watchvideo.Reference;
+import com.github.NGoedix.watchvideo.VideoPlayer;
 import com.github.NGoedix.watchvideo.util.MemoryTracker;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.lib720.caprica.vlcj.player.base.State;
 import me.srrapero720.watermedia.api.WaterMediaAPI;
+import me.srrapero720.watermedia.api.image.ImageAPI;
+import me.srrapero720.watermedia.api.image.ImageRenderer;
 import me.srrapero720.watermedia.api.player.SyncVideoPlayer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.fml.loading.FMLLoader;
 import org.lwjgl.opengl.GL11;
@@ -32,6 +37,10 @@ public class VideoScreen extends Screen {
     float fadeLevel = 0;
     boolean started;
     boolean closing = false;
+    boolean paused = false;
+    float volume;
+    boolean muted = false;
+    boolean controlBlocked;
 
     // TOOLS
     private final SyncVideoPlayer player;
@@ -40,14 +49,19 @@ public class VideoScreen extends Screen {
     int videoTexture = -1;
 
 
-    public VideoScreen(String url, int volume) {
+    public VideoScreen(String url, int volume, boolean controlBlocked) {
         super(new StringTextComponent(""));
 
         Minecraft minecraft = Minecraft.getInstance();
         Minecraft.getInstance().getSoundManager().pause();
 
+        this.volume = volume;
+        this.controlBlocked = controlBlocked;
+
         this.player = new SyncVideoPlayer(null, minecraft, MemoryTracker::create);
-        player.setVolume(volume);
+        Reference.LOGGER.info("Playing video (" + (!controlBlocked ? "not" : "") + "blocked) (" + url + " with volume: " + (int) (Minecraft.getInstance().options.getSoundSourceVolume(SoundCategory.MASTER) * volume));
+
+        player.setVolume((int) (Minecraft.getInstance().options.getSoundSourceVolume(SoundCategory.MASTER) * volume));
         player.start(url);
         started = true;
     }
@@ -70,13 +84,13 @@ public class VideoScreen extends Screen {
                 if (closingOnTick == -1) closingOnTick = tick + 20;
                 if (tick >= closingOnTick) fadeLevel = Math.max(fadeLevel - (pPartialTicks / 8), 0.0f);
                 renderBlackBackground(stack);
-                renderLoadingGif(stack);
+                renderIcon(stack, ImageAPI.loadingGif());
                 if (fadeLevel == 0) onClose();
                 return;
             }
         }
 
-        boolean playingState = player.isPlaying() && player.getRawPlayerState().equals(State.PLAYING);
+        boolean playingState = (player.isPlaying() || player.isPaused()) && (player.getRawPlayerState().equals(State.PLAYING) || player.getRawPlayerState().equals(State.PAUSED));
         fadeLevel = (playingState) ? Math.max(fadeLevel - (pPartialTicks / 8), 0.0f) : Math.min(fadeLevel + (pPartialTicks / 16), 1.0f);
 
         // RENDER VIDEO
@@ -85,10 +99,17 @@ public class VideoScreen extends Screen {
         }
 
         // BLACK SCREEN
-        renderBlackBackground(stack);
+        if (!paused)
+            renderBlackBackground(stack);
 
         // RENDER GIF
-        if (!player.isPlaying() || !player.getRawPlayerState().equals(State.PLAYING)) renderLoadingGif(stack);
+        if (!player.isPlaying() || !player.getRawPlayerState().equals(State.PLAYING)) {
+            if (player.isPaused() && player.getRawPlayerState().equals(State.PAUSED)) {
+                renderIcon(stack, VideoPlayer.pausedImage());
+            } else {
+                renderIcon(stack, ImageAPI.loadingGif());
+            }
+        }
 
         // DEBUG RENDERING
         if (!FMLLoader.isProduction()) {
@@ -145,9 +166,9 @@ public class VideoScreen extends Screen {
         RenderSystem.disableBlend();
     }
 
-    private void renderLoadingGif(MatrixStack stack) {
+    private void renderIcon(MatrixStack stack, ImageRenderer image) {
         RenderSystem.enableBlend();
-        RenderSystem.bindTexture(WaterMediaAPI.api_getTexture(WaterMediaAPI.img_getLoading(), tick, 1, true));
+        RenderSystem.bindTexture(image.texture(tick, 1, true));
         AbstractGui.blit(stack, width - 36, height - 36 , 0, 0, 36, 36, 28, 28);
         RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
         RenderSystem.disableBlend();
@@ -166,9 +187,78 @@ public class VideoScreen extends Screen {
 
     @Override
     public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
+        // Shift + ESC (Exit)
         if (hasShiftDown() && pKeyCode == 256) {
             this.onClose();
         }
+
+        // Up arrow key (Volume)
+        if (pKeyCode == 265) {
+            if (volume <= 95) {
+                volume += 5;
+            } else {
+                volume = 100;
+                float masterVolume = Minecraft.getInstance().options.getSoundSourceVolume(SoundCategory.MASTER);
+                if (masterVolume <= 0.95)
+                    Minecraft.getInstance().options.setSoundCategoryVolume(SoundCategory.MASTER, masterVolume + 0.1F);
+                else
+                    Minecraft.getInstance().options.setSoundCategoryVolume(SoundCategory.MASTER, 1);
+            }
+
+            float actualVolume = Minecraft.getInstance().options.getSoundSourceVolume(SoundCategory.MASTER);
+            float newVolume = volume * actualVolume;
+            Reference.LOGGER.info("Volume UP to: " + newVolume);
+            player.setVolume((int) newVolume);
+        }
+
+        // Down arrow key (Volume)
+        if (pKeyCode == 264) {
+            if (volume >= 5) {
+                volume -= 5;
+            } else {
+                volume = 0;
+            }
+            float actualVolume = Minecraft.getInstance().options.getSoundSourceVolume(SoundCategory.MASTER);
+            float newVolume = volume * actualVolume;
+            Reference.LOGGER.info("Volume DOWN to: " + newVolume);
+            player.setVolume((int) newVolume);
+        }
+
+        // M to mute
+        if (pKeyCode == 77) {
+            if (!muted) {
+                player.mute();
+                muted = true;
+            } else {
+                player.unmute();
+                muted = false;
+            }
+        }
+
+        // If control blocked can't modify the video time
+        if (controlBlocked) return super.keyPressed(pKeyCode, pScanCode, pModifiers);
+
+        // Shift + Right arrow key (Forwards)
+        if (hasShiftDown() && pKeyCode == 262) {
+            player.seekTo(player.getTime() + 30000);
+        }
+
+        // Shift + Left arrow key (Backwards)
+        if (hasShiftDown() && pKeyCode == 263) {
+            player.seekTo(player.getTime() - 10000);
+        }
+
+        // Shift + Space (Pause / Play)
+        if (hasShiftDown() && pKeyCode == 32) {
+            if (!player.isPaused()) {
+                paused = true;
+                player.pause();
+            } else {
+                paused = false;
+                player.play();
+            }
+        }
+
         return super.keyPressed(pKeyCode, pScanCode, pModifiers);
     }
 
@@ -181,8 +271,8 @@ public class VideoScreen extends Screen {
     public void onClose() {
         super.onClose();
         if (started) {
-            this.player.stop();
             started = false;
+            player.stop();
             Minecraft.getInstance().getSoundManager().resume();
             GlStateManager._deleteTexture(videoTexture);
             player.release();

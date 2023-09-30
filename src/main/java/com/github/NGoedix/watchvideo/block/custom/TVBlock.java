@@ -7,12 +7,14 @@ import com.github.NGoedix.watchvideo.util.math.Facing;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalBlock;
+import net.minecraft.block.RedstoneTorchBlock;
 import net.minecraft.entity.EntitySpawnPlacementRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
@@ -33,6 +35,7 @@ import javax.annotation.Nullable;
 
 public class TVBlock extends Block {
 
+    public static final BooleanProperty LIT = RedstoneTorchBlock.LIT;
     public static final DirectionProperty FACING = HorizontalBlock.FACING;
 
     private static final VoxelShape SHAPE_EAST_WEST = Block.box(7, 0, -4, 8, 15, 20);
@@ -40,7 +43,7 @@ public class TVBlock extends Block {
 
     public TVBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH));
+        this.registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH).setValue(LIT, Boolean.FALSE));
     }
 
     @Override
@@ -60,7 +63,7 @@ public class TVBlock extends Block {
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
-        return this.getStateDefinition().any().setValue(FACING, context.getHorizontalDirection() == Direction.WEST ? Direction.EAST : (context.getHorizontalDirection() == Direction.EAST ? Direction.WEST : context.getHorizontalDirection()));
+        return this.getStateDefinition().any().setValue(LIT, false).setValue(FACING, context.getHorizontalDirection() == Direction.WEST ? Direction.EAST : (context.getHorizontalDirection() == Direction.EAST ? Direction.WEST : context.getHorizontalDirection()));
     }
 
     @Override
@@ -75,13 +78,7 @@ public class TVBlock extends Block {
 
     @Override
     protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> pBuilder) {
-        pBuilder.add(FACING);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public int getLightValue(BlockState state, IBlockReader world, BlockPos pos) {
-        return 1;
+        pBuilder.add(FACING, LIT);
     }
 
     @Override
@@ -123,6 +120,4 @@ public class TVBlock extends Block {
             box.setMin(facing.axis, 1 - 0.031F);
         return box;
     }
-
-
 }

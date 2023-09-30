@@ -8,6 +8,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.srrapero720.watermedia.api.WaterMediaAPI;
+import me.srrapero720.watermedia.api.image.ImageAPI;
 import me.srrapero720.watermedia.api.image.ImageRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -31,14 +32,12 @@ public class TVBlockRenderer extends TileEntityRenderer<TVBlockEntity> {
     private static BufferedImage blackTextureBuffer = null;
     private static ImageRenderer blackTexture = null;
 
-    private float tick;
-
     public TVBlockRenderer(TileEntityRendererDispatcher dispatcher) {
         super(dispatcher);
         if (blackTextureBuffer == null) {
             blackTextureBuffer = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
             blackTextureBuffer.setRGB(0, 0, Color.BLACK.getRGB());
-            blackTexture = new ImageRenderer(blackTextureBuffer);
+            blackTexture = ImageAPI.renderer(blackTextureBuffer);
         }
     }
 
@@ -52,8 +51,7 @@ public class TVBlockRenderer extends TileEntityRenderer<TVBlockEntity> {
         IDisplay display = frame.requestDisplay();
         if (display == null) {
             if (!frame.isPlaying()) return;
-            renderTexture(frame, null, WaterMediaAPI.api_getTexture(WaterMediaAPI.img_getLoading(), (int) tick, 1, true), pose, true);
-            tick += pPartialTick / 2F;
+            renderTexture(frame, null, ImageAPI.loadingGif().texture((int) (Minecraft.getInstance().level.getGameTime()), 1, true), pose, true);
             return;
         }
 
@@ -63,7 +61,7 @@ public class TVBlockRenderer extends TileEntityRenderer<TVBlockEntity> {
             return;
         }
 
-        renderTexture(frame, display, WaterMediaAPI.api_getTexture(blackTexture, 1, 1, false), pose, false);
+        renderTexture(frame, display, blackTexture.texture(1, 1, false), pose, false);
         renderTexture(frame, display, texture, pose, true);
     }
 
@@ -183,7 +181,7 @@ public class TVBlockRenderer extends TileEntityRenderer<TVBlockEntity> {
 
         Tessellator tesselator = Tessellator.getInstance();
         BufferBuilder builder = tesselator.getBuilder();
-        builder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+        builder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
         Matrix4f mat = pose.last().pose();
         Matrix3f mat3f = pose.last().normal();
         Vector3i normal = face.facing.normal;

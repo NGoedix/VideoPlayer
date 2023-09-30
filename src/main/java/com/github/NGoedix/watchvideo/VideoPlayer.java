@@ -4,13 +4,18 @@ import com.github.NGoedix.watchvideo.block.ModBlocks;
 import com.github.NGoedix.watchvideo.block.entity.ModBlockEntities;
 import com.github.NGoedix.watchvideo.client.render.TVBlockRenderer;
 import com.github.NGoedix.watchvideo.commands.RegisterCommands;
+import com.github.NGoedix.watchvideo.commands.arguments.SymbolStringArgumentSerializer;
+import com.github.NGoedix.watchvideo.commands.arguments.SymbolStringArgumentType;
 import com.github.NGoedix.watchvideo.common.CommonHandler;
 import com.github.NGoedix.watchvideo.item.ModItems;
 import com.github.NGoedix.watchvideo.util.cache.TextureCache;
 import com.github.NGoedix.watchvideo.util.displayers.VideoDisplayer;
+import me.srrapero720.watermedia.api.image.ImageAPI;
+import me.srrapero720.watermedia.api.image.ImageRenderer;
+import me.srrapero720.watermedia.core.tools.JarTool;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.command.arguments.ArgumentTypes;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -20,15 +25,16 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.IModBusEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(Reference.MOD_ID)
 public class VideoPlayer
 {
+
+    private static ImageRenderer IMG_PAUSED;
+
+    public static ImageRenderer pausedImage() { return IMG_PAUSED; }
 
     public VideoPlayer() {
         // Register the setup method for modloading
@@ -48,12 +54,15 @@ public class VideoPlayer
 
     private void setup(final FMLCommonSetupEvent event)
     {
+        ArgumentTypes.register("brigadier:symbol_string", SymbolStringArgumentType.class, new SymbolStringArgumentSerializer());
         event.enqueueWork(CommonHandler::setup);
     }
 
     private void onClientSetup(FMLClientSetupEvent event) {
         RenderTypeLookup.setRenderLayer(ModBlocks.TV_BLOCK.get(), RenderType.cutout());
         ClientRegistry.bindTileEntityRenderer(ModBlockEntities.TV_BLOCK_ENTITY.get(), TVBlockRenderer::new);
+
+        IMG_PAUSED = ImageAPI.renderer(JarTool.readImage(VideoPlayer.class.getClassLoader(), "/pictures/paused.png"), true);
     }
 
     @Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
