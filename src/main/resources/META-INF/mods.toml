@@ -3,7 +3,7 @@ loaderVersion="[44,)"
 license="GPLv3"
 [[mods]]
 modId="videoplayer"
-version="2.5.3"
+version="2.6"
 displayName="VideoPlayer"
 authors="Goedix"
 description='''
