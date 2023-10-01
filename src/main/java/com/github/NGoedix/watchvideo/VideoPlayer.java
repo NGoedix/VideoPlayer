@@ -18,6 +18,8 @@ import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.level.LevelEvent.Unload;
@@ -34,8 +36,10 @@ import org.slf4j.Logger;
 public class VideoPlayer
 {
 
+    @OnlyIn(Dist.CLIENT)
     private static ImageRenderer IMG_PAUSED;
 
+    @OnlyIn(Dist.CLIENT)
     public static ImageRenderer pausedImage() { return IMG_PAUSED; }
 
     public VideoPlayer()
@@ -67,6 +71,11 @@ public class VideoPlayer
         ItemBlockRenderTypes.setRenderLayer(ModBlocks.TV_BLOCK.get(), RenderType.cutout());
         BlockEntityRenderers.register(ModBlockEntities.TV_BLOCK_ENTITY.get(), TVBlockRenderer::new);
 
+        loadImages();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void loadImages() {
         IMG_PAUSED = ImageAPI.renderer(JarTool.readImage(VideoPlayer.class.getClassLoader(), "/pictures/paused.png"), true);
     }
 
