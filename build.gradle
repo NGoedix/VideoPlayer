@@ -8,6 +8,7 @@ buildscript {
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
         classpath 'org.parchmentmc:librarian:1.+'
+        classpath 'org.spongepowered:mixingradle:0.7.+'
     }
 }
 
@@ -19,6 +20,7 @@ plugins {
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'maven-publish'
+apply plugin: 'org.spongepowered.mixin'
 
 version = '2.6-FORGE-1.16.5'
 group = 'com.github.NGoedix.WatchVideoMod' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
@@ -40,6 +42,9 @@ minecraft {
                     source sourceSets.main
                 }
             }
+
+            arg '--mixin.config'
+            arg 'videoplayer.mixin.json'
         }
 
         server {
@@ -52,6 +57,9 @@ minecraft {
                     source sourceSets.main
                 }
             }
+
+            arg '--mixin.config'
+            arg 'videoplayer.mixin.json'
         }
     }
 }

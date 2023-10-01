@@ -1,7 +1,9 @@
 package com.github.NGoedix.watchvideo.block.entity.custom;
 
+import com.github.NGoedix.watchvideo.Reference;
 import com.github.NGoedix.watchvideo.block.custom.TVBlock;
 import com.github.NGoedix.watchvideo.block.entity.ModBlockEntities;
+import com.github.NGoedix.watchvideo.mixin.WorldMixin;
 import com.github.NGoedix.watchvideo.network.PacketHandler;
 import com.github.NGoedix.watchvideo.network.message.FrameVideoMessage;
 import com.github.NGoedix.watchvideo.network.message.OpenVideoManagerScreen;
@@ -16,11 +18,15 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+import net.minecraft.tileentity.FurnaceTileEntity;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.datafix.fixes.BlockEntityKeepPacked;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -40,6 +46,8 @@ public class TVBlockEntity extends TileEntity implements ITickableTileEntity {
     public float maxDistance = 20;
 
     private boolean loop = true;
+    private boolean fixed = false, iteration = false;
+
 
     private UUID playerUsing;
 
@@ -70,11 +78,13 @@ public class TVBlockEntity extends TileEntity implements ITickableTileEntity {
 
     public void setUrl(String url) {
         this.url = url;
+        this.level.blockEntityChanged(this.worldPosition, this);
         this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
     }
 
     public void setVolume(int volume) {
         this.volume = volume / 100F;
+        this.level.blockEntityChanged(this.worldPosition, this);
         this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
     }
 
@@ -102,6 +112,7 @@ public class TVBlockEntity extends TileEntity implements ITickableTileEntity {
             return null;
         if (display != null)
             return display;
+
         return display = cache.createDisplay(new Vec3d(worldPosition), url, volume, minDistance, maxDistance, loop, playing);
     }
 
@@ -132,10 +143,18 @@ public class TVBlockEntity extends TileEntity implements ITickableTileEntity {
         setChanged();
     }
 
+    public void reset() {
+        if (!fixed && !iteration) {
+            Reference.LOGGER.info("Fixing entity");
+            ((WorldMixin) (this.level)).getBlockEntitiesToUnload().add(this);
+            iteration = true;
+        }
+    }
+
     @Nullable
     @Override
     public SUpdateTileEntityPacket getUpdatePacket() {
-        return new SUpdateTileEntityPacket(getBlockPos(), 1, getUpdateTag());
+        return new SUpdateTileEntityPacket(getBlockPos(), Registry.BLOCK_ENTITY_TYPE.getId(getType()), getUpdateTag());
     }
 
     @Override
@@ -163,6 +182,10 @@ public class TVBlockEntity extends TileEntity implements ITickableTileEntity {
 
     @Override
     public void onChunkUnloaded() {
+        if (!fixed) {
+            this.level.addBlockEntity(this);
+            fixed = true;
+        }
         if (isClient() && display != null)
             display.release();
     }

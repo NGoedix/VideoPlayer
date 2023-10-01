@@ -57,6 +57,7 @@ public class TVBlock extends Block {
         if (blockEntity instanceof TVBlockEntity) {
             blockEntity.setChanged();
             world.setBlockEntity(pPos, blockEntity);
+            ((TVBlockEntity) blockEntity).reset();
         }
     }
 

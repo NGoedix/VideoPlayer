@@ -6,7 +6,9 @@ import com.github.NGoedix.watchvideo.util.cache.TextureCache;
 import com.github.NGoedix.watchvideo.util.math.Vec3d;
 import com.mojang.blaze3d.platform.GlStateManager;
 import me.lib720.watermod.safety.TryCore;
+import me.srrapero720.watermedia.api.WaterMediaAPI;
 import me.srrapero720.watermedia.api.player.SyncVideoPlayer;
+import me.srrapero720.watermedia.api.player.VideoPlayer;
 import net.minecraft.client.Minecraft;
 
 import java.awt.*;
@@ -19,9 +21,11 @@ public class VideoDisplayer implements IDisplay {
 
     private static final String VLC_FAILED = "https://i.imgur.com/XCcN2uX.png";
 
-    private static final int ACCEPTABLE_SYNC_TIME = 1000;
+    private static final int ACCEPTABLE_SYNC_TIME = 1500;
 
     private static final List<VideoDisplayer> OPEN_DISPLAYS = new ArrayList<>();
+
+    private boolean stream = false;
 
     public static void tick() {
         synchronized (OPEN_DISPLAYS) {
@@ -101,40 +105,42 @@ public class VideoDisplayer implements IDisplay {
         if (player == null || url == null)
             return;
 
-        Reference.LOGGER.info("Tick: " + tick);
-
         volume = pos != null ? getVolume(volume, minDistance, maxDistance) : volume;
         if (volume != lastSetVolume) {
             player.setVolume((int) volume);
             lastSetVolume = volume;
         }
 
-        if (player.isValid()) {
-            boolean realPlaying = playing && !Minecraft.getInstance().isPaused();
+        if (player.isSafeUse() && player.isValid()) {
+            if (!stream && player.isLive()) stream = true;
 
-            if (player.getRepeatMode() != loop)
-                player.setRepeatMode(loop);
-            long tickTime = 50;
-            if (player.isLive()) {
-                if (player.isPlaying() != realPlaying)
-                    player.setPauseMode(!realPlaying);
-            } else {
-                if (player.getDuration() > 0) {
-                    if (player.isPlaying() != realPlaying)
-                        player.setPauseMode(!realPlaying);
+            boolean currentPlaying = playing && !Minecraft.getInstance().isPaused();
 
-                    if (player.isSeekAble()) {
-                        Minecraft mc = Minecraft.getInstance();
-                        long time = tick * tickTime + (realPlaying ? (long) (mc.isPaused() ? 1.0F : mc.getFrameTime() * tickTime) : 0);
-                        if (time > player.getTime() && loop)
-                            time %= player.getDuration();
-                        if (Math.abs(time - player.getTime()) > ACCEPTABLE_SYNC_TIME && Math.abs(time - lastCorrectedTime) > ACCEPTABLE_SYNC_TIME) {
-                            lastCorrectedTime = time;
-                            player.seekTo(time);
-                        }
-                    }
+            player.setPauseMode(!currentPlaying);
+            if (!stream && player.isSeekAble()) {
+                long time = WaterMediaAPI.math_ticksToMillis(tick);
+                if (time > player.getTime()) time = floorMod(time, player.getMediaInfoDuration());
+
+//                Reference.LOGGER.info("Tick: " + tick + " Time: " + time + " Player time: " + player.getTime() + " correction: " + Math.abs(time - player.getTime()));
+
+                if (Math.abs(time - player.getTime()) > ACCEPTABLE_SYNC_TIME && Math.abs(time - lastCorrectedTime) > ACCEPTABLE_SYNC_TIME) {
+                    lastCorrectedTime = time;
+                    player.seekTo(time);
                 }
             }
+        }
+    }
+
+    public static long floorMod(long x, long y) {
+        try {
+            final long r = x % y;
+            // if the signs are different and modulo not zero, adjust result
+            if ((x ^ y) < 0 && r != 0) {
+                return r + y;
+            }
+            return r;
+        } catch (ArithmeticException e) {
+            return 0;
         }
     }
 
