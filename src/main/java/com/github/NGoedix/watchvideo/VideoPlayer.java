@@ -19,6 +19,8 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.commands.synchronization.ArgumentTypes;
 import net.minecraft.commands.synchronization.brigadier.StringArgumentSerializer;
 import net.minecraft.world.level.block.LevelEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -35,8 +37,10 @@ import com.github.NGoedix.watchvideo.common.CommonHandler;
 @Mod(Reference.MOD_ID)
 public class VideoPlayer {
 
+    @OnlyIn(Dist.CLIENT)
     private static ImageRenderer IMG_PAUSED;
 
+    @OnlyIn(Dist.CLIENT)
     public static ImageRenderer pausedImage() { return IMG_PAUSED; }
 
     public VideoPlayer() {
@@ -59,6 +63,11 @@ public class VideoPlayer {
         ItemBlockRenderTypes.setRenderLayer(ModBlocks.TV_BLOCK.get(), RenderType.cutout());
         BlockEntityRenderers.register(ModBlockEntities.TV_BLOCK_ENTITY.get(), TVBlockRenderer::new);
 
+        loadImages();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void loadImages() {
         IMG_PAUSED = ImageAPI.renderer(JarTool.readImage(VideoPlayer.class.getClassLoader(), "/pictures/paused.png"), true);
     }
 
