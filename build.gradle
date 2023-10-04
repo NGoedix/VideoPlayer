@@ -74,7 +74,7 @@ repositories {
 dependencies {
     minecraft 'net.minecraftforge:forge:1.18.2-40.2.10'
 
-    implementation 'com.github.SrRapero720.watermedia:build:2.0.5'
+    implementation 'com.github.SrRapero720.watermedia:build:2.0.7'
     implementation fg.deobf("curse.maven:jei-238222:4434393")
 }
 
