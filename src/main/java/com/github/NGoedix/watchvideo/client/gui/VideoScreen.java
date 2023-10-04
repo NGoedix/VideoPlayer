@@ -39,7 +39,6 @@ public class VideoScreen extends Screen {
     boolean closing = false;
     boolean paused = false;
     float volume;
-    boolean muted = false;
     boolean controlBlocked;
 
     // TOOLS
@@ -226,12 +225,10 @@ public class VideoScreen extends Screen {
 
         // M to mute
         if (pKeyCode == 77) {
-            if (!muted) {
+            if (!player.raw().mediaPlayer().audio().isMute()) {
                 player.mute();
-                muted = true;
             } else {
                 player.unmute();
-                muted = false;
             }
         }
 
