@@ -1,7 +1,5 @@
 package com.github.NGoedix.watchvideo.util.math;
 
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3i;
 
@@ -35,79 +33,17 @@ public class AlignedBox {
         this.maxZ += z;
     }
 
-    public void sub(float x, float y, float z) {
-        this.minX -= x;
-        this.minY -= y;
-        this.minZ -= z;
-        this.maxX -= x;
-        this.maxY -= y;
-        this.maxZ -= z;
-    }
-
     public void add(Vector3d vec) {
         add((float) vec.x, (float) vec.y, (float) vec.z);
-    }
-
-    public void sub(Vector3d vec) {
-        sub((float) vec.x, (float) vec.y, (float) vec.z);
     }
 
     public void add(Vector3i vec) {
         add(vec.getX(), vec.getY(), vec.getZ());
     }
 
-    public void sub(Vector3i vec) {
-        sub(vec.getX(), vec.getY(), vec.getZ());
-    }
-
-    public void scale(float scale) {
-        this.minX *= scale;
-        this.minY *= scale;
-        this.minZ *= scale;
-        this.maxX *= scale;
-        this.maxY *= scale;
-        this.maxZ *= scale;
-    }
-
-    public Vector3d getSize() {
-        return new Vector3d(maxX - minX, maxY - minY, maxZ - minZ);
-    }
-
-    public Vector3d getCenter() {
-        return new Vector3d((maxX + minX) * 0.5, (maxY + minY) * 0.5, (maxZ + minZ) * 0.5);
-    }
-
     @Override
     public String toString() {
         return "cube[" + this.minX + ", " + this.minY + ", " + this.minZ + " -> " + this.maxX + ", " + this.maxY + ", " + this.maxZ + "]";
-    }
-
-    public Vec3f getCorner(BoxCorner corner) {
-        return new Vec3f(get(corner.x), get(corner.y), get(corner.z));
-    }
-
-    public AxisAlignedBB getBB() {
-        return new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
-    }
-
-    public AxisAlignedBB getBB(BlockPos pos) {
-        return new AxisAlignedBB(minX + pos.getX(), minY + pos.getY(), minZ + pos.getZ(), maxX + pos.getX(), maxY + pos.getY(), maxZ + pos.getZ());
-    }
-
-    public void rotate(Matrix3 matrix, Vec3f center) {
-        Vec3f low = new Vec3f(minX, minY, minZ);
-        Vec3f high = new Vec3f(maxX, maxY, maxZ);
-
-        low.sub(center);
-        high.sub(center);
-
-        matrix.transform(low);
-        matrix.transform(high);
-
-        low.add(center);
-        high.add(center);
-
-        set(low.x, low.y, low.z, high.x, high.y, high.z);
     }
 
     public void set(float x, float y, float z, float x2, float y2, float z2) {
@@ -117,10 +53,6 @@ public class AlignedBox {
         this.maxX = Math.max(x, x2);
         this.maxY = Math.max(y, y2);
         this.maxZ = Math.max(z, z2);
-    }
-
-    public BlockPos getOffset() {
-        return new BlockPos(minX, minY, minZ);
     }
 
     public float get(Facing facing) {
@@ -138,18 +70,6 @@ public class AlignedBox {
             case NORTH:
                 return minZ;
 
-        }
-        return 0;
-    }
-
-    public float getSize(Axis axis) {
-        switch (axis) {
-            case X:
-                return maxX - minX;
-            case Y:
-                return maxY - minY;
-            case Z:
-                return maxZ - minZ;
         }
         return 0;
     }
@@ -210,11 +130,5 @@ public class AlignedBox {
         value /= 2;
         setMin(axis, getMin(axis) - value);
         setMax(axis, getMax(axis) + value);
-    }
-
-    public void shrink(Axis axis, float value) {
-        value /= 2;
-        setMin(axis, getMin(axis) + value);
-        setMax(axis, getMax(axis) - value);
     }
 }

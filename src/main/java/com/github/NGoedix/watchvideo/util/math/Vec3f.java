@@ -1,34 +1,15 @@
 package com.github.NGoedix.watchvideo.util.math;
 
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-
 public class Vec3f extends VecNf<Vec3f> {
     public float x;
     public float y;
     public float z;
-
-    public Vec3f() {
-        super();
-    }
 
     public Vec3f(float x, float y, float z) {
         super();
         this.x = x;
         this.y = y;
         this.z = z;
-    }
-
-    public Vec3f(Vec3f vec) {
-        super(vec);
-    }
-
-    public Vec3f(Vector3f vec) {
-        this(vec.x(), vec.y(), vec.z());
-    }
-
-    public Vector3d toVanilla() {
-        return new Vector3d(x, y, z);
     }
 
     @Override
@@ -108,29 +89,10 @@ public class Vec3f extends VecNf<Vec3f> {
     }
 
     @Override
-    public Vec3f copy() {
-        return new Vec3f(x, y, z);
-    }
-
-    @Override
     public void add(Vec3f vec) {
         this.x += vec.x;
         this.y += vec.y;
         this.z += vec.z;
-    }
-
-    @Override
-    public void sub(Vec3f vec) {
-        this.x -= vec.x;
-        this.y -= vec.y;
-        this.z -= vec.z;
-    }
-
-    @Override
-    public void scale(double scale) {
-        this.x *= scale;
-        this.y *= scale;
-        this.z *= scale;
     }
 
     @Override
@@ -141,52 +103,7 @@ public class Vec3f extends VecNf<Vec3f> {
     }
 
     @Override
-    public boolean epsilonEquals(Vec3f var1, float var2) {
-        float var3 = this.x - var1.x;
-        if (Float.isNaN(var3))
-            return false;
-        else if ((var3 < 0.0F ? -var3 : var3) > var2)
-            return false;
-        var3 = this.y - var1.y;
-        if (Float.isNaN(var3))
-            return false;
-        else if ((var3 < 0.0F ? -var3 : var3) > var2)
-            return false;
-        var3 = this.z - var1.z;
-        if (Float.isNaN(var3))
-            return false;
-        else
-            return (var3 < 0.0F ? -var3 : var3) <= var2;
-    }
-
-    @Override
     public double length() {
         return Math.sqrt(x * x + y * y + z * z);
-    }
-
-    @Override
-    public double lengthSquared() {
-        return x * x + y * y + z * z;
-    }
-
-    @Override
-    public double angle(Vec3f vec) {
-        double vDot = this.dot(vec) / (this.length() * vec.length());
-        if (vDot < -1.0)
-            vDot = -1.0;
-        if (vDot > 1.0)
-            vDot = 1.0;
-        return ((Math.acos(vDot)));
-    }
-
-    public void cross(Vec3f vec1, Vec3f vec2) {
-        this.x = vec1.y * vec2.z - vec1.z * vec2.y;
-        this.y = vec2.x * vec1.z - vec2.z * vec1.x;
-        this.z = vec1.x * vec2.y - vec1.y * vec2.x;
-    }
-
-    @Override
-    public float dot(Vec3f vec) {
-        return x * vec.x + y * vec.y + z * vec.z;
     }
 }
