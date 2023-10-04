@@ -1,21 +1,15 @@
 package com.github.NGoedix.watchvideo.util;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import org.lwjgl.system.MemoryUtil;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.MemoryUtil;
 
 import java.nio.ByteBuffer;
 
-@OnlyIn(Dist.CLIENT)
+@SideOnly(Side.CLIENT)
 public class MemoryTracker {
-   private static final MemoryUtil.MemoryAllocator ALLOCATOR = MemoryUtil.getAllocator(false);
-
    public static ByteBuffer create(int pSize) {
-      long i = ALLOCATOR.malloc(pSize);
-      if (i == 0L) {
-         throw new OutOfMemoryError("Failed to allocate " + pSize + " bytes");
-      } else {
-         return MemoryUtil.memByteBuffer(i, pSize);
-      }
+      return BufferUtils.createByteBuffer(pSize);
    }
 }

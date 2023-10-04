@@ -1,9 +1,10 @@
 {
+  "parent": "block/cross",
   "credit": "Made with Blockbench",
   "textures": {
-    "0": "videoplayer:block/anvil_base",
-    "1": "videoplayer:block/concrete_black",
-    "particle": "videoplayer:block/anvil_base"
+    "0": "videoplayer:blocks/anvil_base",
+    "1": "videoplayer:blocks/concrete_black",
+    "particle": "videoplayer:blocks/anvil_base"
   },
   "elements": [
     {

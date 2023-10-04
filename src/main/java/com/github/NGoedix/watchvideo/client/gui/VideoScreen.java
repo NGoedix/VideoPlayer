@@ -3,29 +3,31 @@ package com.github.NGoedix.watchvideo.client.gui;
 import com.github.NGoedix.watchvideo.Reference;
 import com.github.NGoedix.watchvideo.VideoPlayer;
 import com.github.NGoedix.watchvideo.util.MemoryTracker;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import me.lib720.caprica.vlcj.player.base.State;
-import me.srrapero720.watermedia.api.WaterMediaAPI;
 import me.srrapero720.watermedia.api.image.ImageAPI;
 import me.srrapero720.watermedia.api.image.ImageRenderer;
 import me.srrapero720.watermedia.api.player.SyncVideoPlayer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraftforge.fml.loading.FMLLoader;
+import net.minecraft.util.Timer;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.TimeZone;
 
-public class VideoScreen extends Screen {
+@SideOnly(Side.CLIENT)
+public class VideoScreen extends GuiScreen {
+
     private static final DateFormat FORMAT = new SimpleDateFormat("HH:mm:ss");
     static {
         FORMAT.setTimeZone(TimeZone.getTimeZone("GMT-00:00"));
@@ -33,13 +35,13 @@ public class VideoScreen extends Screen {
 
     // STATUS
     int tick = 0;
+    Timer tickTimer;
     int closingOnTick = -1;
     float fadeLevel = 0;
     boolean started;
     boolean closing = false;
     boolean paused = false;
     float volume;
-    boolean muted = false;
     boolean controlBlocked;
 
     // TOOLS
@@ -48,32 +50,28 @@ public class VideoScreen extends Screen {
     // VIDEO INFO
     int videoTexture = -1;
 
-
     public VideoScreen(String url, int volume, boolean controlBlocked) {
-        super(new StringTextComponent(""));
+        super();
 
-        Minecraft minecraft = Minecraft.getInstance();
-        Minecraft.getInstance().getSoundManager().pause();
+        Minecraft minecraft = Minecraft.getMinecraft();
+        minecraft.getSoundHandler().pauseSounds();
 
         this.volume = volume;
         this.controlBlocked = controlBlocked;
 
-        this.player = new SyncVideoPlayer(null, minecraft, MemoryTracker::create);
-        Reference.LOGGER.info("Playing video (" + (!controlBlocked ? "not" : "") + "blocked) (" + url + " with volume: " + (int) (Minecraft.getInstance().options.getSoundSourceVolume(SoundCategory.MASTER) * volume));
+        this.player = new SyncVideoPlayer(null, Runnable::run, MemoryTracker::create);
+        Reference.LOGGER.info("Playing video (" + (!controlBlocked ? "not" : "") + "blocked) (" + url + " with volume: " + (int) (Minecraft.getMinecraft().gameSettings.getSoundLevel(SoundCategory.MASTER) * volume));
 
-        player.setVolume((int) (Minecraft.getInstance().options.getSoundSourceVolume(SoundCategory.MASTER) * volume));
+        player.setVolume((int) (Minecraft.getMinecraft().gameSettings.getSoundLevel(SoundCategory.MASTER) * volume));
         player.start(url);
+
+        tickTimer = new Timer(20);
+
         started = true;
     }
 
     @Override
-    public void tick() {
-        super.tick();
-        tick++;
-    }
-
-    @Override
-    public void render(MatrixStack stack, int pMouseX, int pMouseY, float pPartialTicks) {
+    public void drawScreen(int pMouseX, int pMouseY, float pPartialTicks) {
         if (!started) return;
 
         videoTexture = player.prepareTexture();
@@ -83,9 +81,9 @@ public class VideoScreen extends Screen {
                 closing = true;
                 if (closingOnTick == -1) closingOnTick = tick + 20;
                 if (tick >= closingOnTick) fadeLevel = Math.max(fadeLevel - (pPartialTicks / 8), 0.0f);
-                renderBlackBackground(stack);
-                renderIcon(stack, ImageAPI.loadingGif());
-                if (fadeLevel == 0) onClose();
+                renderBlackBackground();
+                renderIcon(ImageAPI.loadingGif());
+                if (fadeLevel == 0) onGuiClosed();
                 return;
             }
         }
@@ -95,44 +93,63 @@ public class VideoScreen extends Screen {
 
         // RENDER VIDEO
         if (playingState || player.isStopped() || player.isEnded()) {
-            renderTexture(stack, videoTexture);
+            renderTexture(videoTexture);
         }
 
         // BLACK SCREEN
         if (!paused)
-            renderBlackBackground(stack);
+            renderBlackBackground();
 
         // RENDER GIF
         if (!player.isPlaying() || !player.getRawPlayerState().equals(State.PLAYING)) {
             if (player.isPaused() && player.getRawPlayerState().equals(State.PAUSED)) {
-                renderIcon(stack, VideoPlayer.pausedImage());
+                renderIcon(VideoPlayer.pausedImage());
             } else {
-                renderIcon(stack, ImageAPI.loadingGif());
+                renderIcon(ImageAPI.loadingGif());
             }
         }
 
         // DEBUG RENDERING
-        if (!FMLLoader.isProduction()) {
-            draw(stack, String.format("State: %s", player.getRawPlayerState().name()), getHeightCenter(-12));
-            draw(stack, String.format("Time: %s (%s) / %s (%s)", FORMAT.format(new Date(player.getTime())), player.getTime(), FORMAT.format(new Date(player.getDuration())), player.getDuration()), getHeightCenter(0));
-            draw(stack, String.format("Media Duration: %s (%s)", FORMAT.format(new Date(player.getMediaInfoDuration())), player.getMediaInfoDuration()), getHeightCenter(12));
-        }
+//        if (!FMLInitializationEvent.isProduction()) {
+//            draw(stack, String.format("State: %s", player.getRawPlayerState().name()), getHeightCenter(-12));
+//            draw(stack, String.format("Time: %s (%s) / %s (%s)", FORMAT.format(new Date(player.getTime())), player.getTime(), FORMAT.format(new Date(player.getDuration())), player.getDuration()), getHeightCenter(0));
+//            draw(stack, String.format("Media Duration: %s (%s)", FORMAT.format(new Date(player.getMediaInfoDuration())), player.getMediaInfoDuration()), getHeightCenter(12));
+//        }
     }
 
-    private void renderBlackBackground(MatrixStack stack) {
-        RenderSystem.enableBlend();
-        fill(stack, 0, 0, width, height, WaterMediaAPI.math_colorARGB((int) (fadeLevel * 255), 0, 0, 0));
-        RenderSystem.disableBlend();
+    private void renderBlackBackground() {
+        GlStateManager.enableBlend();
+        drawBackground((int) (fadeLevel * 255));
+        GlStateManager.disableBlend();
     }
 
-    private void renderTexture(MatrixStack stack, int texture) {
+    public void drawBackground(int alpha) {
+        GlStateManager.disableLighting();
+        GlStateManager.disableFog();
+
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferbuilder = tessellator.getBuffer();
+        this.mc.getTextureManager().bindTexture(OPTIONS_BACKGROUND);
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+
+        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+
+        bufferbuilder.pos(0.0D, this.height, 0.0D).tex(0.0D, (float) this.height / 32.0F).color(0, 0, 0, alpha).endVertex();
+        bufferbuilder.pos(this.width, this.height, 0.0D).tex(((float) this.width / 32.0F), ((float) this.height / 32.0F)).color(0, 0, 0, alpha).endVertex();
+        bufferbuilder.pos(this.width, 0.0D, 0.0D).tex(((float) this.width / 32.0F), 0.0D).color(0, 0, 0, alpha).endVertex();
+        bufferbuilder.pos(0.0D, 0.0D, 0.0D).tex(0.0D, 0.0D).color(0, 0, 0, alpha).endVertex();
+
+        tessellator.draw();
+    }
+
+    private void renderTexture(int texture) {
         if (player.getDimensions() == null) return; // Checking if video available
 
-        RenderSystem.enableBlend();
-        fill(stack, 0, 0, width, height, WaterMediaAPI.math_colorARGB(255, 0, 0, 0));
-        RenderSystem.disableBlend();
+        GlStateManager.enableBlend();
+        drawBackground(255);
+        GlStateManager.disableBlend();
 
-        RenderSystem.bindTexture(texture);
+        GlStateManager.bindTexture(texture);
 
         // Get video dimensions
         Dimension videoDimensions = player.getDimensions();
@@ -158,98 +175,108 @@ public class VideoScreen extends Screen {
         int xOffset = (width - renderWidth) / 2; // xOffset for centering the video
         int yOffset = (height - renderHeight) / 2; // yOffset for centering the video
 
-        RenderSystem.enableBlend();
-        RenderSystem.clearColor(1.0F, 1.0F, 1.0F, 1.0F);
+        GlStateManager.enableBlend();
+        GlStateManager.clearColor(1.0F, 1.0F, 1.0F, 1.0F);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-        AbstractGui.blit(stack, xOffset, yOffset, 0.0F, 0.0F, renderWidth, renderHeight, renderWidth, renderHeight);
-        RenderSystem.disableBlend();
+
+        drawScaledCustomSizeModalRect(xOffset, yOffset, 0, 0, renderWidth, renderHeight, renderWidth, renderHeight, renderWidth, renderHeight);
+
+        GlStateManager.disableBlend();
     }
 
-    private void renderIcon(MatrixStack stack, ImageRenderer image) {
-        RenderSystem.enableBlend();
-        RenderSystem.bindTexture(image.texture(tick, 1, true));
-        AbstractGui.blit(stack, width - 36, height - 36 , 0, 0, 36, 36, 28, 28);
-        RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-        RenderSystem.disableBlend();
+    private void renderIcon(ImageRenderer image) {
+        tickTimer.updateTimer();
+        tick += tickTimer.elapsedTicks;
+
+        GlStateManager.enableBlend();
+        GlStateManager.bindTexture(image.texture(tick, 1, true));
+        drawScaledCustomSizeModalRect(width - 36, height - 36 , 0, 0, 36, 36, 28, 28, 36, 36);
+        GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+        GlStateManager.disableBlend();
     }
 
-    private int getHeightCenter(int offset) {
-        return (height / 2) + offset;
-    }
+//    private int getHeightCenter(int offset) {
+//        return (height / 2) + offset;
+//    }
+//
+//    private void draw(String text, int height) {
+//        drawString(Minecraft.getMinecraft().fontRenderer, text, 5, height, 0xffffff);
+//    }
 
-    private void draw(MatrixStack stack, String text, int height) {
-        drawString(stack, Minecraft.getInstance().font, text, 5, height, 0xffffff);
+    @Override
+    public boolean doesGuiPauseGame() {
+        return false;
     }
 
     @Override
-    public boolean isPauseScreen() { return false; }
+    protected void keyTyped(char typedChar, int keyCode) throws IOException {
+        Reference.LOGGER.info("Char: " + typedChar + " key: " + keyCode);
 
-    @Override
-    public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
+        // Ignore ESC
+        if (!isShiftKeyDown() && keyCode == 1) return;
+
         // Shift + ESC (Exit)
-        if (hasShiftDown() && pKeyCode == 256) {
-            this.onClose();
+        if (isShiftKeyDown() && keyCode == 1) {
+            this.onGuiClosed();
         }
 
         // Up arrow key (Volume)
-        if (pKeyCode == 265) {
+        if (keyCode == 200) {
             if (volume <= 95) {
                 volume += 5;
             } else {
                 volume = 100;
-                float masterVolume = Minecraft.getInstance().options.getSoundSourceVolume(SoundCategory.MASTER);
+                float masterVolume = Minecraft.getMinecraft().gameSettings.getSoundLevel(SoundCategory.MASTER);
                 if (masterVolume <= 0.95)
-                    Minecraft.getInstance().options.setSoundCategoryVolume(SoundCategory.MASTER, masterVolume + 0.1F);
+                    Minecraft.getMinecraft().gameSettings.setSoundLevel(SoundCategory.MASTER, masterVolume + 0.1F);
                 else
-                    Minecraft.getInstance().options.setSoundCategoryVolume(SoundCategory.MASTER, 1);
+                    Minecraft.getMinecraft().gameSettings.setSoundLevel(SoundCategory.MASTER, 1);
             }
 
-            float actualVolume = Minecraft.getInstance().options.getSoundSourceVolume(SoundCategory.MASTER);
+            float actualVolume = Minecraft.getMinecraft().gameSettings.getSoundLevel(SoundCategory.MASTER);
             float newVolume = volume * actualVolume;
             Reference.LOGGER.info("Volume UP to: " + newVolume);
             player.setVolume((int) newVolume);
         }
 
         // Down arrow key (Volume)
-        if (pKeyCode == 264) {
+        if (keyCode == 208) {
             if (volume >= 5) {
                 volume -= 5;
             } else {
                 volume = 0;
             }
-            float actualVolume = Minecraft.getInstance().options.getSoundSourceVolume(SoundCategory.MASTER);
+            float actualVolume = Minecraft.getMinecraft().gameSettings.getSoundLevel(SoundCategory.MASTER);
             float newVolume = volume * actualVolume;
             Reference.LOGGER.info("Volume DOWN to: " + newVolume);
             player.setVolume((int) newVolume);
         }
 
         // M to mute
-        if (pKeyCode == 77) {
-            if (!muted) {
+        if (keyCode == 50) {
+            if (!player.raw().mediaPlayer().audio().isMute()) {
                 player.mute();
-                muted = true;
             } else {
                 player.unmute();
-                muted = false;
             }
         }
 
         // If control blocked can't modify the video time
-        if (controlBlocked) return super.keyPressed(pKeyCode, pScanCode, pModifiers);
+        if (controlBlocked) return;
 
         // Shift + Right arrow key (Forwards)
-        if (hasShiftDown() && pKeyCode == 262) {
+        if (isShiftKeyDown() && keyCode == 205) {
             player.seekTo(player.getTime() + 30000);
         }
 
         // Shift + Left arrow key (Backwards)
-        if (hasShiftDown() && pKeyCode == 263) {
+        if (isShiftKeyDown() && keyCode == 203) {
             player.seekTo(player.getTime() - 10000);
         }
 
         // Shift + Space (Pause / Play)
-        if (hasShiftDown() && pKeyCode == 32) {
+        if (isShiftKeyDown() && keyCode == 57) {
             if (!player.isPaused()) {
                 paused = true;
                 player.pause();
@@ -259,33 +286,29 @@ public class VideoScreen extends Screen {
             }
         }
 
-        return super.keyPressed(pKeyCode, pScanCode, pModifiers);
+        super.keyTyped(typedChar, keyCode);
     }
 
-    @Override
-    public boolean shouldCloseOnEsc() {
-        return false;
-    }
 
     @Override
-    public void onClose() {
-        super.onClose();
+    public void onGuiClosed() {
+        super.onGuiClosed();
         if (started) {
             started = false;
             player.stop();
-            Minecraft.getInstance().getSoundManager().resume();
-            GlStateManager._deleteTexture(videoTexture);
+            Minecraft.getMinecraft().getSoundHandler().resumeSounds();
+            GlStateManager.deleteTexture(videoTexture);
             player.release();
         }
     }
 
     @Override
-    protected void init() {
-        if (Minecraft.getInstance().screen != null) {
-            this.width = Minecraft.getInstance().screen.width;
-            this.height = Minecraft.getInstance().screen.height;
+    public void initGui() {
+        super.initGui();
+        if (Minecraft.getMinecraft().currentScreen != null) {
+            this.width = Minecraft.getMinecraft().currentScreen.width;
+            this.height = Minecraft.getMinecraft().currentScreen.height;
+            Reference.LOGGER.info(this.width + " " + this.height);
         }
-        super.init();
     }
 }
-

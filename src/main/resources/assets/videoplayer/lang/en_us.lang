@@ -1,0 +1,14 @@
+itemGroup.videoplayer_tab=Video Player
+
+tile.tv_block.name=TV
+
+block.videoplayer.tv_block=TV
+
+gui.tv_video_screen.save=Save
+gui.tv_video_screen.play=Play
+gui.tv_video_screen.pause=Pause
+gui.tv_video_screen.stop=Stop
+gui.tv_video_screen.url_text=Url:
+gui.tv_video_screen.volume=Volume
+
+customslider.videoplayer.value=%s: %d

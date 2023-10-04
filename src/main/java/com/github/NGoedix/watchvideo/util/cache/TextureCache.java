@@ -44,7 +44,7 @@ public class TextureCache {
 
     private synchronized void attemptToLoad() {
         if (this.seeker != null) return;
-        if (!this.url.isEmpty()) {
+        if (this.url != null && !this.url.isEmpty()) {
             this.seeker = new FramePictureFetcher(this, url);
             this.seeker.start();
         }
@@ -55,7 +55,7 @@ public class TextureCache {
     }
 
     public IDisplay createDisplay(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop, boolean playing, boolean noVideo) {
-        volume *= Minecraft.getInstance().options.getSoundSourceVolume(SoundCategory.MASTER);
+        volume *= Minecraft.getMinecraft().gameSettings.getSoundLevel(SoundCategory.MASTER);
         if (picture == null && !noVideo) return VideoDisplayer.createVideoDisplay(pos, url, volume, minDistance, maxDistance, loop, playing);
 
         return new ImageDisplayer(picture) {
@@ -119,9 +119,9 @@ public class TextureCache {
         public FramePictureFetcher(TextureCache cache, String originalURL) {
             super(originalURL);
 
-            setOnSuccessCallback(imageRenderer -> Minecraft.getInstance().executeBlocking(() -> cache.process(imageRenderer)));
+            setOnSuccessCallback(cache::process);
 
-            setOnFailedCallback(e -> Minecraft.getInstance().executeBlocking(() -> {
+            setOnFailedCallback(e -> {
                 if (e instanceof NoPictureException) {
                     cache.processVideo();
                     return;
@@ -133,7 +133,7 @@ public class TextureCache {
                     else if (e.getMessage().startsWith("Server returned HTTP response code: 404")) cache.processFailed("download.exception.notfound");
                     else cache.processFailed("download.exception.invalid");
                 }
-            }));
+            });
         }
     }
 }

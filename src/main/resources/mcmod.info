@@ -1,0 +1,16 @@
+[
+{
+  "modid": "videoplayer",
+  "name": "Video Player",
+  "description": "This mod allows the playback of videos in the user interface (GUI), you can play videos for all connected users or for a specific user.",
+  "version": "2.6",
+  "mcversion": "1.12",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Goedix"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

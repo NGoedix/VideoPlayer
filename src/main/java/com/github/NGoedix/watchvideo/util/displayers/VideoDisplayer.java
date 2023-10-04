@@ -1,20 +1,18 @@
 package com.github.NGoedix.watchvideo.util.displayers;
 
-import com.github.NGoedix.watchvideo.Reference;
 import com.github.NGoedix.watchvideo.util.MemoryTracker;
 import com.github.NGoedix.watchvideo.util.cache.TextureCache;
 import com.github.NGoedix.watchvideo.util.math.Vec3d;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.github.NGoedix.watchvideo.util.math.Vector3d;
 import me.lib720.watermod.safety.TryCore;
 import me.srrapero720.watermedia.api.WaterMediaAPI;
 import me.srrapero720.watermedia.api.player.SyncVideoPlayer;
-import me.srrapero720.watermedia.api.player.VideoPlayer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Supplier;
 
 public class VideoDisplayer implements IDisplay {
@@ -30,7 +28,7 @@ public class VideoDisplayer implements IDisplay {
     public static void tick() {
         synchronized (OPEN_DISPLAYS) {
             for (VideoDisplayer display: OPEN_DISPLAYS) {
-                if (Minecraft.getInstance().isPaused()) {
+                if (Minecraft.getMinecraft().isGamePaused()) {
                     SyncVideoPlayer media = display.player;
                     if (media.isPlaying() && display.player.isLive()) media.setPauseMode(true);
                     else if (media.getDuration() > 0 && media.isPlaying()) media.setPauseMode(true);
@@ -72,7 +70,7 @@ public class VideoDisplayer implements IDisplay {
 
         if (url.isEmpty()) return;
 
-        player = new SyncVideoPlayer(null, Minecraft.getInstance(), MemoryTracker::create);
+        player = new SyncVideoPlayer(null, Runnable::run, MemoryTracker::create);
         volume = pos != null ? getVolume(volume, minDistance, maxDistance) : volume;
         player.setVolume((int) volume);
         lastSetVolume = volume;
@@ -84,8 +82,7 @@ public class VideoDisplayer implements IDisplay {
         if (player == null)
             return 0;
 
-        Minecraft mc = Minecraft.getInstance();
-        float distance = (float) pos.distance(Objects.requireNonNull(Minecraft.getInstance().player).getPosition(mc.isPaused() ? 1.0F : mc.getFrameTime()));
+        float distance = (float) pos.distance(new Vector3d(Minecraft.getMinecraft().player.getPosition().getX(), Minecraft.getMinecraft().player.getPosition().getY(), Minecraft.getMinecraft().player.getPosition().getZ()));
         if (minDistance > maxDistance) {
             float temp = maxDistance;
             maxDistance = minDistance;
@@ -114,7 +111,7 @@ public class VideoDisplayer implements IDisplay {
         if (player.isSafeUse() && player.isValid()) {
             if (!stream && player.isLive()) stream = true;
 
-            boolean currentPlaying = playing && !Minecraft.getInstance().isPaused();
+            boolean currentPlaying = playing && !Minecraft.getMinecraft().isGamePaused();
 
             player.setPauseMode(!currentPlaying);
             if (!stream && player.isSeekAble()) {
@@ -159,7 +156,7 @@ public class VideoDisplayer implements IDisplay {
         if (player != null) {
             player.release();
             if (player.getTexture() != -1) {
-                GlStateManager._deleteTexture(player.getTexture());
+                GlStateManager.deleteTexture(player.getTexture());
             }
             player = null;
         }

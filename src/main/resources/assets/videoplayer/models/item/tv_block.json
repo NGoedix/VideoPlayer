@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "videoplayer:item/tv_block"
+    "layer0": "videoplayer:blocks/tv_block"
   }
 }

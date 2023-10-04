@@ -1,6 +1,6 @@
 package com.github.NGoedix.watchvideo.util.math;
 
-import net.minecraft.util.Direction;
+import net.minecraft.util.EnumFacing;
 
 public enum Axis {
     X {
@@ -79,7 +79,7 @@ public enum Axis {
         }
     };
 
-    public static Axis get(Direction.Axis axis) {
+    public static Axis get(EnumFacing.Axis axis) {
         switch (axis) {
             case X:
                 return Axis.X;

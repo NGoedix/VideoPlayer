@@ -1,18 +1,21 @@
 {
   "variants": {
+    "normal": {
+      "model": "videoplayer:tv_block"
+    },
     "facing=north": {
-      "model": "videoplayer:block/tv_block"
+      "model": "videoplayer:tv_block",
+      "y": 180
     },
     "facing=east": {
-      "model": "videoplayer:block/tv_block",
+      "model": "videoplayer:tv_block",
       "y": 270
     },
     "facing=south": {
-      "model": "videoplayer:block/tv_block",
-      "y": 180
+      "model": "videoplayer:tv_block"
     },
     "facing=west": {
-      "model": "videoplayer:block/tv_block",
+      "model": "videoplayer:tv_block",
       "y": 90
     }
   }

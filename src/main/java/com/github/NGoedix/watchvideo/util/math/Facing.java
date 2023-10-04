@@ -1,8 +1,6 @@
 package com.github.NGoedix.watchvideo.util.math;
 
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.math.vector.Vector3i;
+import net.minecraft.util.EnumFacing;
 
 public enum Facing {
 
@@ -11,12 +9,6 @@ public enum Facing {
         public Facing opposite() {
             return Facing.UP;
         }
-
-        @Override
-        public Direction toVanilla() {
-            return Direction.DOWN;
-        }
-
         @Override
         public Vector3f rotation() {
             return Vector3f.YN;
@@ -27,12 +19,6 @@ public enum Facing {
         public Facing opposite() {
             return Facing.DOWN;
         }
-
-        @Override
-        public Direction toVanilla() {
-            return Direction.UP;
-        }
-
         @Override
         public Vector3f rotation() {
             return Vector3f.YP;
@@ -43,12 +29,6 @@ public enum Facing {
         public Facing opposite() {
             return SOUTH;
         }
-
-        @Override
-        public Direction toVanilla() {
-            return Direction.NORTH;
-        }
-
         @Override
         public Vector3f rotation() {
             return Vector3f.ZN;
@@ -59,12 +39,6 @@ public enum Facing {
         public Facing opposite() {
             return Facing.NORTH;
         }
-
-        @Override
-        public Direction toVanilla() {
-            return Direction.SOUTH;
-        }
-
         @Override
         public Vector3f rotation() {
             return Vector3f.ZP;
@@ -75,12 +49,6 @@ public enum Facing {
         public Facing opposite() {
             return Facing.EAST;
         }
-
-        @Override
-        public Direction toVanilla() {
-            return Direction.WEST;
-        }
-
         @Override
         public Vector3f rotation() {
             return Vector3f.XN;
@@ -91,20 +59,11 @@ public enum Facing {
         public Facing opposite() {
             return Facing.WEST;
         }
-
-        @Override
-        public Direction toVanilla() {
-            return Direction.EAST;
-        }
-
         @Override
         public Vector3f rotation() {
             return Vector3f.XP;
         }
     };
-
-    public static final String[] FACING_NAMES = new String[] { "down", "up", "north", "south", "west", "east" };
-    public static final String[] HORIZONTAL_FACING_NAMES = new String[] { "north", "south", "west", "east" };
 
     public static Facing get(int index) {
         switch (index) {
@@ -124,7 +83,7 @@ public enum Facing {
         throw new IllegalArgumentException();
     }
 
-    public static Facing get(Direction direction) {
+    public static Facing get(EnumFacing direction) {
         if (direction == null) {
             return null;
         } else {
@@ -148,7 +107,7 @@ public enum Facing {
                 case EAST:
                     res = EAST;
                     break;
-            };
+            }
 
             return res;
         }
@@ -178,13 +137,7 @@ public enum Facing {
         this.normal = normal;
     }
 
-    public int offset() {
-        return positive ? 1 : -1;
-    }
-
     public abstract Facing opposite();
-
-    public abstract Direction toVanilla();
 
     public Axis one() {
         return axis.one();
@@ -193,54 +146,5 @@ public enum Facing {
     public Axis two() {
         return axis.two();
     }
-
-    public Axis getUAxisFromFacing() {
-        switch (axis) {
-            case X:
-                return Axis.Z;
-            case Y:
-                return Axis.X;
-            case Z:
-                return Axis.X;
-        }
-        return null;
-    }
-
-    public Axis getVAxisFromFacing() {
-        switch (axis) {
-            case X:
-                return Axis.Y;
-            case Y:
-                return Axis.Z;
-            case Z:
-                return Axis.Y;
-        }
-        return null;
-    }
-
-    public float getUFromFacing(float x, float y, float z) {
-        switch (axis) {
-            case X:
-                return z;
-            case Y:
-                return x;
-            case Z:
-                return x;
-        }
-        return 0;
-    }
-
-    public float getVFromFacing(float x, float y, float z) {
-        switch (axis) {
-            case X:
-                return y;
-            case Y:
-                return z;
-            case Z:
-                return y;
-        }
-        return 0;
-    }
-
     public abstract Vector3f rotation();
 }
