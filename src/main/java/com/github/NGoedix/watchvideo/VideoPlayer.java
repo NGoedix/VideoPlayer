@@ -16,6 +16,8 @@ import me.srrapero720.watermedia.core.tools.JarTool;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.command.arguments.ArgumentTypes;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -32,8 +34,10 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 public class VideoPlayer
 {
 
+    @OnlyIn(Dist.CLIENT)
     private static ImageRenderer IMG_PAUSED;
 
+    @OnlyIn(Dist.CLIENT)
     public static ImageRenderer pausedImage() { return IMG_PAUSED; }
 
     public VideoPlayer() {

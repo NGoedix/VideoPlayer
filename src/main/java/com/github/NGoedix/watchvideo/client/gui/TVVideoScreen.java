@@ -103,6 +103,7 @@ public class TVVideoScreen extends Screen {
         RenderSystem.clearColor(1.0F, 1.0F, 1.0F, 1.0F);
         Minecraft.getInstance().getTextureManager().bind(TEXTURE);
         blit(pPoseStack, leftPos, topPos, 320, 320, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
+        // x, y, u, v, uWidth, vHeight, width, height, tileWidth, tileHeight
 
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
 
