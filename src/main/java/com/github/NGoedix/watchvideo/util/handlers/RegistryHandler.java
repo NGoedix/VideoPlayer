@@ -1,6 +1,7 @@
 package com.github.NGoedix.watchvideo.util.handlers;
 
 import com.github.NGoedix.watchvideo.Reference;
+import com.github.NGoedix.watchvideo.VideoPlayer;
 import com.github.NGoedix.watchvideo.block.ModBlocks;
 import com.github.NGoedix.watchvideo.block.entity.TVBlockEntity;
 import com.github.NGoedix.watchvideo.client.renderer.TVBlockRenderer;
@@ -9,6 +10,8 @@ import com.github.NGoedix.watchvideo.item.ModItems;
 import com.github.NGoedix.watchvideo.util.IHasModel;
 import com.github.NGoedix.watchvideo.util.cache.TextureCache;
 import com.github.NGoedix.watchvideo.util.displayers.VideoDisplayer;
+import me.srrapero720.watermedia.api.image.ImageAPI;
+import me.srrapero720.watermedia.core.tools.JarTool;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFurnace;
 import net.minecraft.block.BlockRedstoneLight;
@@ -52,6 +55,7 @@ public class RegistryHandler {
 
     @SideOnly(Side.CLIENT)
     public static void initClient() {
+        VideoPlayer.IMG_PAUSED = ImageAPI.renderer(JarTool.readImage(RegistryHandler.class.getClassLoader(), "/pictures/paused.png"), true);
         ModelLoader.setCustomMeshDefinition(Item.getItemFromBlock(ModBlocks.TV_BLOCK), mesh);
         ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(ModBlocks.TV_BLOCK), 0,  new ModelResourceLocation(new ResourceLocation(Reference.MOD_ID + ":tv_block"), "inventory"));
         ClientRegistry.bindTileEntitySpecialRenderer(TVBlockEntity.class, new TVBlockRenderer());

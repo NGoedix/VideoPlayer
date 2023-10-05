@@ -17,6 +17,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.Timer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -211,8 +212,6 @@ public class VideoScreen extends GuiScreen {
 
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException {
-        Reference.LOGGER.info("Char: " + typedChar + " key: " + keyCode);
-
         // Ignore ESC
         if (!isShiftKeyDown() && keyCode == 1) return;
 
@@ -293,6 +292,7 @@ public class VideoScreen extends GuiScreen {
     @Override
     public void onGuiClosed() {
         super.onGuiClosed();
+        Keyboard.enableRepeatEvents(false);
         if (started) {
             started = false;
             player.stop();
@@ -305,6 +305,7 @@ public class VideoScreen extends GuiScreen {
     @Override
     public void initGui() {
         super.initGui();
+        Keyboard.enableRepeatEvents(true);
         if (Minecraft.getMinecraft().currentScreen != null) {
             this.width = Minecraft.getMinecraft().currentScreen.width;
             this.height = Minecraft.getMinecraft().currentScreen.height;

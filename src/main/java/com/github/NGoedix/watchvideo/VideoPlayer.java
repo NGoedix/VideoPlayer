@@ -23,7 +23,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 // The value here should match an entry in the META-INF/mods.toml file
-@Mod(modid = Reference.MOD_ID, name = Reference.NAME, version = Reference.VERSION)
+@Mod(modid = Reference.MOD_ID, name = Reference.NAME, version = Reference.VERSION, dependencies = "required-after:watermedia")
 public class VideoPlayer
 {
 
@@ -33,7 +33,7 @@ public class VideoPlayer
     public static VideoPlayer instance;
 
     @SideOnly(Side.CLIENT)
-    private static ImageRenderer IMG_PAUSED;
+    public static ImageRenderer IMG_PAUSED;
 
     @SideOnly(Side.CLIENT)
     public static ImageRenderer pausedImage() { return IMG_PAUSED; }
