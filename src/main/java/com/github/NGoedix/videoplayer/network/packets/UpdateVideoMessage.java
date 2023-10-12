@@ -1,6 +1,6 @@
 package com.github.NGoedix.videoplayer.network.packets;
 
-import com.github.NGoedix.videoplayer.Constants;
+import com.github.NGoedix.videoplayer.Reference;
 import com.github.NGoedix.videoplayer.block.entity.custom.TVBlockEntity;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.network.PacketByteBuf;
@@ -14,10 +14,10 @@ import java.util.UUID;
 
 public class UpdateVideoMessage {
 
-    public static final Identifier ID = new Identifier(Constants.MOD_ID, "update_video");
+    public static final Identifier ID = new Identifier(Reference.MOD_ID, "update_video");
 
     public static void receive(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
-        Constants.LOGGER.info("Received update video message");
+        Reference.LOGGER.info("Received update video message");
 
         BlockPos pos = buf.readBlockPos();
         String url = buf.readString();
@@ -33,7 +33,7 @@ public class UpdateVideoMessage {
                     return;
 
                 tvBlockEntity.setUrl(url);
-                Constants.LOGGER.info("Received url: " + url);
+                Reference.LOGGER.info("Received url: " + url);
                 tvBlockEntity.setVolume(volume);
                 tvBlockEntity.setLoop(loop);
                 tvBlockEntity.setPlaying(isPlaying);

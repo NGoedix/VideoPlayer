@@ -1,6 +1,6 @@
 package com.github.NGoedix.videoplayer.client.gui;
 
-import com.github.NGoedix.videoplayer.Constants;
+import com.github.NGoedix.videoplayer.Reference;
 import com.github.NGoedix.videoplayer.block.entity.custom.TVBlockEntity;
 import com.github.NGoedix.videoplayer.client.gui.components.CustomSlider;
 import com.github.NGoedix.videoplayer.network.PacketHandler;
@@ -19,7 +19,7 @@ import net.minecraft.util.math.BlockPos;
 public class TVVideoScreen extends Screen {
 
 
-    private static final Identifier TEXTURE = new Identifier(Constants.MOD_ID, "textures/gui/background.png");
+    private static final Identifier TEXTURE = new Identifier(Reference.MOD_ID, "textures/gui/background.png");
 
     private final BlockEntity be;
     private String url;
@@ -67,7 +67,7 @@ public class TVVideoScreen extends Screen {
 
         // Play button
         addDrawableChild(new ButtonWidget(leftPos + 10, topPos + 80, imageWidth - 24, 20, new TranslatableText("gui.tv_video_screen.play"), button -> {
-            sendUpdate(be.getPos(), url, volume, true, true, true);
+            sendUpdate(be.getPos(), url, volume, true, true, false);
         }));
 
         // Pause button

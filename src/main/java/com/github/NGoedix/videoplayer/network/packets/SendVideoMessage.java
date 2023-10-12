@@ -1,6 +1,6 @@
 package com.github.NGoedix.videoplayer.network.packets;
 
-import com.github.NGoedix.videoplayer.Constants;
+import com.github.NGoedix.videoplayer.Reference;
 import com.github.NGoedix.videoplayer.client.ClientHandler;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
@@ -10,13 +10,14 @@ import net.minecraft.util.Identifier;
 
 public class SendVideoMessage {
 
-    public static final Identifier ID = new Identifier(Constants.MOD_ID, "send_video");
+    public static final Identifier ID = new Identifier(Reference.MOD_ID, "send_video");
 
     public static void receive(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender sender) {
-        Constants.LOGGER.info("Received video player message");
+        Reference.LOGGER.info("Received video player message");
         String url = buf.readString();
         int volume = buf.readInt();
+        boolean controlBlocked = buf.readBoolean();
 
-        ClientHandler.openVideo(client, url, volume);
+        ClientHandler.openVideo(client, url, volume, controlBlocked);
     }
 }

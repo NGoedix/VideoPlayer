@@ -37,6 +37,6 @@
   },
   "suggests": {
     "another-mod": "*",
-    "watermedia": "*"
+    "watermedia": ">=2.0.5"
   }
 }

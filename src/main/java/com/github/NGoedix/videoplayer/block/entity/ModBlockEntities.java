@@ -1,6 +1,6 @@
 package com.github.NGoedix.videoplayer.block.entity;
 
-import com.github.NGoedix.videoplayer.Constants;
+import com.github.NGoedix.videoplayer.Reference;
 import com.github.NGoedix.videoplayer.block.ModBlocks;
 import com.github.NGoedix.videoplayer.block.entity.custom.TVBlockEntity;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
@@ -13,7 +13,7 @@ public class ModBlockEntities {
 
     public static void registerAllBlockEntities() {
         TV_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE,
-                new Identifier(Constants.MOD_ID, "tv_block_entity"),
+                new Identifier(Reference.MOD_ID, "tv_block_entity"),
                 FabricBlockEntityTypeBuilder.create(TVBlockEntity::new,
                         ModBlocks.TV_BLOCK).build(null));
     }

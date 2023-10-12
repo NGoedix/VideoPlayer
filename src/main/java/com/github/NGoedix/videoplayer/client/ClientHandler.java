@@ -1,12 +1,15 @@
 package com.github.NGoedix.videoplayer.client;
 
+import com.github.NGoedix.videoplayer.VideoPlayer;
 import com.github.NGoedix.videoplayer.block.entity.ModBlockEntities;
 import com.github.NGoedix.videoplayer.block.entity.custom.TVBlockEntity;
 import com.github.NGoedix.videoplayer.client.gui.TVVideoScreen;
 import com.github.NGoedix.videoplayer.client.gui.VideoScreen;
 import com.github.NGoedix.videoplayer.client.render.TVBlockRenderer;
 import com.github.NGoedix.videoplayer.network.PacketHandler;
-import com.github.NGoedix.videoplayer.Constants;
+import com.github.NGoedix.videoplayer.Reference;
+import me.srrapero720.watermedia.api.image.ImageAPI;
+import me.srrapero720.watermedia.core.tools.JarTool;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -20,14 +23,16 @@ public class ClientHandler implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        Constants.LOGGER.info("Initializing Client");
+        Reference.LOGGER.info("Initializing Client");
 
         PacketHandler.registerS2CPackets();
         BlockEntityRendererRegistry.register(ModBlockEntities.TV_BLOCK_ENTITY, TVBlockRenderer::new);
+
+        VideoPlayer.IMG_PAUSED = ImageAPI.renderer(JarTool.readImage(VideoPlayer.class.getClassLoader(), "/pictures/paused.png"), true);
     }
 
-    public static void openVideo(MinecraftClient client, String url, int volume){
-        client.execute(() -> client.setScreen(new VideoScreen(url, volume)));
+    public static void openVideo(MinecraftClient client, String url, int volume, boolean controlBlocked) {
+        client.execute(() -> client.setScreen(new VideoScreen(url, volume, controlBlocked)));
     }
 
     public static void manageVideo(MinecraftClient client, BlockPos pos, boolean playing, int tick) {

@@ -1,6 +1,5 @@
 package com.github.NGoedix.videoplayer.network;
 
-import com.github.NGoedix.videoplayer.Constants;
 import com.github.NGoedix.videoplayer.network.packets.FrameVideoMessage;
 import com.github.NGoedix.videoplayer.network.packets.OpenVideoManagerMessage;
 import com.github.NGoedix.videoplayer.network.packets.SendVideoMessage;
@@ -12,7 +11,6 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.WorldChunk;
 
@@ -29,10 +27,11 @@ public class PacketHandler {
     }
 
     // SEND MESSAGES S2C
-    public static void sendS2CSendVideo(ServerPlayerEntity player, String url, int volume){
+    public static void sendS2CSendVideo(ServerPlayerEntity player, String url, int volume, boolean controlBlocked) {
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeString(url);
         buf.writeInt(volume);
+        buf.writeBoolean(controlBlocked);
         ServerPlayNetworking.send(player, SendVideoMessage.ID, buf);
     }
 

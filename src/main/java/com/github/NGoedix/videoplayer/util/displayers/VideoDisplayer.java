@@ -1,22 +1,17 @@
 package com.github.NGoedix.videoplayer.util.displayers;
 
+import com.github.NGoedix.videoplayer.util.MemoryTracker;
 import com.github.NGoedix.videoplayer.util.cache.TextureCache;
 import com.github.NGoedix.videoplayer.util.math.Vec3d;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import me.lib720.caprica.vlcj.player.embedded.videosurface.callback.BufferFormat;
-import me.lib720.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCallback;
-import me.srrapero720.watermedia.api.external.ThreadUtil;
-import me.srrapero720.watermedia.api.video.players.VideoLanPlayer;
+import me.lib720.watermod.safety.TryCore;
+import me.srrapero720.watermedia.api.player.SyncVideoPlayer;
 import net.minecraft.client.MinecraftClient;
-import org.lwjgl.opengl.GL11;
-import net.minecraft.client.util.GlAllocationUtils;
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public class VideoDisplayer implements IDisplay {
@@ -24,7 +19,7 @@ public class VideoDisplayer implements IDisplay {
     private static final String VLC_FAILED = "https://i.imgur.com/XCcN2uX.png";
 
     private static final int ACCEPTABLE_SYNC_TIME = 1000;
-    
+
     private static final List<VideoDisplayer> OPEN_DISPLAYS = new ArrayList<>();
 
     public static void tick() {
@@ -32,7 +27,7 @@ public class VideoDisplayer implements IDisplay {
             for (var display: OPEN_DISPLAYS) {
                 if (MinecraftClient.getInstance().isPaused()) {
                     var media = display.player;
-                    if (display.stream && media.isPlaying()) media.setPauseMode(true);
+                    if (media.isPlaying() && display.player.isLive()) media.setPauseMode(true);
                     else if (media.getDuration() > 0 && media.isPlaying()) media.setPauseMode(true);
                 }
             }
@@ -46,88 +41,51 @@ public class VideoDisplayer implements IDisplay {
         }
     }
 
-    public static IDisplay createVideoDisplay(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop) {
-        return ThreadUtil.tryAndReturn((defaultVar) -> {
+    public static IDisplay createVideoDisplay(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop, boolean playing) {
+        return TryCore.withReturn((defaultVar) -> {
             var display = new VideoDisplayer(pos, url, volume, minDistance, maxDistance, loop);
-            if (display.player.getRawPlayerComponent() == null) throw new IllegalStateException("MediaDisplay uses a broken player");
+            if (display.player.raw() == null) throw new IllegalStateException("MediaDisplay uses a broken player");
             OPEN_DISPLAYS.add(display);
             return display;
 
         }, ((Supplier<IDisplay>) () -> {
             var cache = TextureCache.get(VLC_FAILED);
-            if (cache.ready()) return cache.createDisplay(pos, VLC_FAILED, volume, minDistance, maxDistance, loop, true);
+            if (cache.ready()) return cache.createDisplay(pos, VLC_FAILED, volume, minDistance, maxDistance, loop, playing);
             return null;
         }).get());
     }
-    
-    public volatile int width = 1;
-    public volatile int height = 1;
-    
-    public VideoLanPlayer player;
-    
+
+    public SyncVideoPlayer player;
+
     private final Vec3d pos;
-    public volatile IntBuffer buffer;
-    public int texture;
-    private boolean stream = false;
     private float lastSetVolume;
-    private volatile boolean needsUpdate = false;
-    private final ReentrantLock lock = new ReentrantLock();
-    private volatile boolean first = true;
     private long lastCorrectedTime = Long.MIN_VALUE;
-    
+
     public VideoDisplayer(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop) {
         super();
         this.pos = pos;
-        texture = GlStateManager._genTexture();
 
-        player = new VideoLanPlayer(null, (mediaPlayer, nativeBuffers, bufferFormat) -> {
-            lock.lock();
-            try {
-                buffer.put(nativeBuffers[0].asIntBuffer());
-                buffer.rewind();
-                needsUpdate = true;
-            } finally {
-                lock.unlock();
-            }
-        }, new BufferFormatCallback() {
+        if (url.isBlank()) return;
 
-            @Override
-            public BufferFormat getBufferFormat(int sourceWidth, int sourceHeight) {
-                lock.lock();
-                try {
-                    VideoDisplayer.this.width = sourceWidth;
-                    VideoDisplayer.this.height = sourceHeight;
-                    VideoDisplayer.this.first = true;
-                    buffer = GlAllocationUtils.allocateByteBuffer(sourceWidth * sourceHeight * 4).asIntBuffer();
-                    needsUpdate = true;
-                } finally {
-                    lock.unlock();
-                }
-                return new BufferFormat("RGBA", sourceWidth, sourceHeight, new int[] { sourceWidth * 4 }, new int[] { sourceHeight });
-            }
-
-            @Override
-            public void allocatedBuffers(ByteBuffer[] buffers) {}
-
-        });
+        player = new SyncVideoPlayer(null, MinecraftClient.getInstance(), MemoryTracker::create);
         volume = pos != null ? getVolume(volume, minDistance, maxDistance) : volume;
         player.setVolume((int) volume);
         lastSetVolume = volume;
         player.setRepeatMode(loop);
-        player.start(url,  new String[] { ":network-caching", "30000" });
+        player.start(url);
     }
-    
+
     public int getVolume(float volume, float minDistance, float maxDistance) {
         if (player == null)
             return 0;
         MinecraftClient mc = MinecraftClient.getInstance();
-        float distance = (float) pos.distance(mc.player.getLeashPos(mc.isPaused() ? 1.0F : mc.getTickDelta()));
+        float distance = (float) pos.distance(Objects.requireNonNull(mc.player).getLeashPos(mc.isPaused() ? 1.0F : mc.getTickDelta()));
         if (minDistance > maxDistance) {
             float temp = maxDistance;
             maxDistance = minDistance;
             minDistance = temp;
         }
-        
+
         if (distance > minDistance)
             if (distance > maxDistance)
                 volume = 0;
@@ -135,28 +93,25 @@ public class VideoDisplayer implements IDisplay {
                 volume *= 1 - ((distance - minDistance) / (maxDistance - minDistance));
         return (int) (volume * 100F);
     }
-    
+
     @Override
     public void tick(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
-        if (player == null)
+        if (player == null || url == null)
             return;
-        
+
         volume = pos != null ? getVolume(volume, minDistance, maxDistance) : volume;
         if (volume != lastSetVolume) {
             player.setVolume((int) volume);
             lastSetVolume = volume;
         }
-        
+
         if (player.isValid()) {
             boolean realPlaying = playing && !MinecraftClient.getInstance().isPaused();
-            
+
             if (player.getRepeatMode() != loop)
                 player.setRepeatMode(loop);
             long tickTime = 50;
-            long newDuration = player.getDuration();
-            if (!stream && newDuration != -1 && newDuration != 0 && player.getStatusDuration() == 0)
-                stream = true;
-            if (stream) {
+            if (player.isLive()) {
                 if (player.isPlaying() != realPlaying)
                     player.setPauseMode(!realPlaying);
             } else {
@@ -164,7 +119,7 @@ public class VideoDisplayer implements IDisplay {
                     if (player.isPlaying() != realPlaying)
                         player.setPauseMode(!realPlaying);
 
-                    if (player.isSeekable()) {
+                    if (player.isSeekAble()) {
                         MinecraftClient mc = MinecraftClient.getInstance();
                         long time = tick * tickTime + (realPlaying ? (long) (mc.isPaused() ? 1.0F : mc.getTickDelta() * tickTime) : 0);
                         if (time > player.getTime() && loop)
@@ -178,42 +133,28 @@ public class VideoDisplayer implements IDisplay {
             }
         }
     }
-    
+
     @Override
-    public void prepare(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
-        if (player == null)
-            return;
-        lock.lock();
-        try {
-            if (needsUpdate) {
-                // fixes random crash, when values are too high it causes a jvm crash, caused weird behavior when game is paused
-                GlStateManager._pixelStore(3314, 0);
-                GlStateManager._pixelStore(3316, 0);
-                GlStateManager._pixelStore(3315, 0);
-                RenderSystem.bindTexture(texture);
-                if (first) {
-                    GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
-                    first = false;
-                } else
-                    GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, 0, 0, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
-                needsUpdate = false;
-            }
-        } finally {
-            lock.unlock();
-        }
-        
+    public int maxTick() {
+        return IDisplay.super.maxTick();
     }
-    
+
+    @Override
+    public int prepare(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
+        if (player == null) return -1;
+        return player.prepareTexture();
+    }
+
     public void free() {
-        if (player != null)
+        if (player != null) {
             player.release();
-        if (texture != -1) {
-            GlStateManager._deleteTexture(texture);
-            texture = -1;
+            if (player.getTexture() != -1) {
+                GlStateManager._deleteTexture(player.getTexture());
+            }
+            player = null;
         }
-        player = null;
     }
-    
+
     @Override
     public void release() {
         free();
@@ -221,34 +162,24 @@ public class VideoDisplayer implements IDisplay {
             OPEN_DISPLAYS.remove(this);
         }
     }
-    
-    @Override
-    public int texture() {
-        return texture;
-    }
 
     @Override
     public void pause(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
         if (player == null) return;
-        player.seekGameTicksTo(tick);
+        player.seekTo(tick);
         player.pause();
     }
 
     @Override
     public void resume(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
         if (player == null) return;
-        player.seekGameTicksTo(tick);
+        player.seekTo(tick);
         player.play();
     }
-    
+
     @Override
-    public int getWidth() {
-        return width;
+    public Dimension getDimensions() {
+        if (player == null) return null;
+        return player.getDimensions();
     }
-    
-    @Override
-    public int getHeight() {
-        return height;
-    }
-    
 }
