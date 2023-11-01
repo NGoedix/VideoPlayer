@@ -81,6 +81,7 @@ public class RegistryHandler {
     }
 
     @SubscribeEvent
+    @SideOnly(Side.CLIENT)
     public static void onRenderTickEvent(TickEvent.RenderTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
             TextureCache.renderTick();
@@ -88,6 +89,7 @@ public class RegistryHandler {
     }
 
     @SubscribeEvent
+    @SideOnly(Side.CLIENT)
     public static void onClientTickEvent(TickEvent.ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
             TextureCache.clientTick();
@@ -96,6 +98,7 @@ public class RegistryHandler {
     }
 
     @SubscribeEvent
+    @SideOnly(Side.CLIENT)
     public static void onUnloadingLevel(WorldEvent.Unload unload) {
         if (unload.getWorld() != null && !unload.getWorld().isRemote) {
             TextureCache.unload();
