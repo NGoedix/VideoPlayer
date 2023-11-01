@@ -13,12 +13,9 @@ import com.github.NGoedix.watchvideo.util.displayers.VideoDisplayer;
 import me.srrapero720.watermedia.api.image.ImageAPI;
 import me.srrapero720.watermedia.core.tools.JarTool;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockFurnace;
-import net.minecraft.block.BlockRedstoneLight;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
@@ -31,9 +28,6 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.registry.EntityRegistry;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -56,7 +50,7 @@ public class RegistryHandler {
     @SideOnly(Side.CLIENT)
     public static void initClient() {
         VideoPlayer.IMG_PAUSED = ImageAPI.renderer(JarTool.readImage(RegistryHandler.class.getClassLoader(), "/pictures/paused.png"), true);
-        ModelLoader.setCustomMeshDefinition(Item.getItemFromBlock(ModBlocks.TV_BLOCK), mesh);
+        ModelLoader.setCustomMeshDefinition(Item.getItemFromBlock(ModBlocks.TV_BLOCK), stack -> new ModelResourceLocation(stack.getItem().getRegistryName(), "inventory"));
         ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(ModBlocks.TV_BLOCK), 0,  new ModelResourceLocation(new ResourceLocation(Reference.MOD_ID + ":tv_block"), "inventory"));
         ClientRegistry.bindTileEntitySpecialRenderer(TVBlockEntity.class, new TVBlockRenderer());
     }
@@ -70,8 +64,6 @@ public class RegistryHandler {
     public static void serverRegistries(FMLServerStartingEvent event) {
         event.registerServerCommand(new PlayVideoCommand());
     }
-
-    public static ItemMeshDefinition mesh = stack -> new ModelResourceLocation(stack.getItem().getRegistryName(), "inventory");
 
     @SubscribeEvent
     public static void onModelRegister(ModelRegistryEvent event) {
@@ -89,6 +81,7 @@ public class RegistryHandler {
     }
 
     @SubscribeEvent
+    @SideOnly(Side.CLIENT)
     public static void onRenderTickEvent(TickEvent.RenderTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
             TextureCache.renderTick();
@@ -96,6 +89,7 @@ public class RegistryHandler {
     }
 
     @SubscribeEvent
+    @SideOnly(Side.CLIENT)
     public static void onClientTickEvent(TickEvent.ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
             TextureCache.clientTick();
@@ -104,6 +98,7 @@ public class RegistryHandler {
     }
 
     @SubscribeEvent
+    @SideOnly(Side.CLIENT)
     public static void onUnloadingLevel(WorldEvent.Unload unload) {
         if (unload.getWorld() != null && !unload.getWorld().isRemote) {
             TextureCache.unload();
