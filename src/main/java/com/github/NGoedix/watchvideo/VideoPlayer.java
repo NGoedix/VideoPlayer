@@ -10,8 +10,7 @@ import me.srrapero720.watermedia.api.image.ImageRenderer;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.*;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -19,11 +18,12 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.common.versioning.DefaultArtifactVersion;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 // The value here should match an entry in the META-INF/mods.toml file
-@Mod(modid = Reference.MOD_ID, name = Reference.NAME, version = Reference.VERSION, dependencies = "required-after:watermedia")
+@Mod(modid = Reference.MOD_ID, name = Reference.NAME, version = Reference.VERSION, dependencies = "after:watermedia")
 public class VideoPlayer
 {
 
@@ -54,7 +54,13 @@ public class VideoPlayer
     }
 
     @Mod.EventHandler
-    public static void postInit(FMLPostInitializationEvent event) {}
+    public static void postInit(FMLPostInitializationEvent event) {
+        if (FMLCommonHandler.instance().getSide().isClient()) {
+            MissingModsException exception = new MissingModsException(Reference.MOD_ID, Reference.NAME);
+            exception.addMissingMod(new DefaultArtifactVersion("[2.0,2.1)"), null, true);
+            if (!Loader.instance().getIndexedModList().containsKey("watermedia")) throw exception;
+        }
+    }
 
     @Mod.EventHandler
     public static void serverInit(FMLServerStartingEvent event) {

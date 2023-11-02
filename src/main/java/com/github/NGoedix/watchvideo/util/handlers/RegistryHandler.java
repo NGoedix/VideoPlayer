@@ -56,7 +56,7 @@ public class RegistryHandler {
     @SideOnly(Side.CLIENT)
     public static void initClient() {
         VideoPlayer.IMG_PAUSED = ImageAPI.renderer(JarTool.readImage(RegistryHandler.class.getClassLoader(), "/pictures/paused.png"), true);
-        ModelLoader.setCustomMeshDefinition(Item.getItemFromBlock(ModBlocks.TV_BLOCK), mesh);
+        ModelLoader.setCustomMeshDefinition(Item.getItemFromBlock(ModBlocks.TV_BLOCK), stack -> new ModelResourceLocation(stack.getItem().getRegistryName(), "inventory"));
         ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(ModBlocks.TV_BLOCK), 0,  new ModelResourceLocation(new ResourceLocation(Reference.MOD_ID + ":tv_block"), "inventory"));
         ClientRegistry.bindTileEntitySpecialRenderer(TVBlockEntity.class, new TVBlockRenderer());
     }
@@ -70,8 +70,6 @@ public class RegistryHandler {
     public static void serverRegistries(FMLServerStartingEvent event) {
         event.registerServerCommand(new PlayVideoCommand());
     }
-
-    public static ItemMeshDefinition mesh = stack -> new ModelResourceLocation(stack.getItem().getRegistryName(), "inventory");
 
     @SubscribeEvent
     public static void onModelRegister(ModelRegistryEvent event) {
@@ -105,7 +103,7 @@ public class RegistryHandler {
 
     @SubscribeEvent
     public static void onUnloadingLevel(WorldEvent.Unload unload) {
-        if (unload.getWorld() != null && !unload.getWorld().isRemote) {
+        if (unload.getWorld() != null && unload.getWorld().isRemote) {
             TextureCache.unload();
             VideoDisplayer.unload();
         }
