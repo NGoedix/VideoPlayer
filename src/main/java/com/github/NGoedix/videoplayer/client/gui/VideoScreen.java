@@ -12,6 +12,7 @@ import me.lib720.caprica.vlcj.player.base.State;
 import me.srrapero720.watermedia.api.WaterMediaAPI;
 import me.srrapero720.watermedia.api.image.ImageAPI;
 import me.srrapero720.watermedia.api.image.ImageRenderer;
+import me.srrapero720.watermedia.api.math.MathAPI;
 import me.srrapero720.watermedia.api.player.SyncVideoPlayer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -133,10 +134,10 @@ public class VideoScreen extends Screen {
         if (player.getDimensions() == null) return; // Checking if video available
 
         RenderSystem.enableBlend();
-        fill(stack, 0, 0, width, height, WaterMediaAPI.math_colorARGB(255, 0, 0, 0));
+        fill(stack, 0, 0, width, height, MathAPI.getColorARGB(255, 0, 0, 0));
         RenderSystem.disableBlend();
 
-        RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
+        RenderSystem.setShader(GameRenderer::getPositionTexProgram);
         RenderSystem.setShaderTexture(0, texture);
 
         // Get video dimensions
@@ -177,7 +178,7 @@ public class VideoScreen extends Screen {
     }
 
     private void draw(MatrixStack stack, String text, int height) {
-        drawCenteredTextWithShadow(stack, MinecraftClient.getInstance().textRenderer, text, 5, height, 0xffffff);
+        drawTextWithShadow(stack, MinecraftClient.getInstance().textRenderer, text, 5, height, 0xffffff);
     }
 
     private int getHeightCenter(int offset) {

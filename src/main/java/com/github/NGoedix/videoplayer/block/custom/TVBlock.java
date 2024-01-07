@@ -59,7 +59,7 @@ public class TVBlock extends Block implements BlockEntityProvider {
     @Nullable
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return this.getStateManager().getDefaultState().with(LIT, false).with(FACING, ctx.getPlayerLookDirection() == Direction.WEST ? Direction.EAST : (ctx.getPlayerLookDirection() == Direction.EAST ? Direction.WEST : ctx.getPlayerLookDirection()));
+        return this.getStateManager().getDefaultState().with(LIT, false).with(FACING, ctx.getHorizontalPlayerFacing() == Direction.WEST ? Direction.EAST : (ctx.getHorizontalPlayerFacing() == Direction.EAST ? Direction.WEST : ctx.getHorizontalPlayerFacing()));
     }
 
     @Override
