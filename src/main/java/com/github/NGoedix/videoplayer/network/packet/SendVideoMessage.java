@@ -16,7 +16,8 @@ public class SendVideoMessage {
         Constants.LOGGER.info("Received video player message");
         String url = buf.readString();
         int volume = buf.readInt();
+        boolean controlBlocked = buf.readBoolean();
 
-        ClientHandler.openVideo(client, url, volume);
+        ClientHandler.openVideo(client, url, volume, controlBlocked);
     }
 }
