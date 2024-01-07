@@ -15,6 +15,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
+import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.BlockMirror;
@@ -30,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class TVBlock extends Block implements BlockEntityProvider {
 
+    public static final BooleanProperty LIT = RedstoneTorchBlock.LIT;
     public static final DirectionProperty FACING = HorizontalFacingBlock.FACING;
 
     private static final VoxelShape SHAPE_EAST_WEST = Block.createCuboidShape(7, 0, -4, 8, 15, 20);
@@ -37,7 +39,7 @@ public class TVBlock extends Block implements BlockEntityProvider {
 
     public TVBlock(Settings p_49795_) {
         super(p_49795_);
-        this.setDefaultState(this.getStateManager().getDefaultState().with(FACING, Direction.NORTH));
+        this.setDefaultState(this.getStateManager().getDefaultState().with(FACING, Direction.NORTH).with(LIT, Boolean.FALSE));
     }
 
     @Override
@@ -57,7 +59,7 @@ public class TVBlock extends Block implements BlockEntityProvider {
     @Nullable
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return this.getStateManager().getDefaultState().with(FACING, ctx.getPlayerLookDirection() == Direction.WEST ? Direction.EAST : (ctx.getPlayerLookDirection() == Direction.EAST ? Direction.WEST : ctx.getPlayerLookDirection()));
+        return this.getStateManager().getDefaultState().with(LIT, false).with(FACING, ctx.getPlayerLookDirection() == Direction.WEST ? Direction.EAST : (ctx.getPlayerLookDirection() == Direction.EAST ? Direction.WEST : ctx.getPlayerLookDirection()));
     }
 
     @Override
@@ -72,13 +74,7 @@ public class TVBlock extends Block implements BlockEntityProvider {
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
-    }
-
-    @Environment(EnvType.CLIENT)
-    @Override
-    public float getAmbientOcclusionLightLevel(BlockState state, BlockView world, BlockPos pos) {
-        return 1;
+        builder.add(FACING, LIT);
     }
 
     @Override

@@ -17,7 +17,6 @@ import net.minecraft.util.math.BlockPos;
 
 public class TVVideoScreen extends Screen {
 
-
     private static final Identifier TEXTURE = new Identifier(Constants.MOD_ID, "textures/gui/background.png");
 
     private final BlockEntity be;
@@ -63,8 +62,7 @@ public class TVVideoScreen extends Screen {
         urlBox.setText(url == null ? "" : url);
 
         // Play button
-        addDrawableChild(ButtonWidget.builder(Text.translatable("gui.tv_video_screen.play"), button -> sendUpdate(be.getPos(), url, volume, false, false, false)).dimensions(leftPos + 10, topPos + 80, imageWidth - 24, 20).build());
-
+        addDrawableChild(ButtonWidget.builder(Text.translatable("gui.tv_video_screen.play"), button -> sendUpdate(be.getPos(), url, volume, true, true, false)).dimensions(leftPos + 10, topPos + 80, imageWidth - 24, 20).build());
 
         // Pause button
         addDrawableChild(ButtonWidget.builder(Text.translatable("gui.tv_video_screen.pause"), button -> sendUpdate(be.getPos(), url, volume, true, false, false)).dimensions(leftPos + 10, topPos + 105, imageWidth - 24, 20).build());

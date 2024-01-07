@@ -27,10 +27,10 @@ import static net.fabricmc.api.EnvType.CLIENT;
 public class TVBlockEntity extends BlockEntity {
 
     private String url = "";
-    private boolean playing = true;
+    private boolean playing = false;
     private int tick = 0;
 
-    public int volume = 100;
+    public float volume = 1;
 
     public float minDistance = 5;
     public float maxDistance = 20;
@@ -62,14 +62,24 @@ public class TVBlockEntity extends BlockEntity {
 
     public void setUrl(String url) {
         this.url = url;
+        this.world.updateListeners(this.pos, this.getCachedState(), this.getCachedState(), 3);
     }
 
     public void setVolume(int volume) {
-        this.volume = volume;
+        this.volume = volume / 100F;
+        this.world.updateListeners(this.pos, this.getCachedState(), this.getCachedState(), 3);
+    }
+
+    public float getVolume() {
+        return volume;
     }
 
     public void setLoop(boolean loop) {
         this.loop = loop;
+    }
+
+    public boolean isLoop() {
+        return loop;
     }
 
     public IDisplay requestDisplay() {
@@ -84,7 +94,7 @@ public class TVBlockEntity extends BlockEntity {
             return null;
         if (display != null)
             return display;
-        return display = cache.createDisplay(new Vec3d(getPos()), url, volume / 100f, minDistance, maxDistance, loop);
+        return display = cache.createDisplay(new Vec3d(pos), url, volume, minDistance, maxDistance, loop, playing);
     }
 
     public void tryOpen(World level, BlockPos blockPos, PlayerEntity player) {
@@ -106,7 +116,7 @@ public class TVBlockEntity extends BlockEntity {
 
     public void openVideoManagerGUI(BlockPos blockPos, PlayerEntity player) {
         setBeingUsed(player.getUuid());
-        PacketHandler.sendS2COpenVideoManager((ServerPlayerEntity) player, blockPos, url, tick, volume, loop);
+        PacketHandler.sendS2COpenVideoManager((ServerPlayerEntity) player, blockPos, url, tick, (int) (volume * 100), loop);
     }
 
     public void setBeingUsed(UUID player) {
@@ -119,18 +129,6 @@ public class TVBlockEntity extends BlockEntity {
         return BlockEntityUpdateS2CPacket.create(this);
     }
 
-
-
-    public void handleUpdateTag(NbtCompound nbt) {
-        loadFromNBT(nbt);
-        this.world.markDirty(this.getPos());
-        this.world.updateListeners(this.getPos(), this.getCachedState(), this.getCachedState(), 3);
-    }
-
-    public NbtCompound getUpdateTag() {
-        return this.createNbtWithIdentifyingData();
-    }
-
     public static void tick(World level, BlockPos pos, BlockState state, BlockEntity blockEntity) {
         if (blockEntity instanceof TVBlockEntity be) {
             if (level.isClient) {
@@ -140,6 +138,7 @@ public class TVBlockEntity extends BlockEntity {
             }
             if (be.playing)
                 be.tick++;
+            level.setBlockState(pos, state.with(TVBlock.LIT, be.playing), 3);
         }
     }
 
@@ -161,7 +160,7 @@ public class TVBlockEntity extends BlockEntity {
         nbt.putUuid("beingUsed", playerUsing == null ? new UUID(0, 0) : playerUsing);
         nbt.putBoolean("playing", playing);
         nbt.putInt("tick", tick);
-        nbt.putInt("volume", volume);
+        nbt.putFloat("volume", volume);
     }
 
     @Override
@@ -176,7 +175,7 @@ public class TVBlockEntity extends BlockEntity {
         playerUsing = nbt.getUuid("beingUsed");
         playing = nbt.getBoolean("playing");
         tick = nbt.getInt("tick");
-        volume = nbt.getInt("volume");
+        volume = nbt.getFloat("volume");
     }
 
     public void notifyPlayer() {
