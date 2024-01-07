@@ -1,9 +1,11 @@
 package com.github.NGoedix.videoplayer.commands;
 
 import com.github.NGoedix.videoplayer.Constants;
+import com.github.NGoedix.videoplayer.commands.arguments.SymbolStringArgumentType;
 import com.github.NGoedix.videoplayer.network.PacketHandler;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -23,14 +25,16 @@ public class PlayVideoCommand {
         dispatcher.register(CommandManager.literal("playvideo")
                 .requires((command)-> command.hasPermissionLevel(2))
                 .then(CommandManager.argument("target", EntityArgumentType.players())
-                        .then(CommandManager.argument("volume", IntegerArgumentType.integer(0, 100))
-                                .then(CommandManager.argument("video", StringArgumentType.greedyString())
-                                        .executes(PlayVideoCommand::execute)))));
+                .then(CommandManager.argument("volume", IntegerArgumentType.integer(0, 100))
+                .then(CommandManager.argument("url", SymbolStringArgumentType.symbolString())
+                    .executes(e -> PlayVideoCommand.execute(e, false))
+                    .then(CommandManager.argument("control_blocked", BoolArgumentType.bool())
+                    .executes(e-> PlayVideoCommand.execute(e, true)))))));
     }
 
-
-    private static int execute(CommandContext<ServerCommandSource> command){
+    private static int execute(CommandContext<ServerCommandSource> command, boolean control){
         Collection<ServerPlayerEntity> players;
+
         try {
             players = EntityArgumentType.getPlayers(command, "target");
         } catch (CommandSyntaxException e) {
@@ -38,18 +42,13 @@ public class PlayVideoCommand {
             return Command.SINGLE_SUCCESS;
         }
 
-        String video = StringArgumentType.getString(command,"video");
-
-        if (video == null){
-            command.getSource().sendError(Text.of("Error with file not exist"));
-            return Command.SINGLE_SUCCESS;
-        }
-
-        int volume = IntegerArgumentType.getInteger(command, "volume");
-
         for (ServerPlayerEntity player : players) {
-            Constants.LOGGER.info("Sending video to player: " + player.getName().getString());
-            PacketHandler.sendS2CSendVideo(player, video, volume);
+            PacketHandler.sendS2CSendVideo(
+                    player,
+                    StringArgumentType.getString(command, "url"),
+                    IntegerArgumentType.getInteger(command, "volume"),
+                    control && BoolArgumentType.getBool(command, "control_blocked")
+            );
         }
 
         return Command.SINGLE_SUCCESS;

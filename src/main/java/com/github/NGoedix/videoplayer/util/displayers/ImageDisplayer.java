@@ -1,54 +1,43 @@
 package com.github.NGoedix.videoplayer.util.displayers;
 
 
-import com.github.NGoedix.videoplayer.util.cache.TextureCache;
+import me.srrapero720.watermedia.api.image.ImageRenderer;
 import net.minecraft.client.MinecraftClient;
 
+import java.awt.*;
+
 public class ImageDisplayer implements IDisplay {
-    
-    public final TextureCache texture;
-    private int textureId;
-    
-    public ImageDisplayer(TextureCache texture) {
-        this.texture = texture;
+
+    public final ImageRenderer picture;
+
+    public ImageDisplayer(ImageRenderer picture) {
+        this.picture = picture;
     }
-    
+
     @Override
-    public void prepare(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        long time = tick * 50L + (playing ? (long) ((mc.isPaused() ? 1.0F : mc.getTickDelta()) * 50) : 0);
-        if (texture.getDuration() > 0 && time > texture.getDuration())
-            if (loop)
-                time %= texture.getDuration();
-        textureId = texture.getTexture(time);
+    public int prepare(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
+        long time = tick * 50L + (playing ? (long) (MinecraftClient.getInstance().isPaused() ? 1.0F : MinecraftClient.getInstance().getTickDelta() * 50) : 0);
+        long duration = picture.duration;
+        if (duration > 0 && time > duration && loop) time %= duration;
+        return picture.texture(time);
     }
-    
+
     @Override
     public void tick(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {}
-    
+
     @Override
     public void pause(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {}
-    
+
     @Override
     public void resume(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {}
-    
-    @Override
-    public int texture() {
-        return textureId;
-    }
-    
+
     @Override
     public void release() {
-        texture.unuse();
+        picture.release();
     }
-    
+
     @Override
-    public int getWidth() {
-        return texture.getWidth();
-    }
-    
-    @Override
-    public int getHeight() {
-        return texture.getHeight();
+    public Dimension getDimensions() {
+        return new Dimension(picture.width, picture.height);
     }
 }

@@ -66,7 +66,7 @@ public class TVVideoScreen extends Screen {
 
         // Play button
         addDrawableChild(new ButtonWidget(leftPos + 10, topPos + 80, imageWidth - 24, 20, Text.translatable("gui.tv_video_screen.play"), button -> {
-            sendUpdate(be.getPos(), url, volume, true, true, true);
+            sendUpdate(be.getPos(), url, volume, true, true, false);
         }));
 
         // Pause button
@@ -123,8 +123,6 @@ public class TVVideoScreen extends Screen {
             sendUpdate(be.getPos(), url, -1, true, true, false);
         MinecraftClient.getInstance().keyboard.setRepeatEvents(false);
     }
-
-
 
     @Override
     public boolean shouldPause() {

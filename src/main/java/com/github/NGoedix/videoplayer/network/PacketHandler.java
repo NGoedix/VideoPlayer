@@ -27,10 +27,11 @@ public class PacketHandler {
     }
 
     // SEND MESSAGES S2C
-    public static void sendS2CSendVideo(ServerPlayerEntity player, String url, int volume){
+    public static void sendS2CSendVideo(ServerPlayerEntity player, String url, int volume, boolean controlBlocked) {
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeString(url);
         buf.writeInt(volume);
+        buf.writeBoolean(controlBlocked);
         ServerPlayNetworking.send(player, SendVideoMessage.ID, buf);
     }
 

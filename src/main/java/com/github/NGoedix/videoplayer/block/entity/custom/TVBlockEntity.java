@@ -27,7 +27,7 @@ import static net.fabricmc.api.EnvType.CLIENT;
 public class TVBlockEntity extends BlockEntity {
 
     private String url = "";
-    private boolean playing = true;
+    private boolean playing = false;
     private int tick = 0;
 
     public float volume = 1;
@@ -62,14 +62,24 @@ public class TVBlockEntity extends BlockEntity {
 
     public void setUrl(String url) {
         this.url = url;
+        this.world.updateListeners(this.pos, this.getCachedState(), this.getCachedState(), 3);
     }
 
     public void setVolume(int volume) {
         this.volume = volume / 100F;
+        this.world.updateListeners(this.pos, this.getCachedState(), this.getCachedState(), 3);
+    }
+
+    public float getVolume() {
+        return volume;
     }
 
     public void setLoop(boolean loop) {
         this.loop = loop;
+    }
+
+    public boolean isLoop() {
+        return loop;
     }
 
     public IDisplay requestDisplay() {
@@ -84,7 +94,7 @@ public class TVBlockEntity extends BlockEntity {
             return null;
         if (display != null)
             return display;
-        return display = cache.createDisplay(new Vec3d(getPos()), url, volume, minDistance, maxDistance, loop);
+        return display = cache.createDisplay(new Vec3d(pos), url, volume, minDistance, maxDistance, loop, playing);
     }
 
     public void tryOpen(World level, BlockPos blockPos, PlayerEntity player) {
@@ -119,18 +129,6 @@ public class TVBlockEntity extends BlockEntity {
         return BlockEntityUpdateS2CPacket.create(this);
     }
 
-
-
-    public void handleUpdateTag(NbtCompound nbt) {
-        loadFromNBT(nbt);
-        this.world.markDirty(this.getPos());
-        this.world.updateListeners(this.getPos(), this.getCachedState(), this.getCachedState(), 3);
-    }
-
-    public NbtCompound getUpdateTag() {
-        return this.createNbtWithIdentifyingData();
-    }
-
     public static void tick(World level, BlockPos pos, BlockState state, BlockEntity blockEntity) {
         if (blockEntity instanceof TVBlockEntity be) {
             if (level.isClient) {
@@ -140,6 +138,7 @@ public class TVBlockEntity extends BlockEntity {
             }
             if (be.playing)
                 be.tick++;
+            level.setBlockState(pos, state.with(TVBlock.LIT, be.playing), 3);
         }
     }
 

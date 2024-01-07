@@ -1,18 +1,28 @@
 package com.github.NGoedix.videoplayer.client;
 
+import com.github.NGoedix.videoplayer.VideoPlayer;
 import com.github.NGoedix.videoplayer.block.entity.ModBlockEntities;
 import com.github.NGoedix.videoplayer.block.entity.custom.TVBlockEntity;
 import com.github.NGoedix.videoplayer.client.gui.TVVideoScreen;
 import com.github.NGoedix.videoplayer.client.gui.VideoScreen;
 import com.github.NGoedix.videoplayer.client.render.TVBlockRenderer;
+import com.github.NGoedix.videoplayer.commands.arguments.SymbolStringArgumentSerializer;
+import com.github.NGoedix.videoplayer.commands.arguments.SymbolStringArgumentType;
 import com.github.NGoedix.videoplayer.network.PacketHandler;
 import com.github.NGoedix.videoplayer.Constants;
+import com.mojang.brigadier.tree.ArgumentCommandNode;
+import me.srrapero720.watermedia.api.image.ImageAPI;
+import me.srrapero720.watermedia.core.tools.JarTool;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
+import net.fabricmc.fabric.mixin.command.ArgumentTypesAccessor;
+import net.fabricmc.fabric.mixin.gametest.ArgumentTypesMixin;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.command.argument.ArgumentHelper;
+import net.minecraft.command.argument.ArgumentTypes;
 import net.minecraft.util.math.BlockPos;
 
 @Environment(EnvType.CLIENT)
@@ -24,10 +34,14 @@ public class ClientHandler implements ClientModInitializer {
 
         PacketHandler.registerS2CPackets();
         BlockEntityRendererRegistry.register(ModBlockEntities.TV_BLOCK_ENTITY, TVBlockRenderer::new);
+
+        VideoPlayer.IMG_PAUSED = ImageAPI.renderer(JarTool.readImage(VideoPlayer.class.getClassLoader(), "/pictures/paused.png"), true);
+
+        ArgumentTypesAccessor.fabric_getClassMap().put(SymbolStringArgumentType.class, new SymbolStringArgumentSerializer());
     }
 
-    public static void openVideo(MinecraftClient client, String url, int volume){
-        client.execute(() -> client.setScreen(new VideoScreen(url, volume)));
+    public static void openVideo(MinecraftClient client, String url, int volume, boolean controlBlocked) {
+        client.execute(() -> client.setScreen(new VideoScreen(url, volume, controlBlocked)));
     }
 
     public static void manageVideo(MinecraftClient client, BlockPos pos, boolean playing, int tick) {
