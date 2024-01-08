@@ -12,10 +12,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MinecraftClientMixin {
     @Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("HEAD"))
     private void onDisconnect(CallbackInfo ci) {
-        for (TextureCache cache : TextureCache.cached.values()) {
+        for (TextureCache cache : TextureCache.CACHE.values()) {
             cache.remove();
         }
-        TextureCache.cached.clear();
+        TextureCache.CACHE.clear();
         VideoDisplayer.unload();
     }
 }

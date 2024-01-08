@@ -13,6 +13,7 @@ repositories {
 			includeGroup "curse.maven"
 		}
 	}
+	maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -21,10 +22,10 @@ dependencies {
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
+	implementation 'com.github.SrRapero720.watermedia:build:2.0.27a-pre1'
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	modImplementation "curse.maven:watermedia-869524:4598820"
 }
 
 base {

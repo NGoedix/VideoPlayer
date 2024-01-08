@@ -20,7 +20,6 @@ import net.minecraft.util.math.BlockPos;
 
 public class TVVideoScreen extends Screen {
 
-
     private static final Identifier TEXTURE = new Identifier(Constants.MOD_ID, "textures/gui/background.png");
 
     private final BlockEntity be;
@@ -28,7 +27,6 @@ public class TVVideoScreen extends Screen {
     private final int tick;
     private int volume;
     private final boolean loop;
-
 
     // GUI
     private int imageWidth = 256;
@@ -40,9 +38,7 @@ public class TVVideoScreen extends Screen {
     private TextFieldWidget urlBox;
     private CustomSlider volumeSlider;
 
-
     private boolean changed;
-
 
     public TVVideoScreen(BlockEntity be, String url, int tick, int volume, boolean loop) {
         super(Text.translatable("gui.tv_video_screen.title"));
@@ -66,7 +62,7 @@ public class TVVideoScreen extends Screen {
         urlBox.setText(url == null ? "" : url);
 
         // Play button
-        addDrawableChild(ButtonWidget.builder(Text.translatable("gui.tv_video_screen.play"), button -> sendUpdate(be.getPos(), url, volume, false, false, false)).dimensions(leftPos + 10, topPos + 80, imageWidth - 24, 20).build());
+        addDrawableChild(ButtonWidget.builder(Text.translatable("gui.tv_video_screen.play"), button -> sendUpdate(be.getPos(), url, volume, true, true, false)).dimensions(leftPos + 10, topPos + 80, imageWidth - 24, 20).build());
 
 
         // Pause button
@@ -128,8 +124,6 @@ public class TVVideoScreen extends Screen {
         if (!changed)
             sendUpdate(be.getPos(), url, -1, true, true, false);
     }
-
-
 
     @Override
     public boolean shouldPause() {
