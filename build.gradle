@@ -29,7 +29,7 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	modImplementation 'com.github.SrRapero720.watermedia:build:2.0.7'
+	modImplementation 'com.github.SrRapero720.watermedia:build:2.0.25a'
 }
 
 processResources {
