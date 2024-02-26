@@ -3,6 +3,8 @@ package com.github.NGoedix.videoplayer;
 import com.github.NGoedix.videoplayer.block.ModBlocks;
 import com.github.NGoedix.videoplayer.block.entity.ModBlockEntities;
 import com.github.NGoedix.videoplayer.commands.PlayVideoCommand;
+import com.github.NGoedix.videoplayer.commands.arguments.SymbolStringArgumentSerializer;
+import com.github.NGoedix.videoplayer.commands.arguments.SymbolStringArgumentType;
 import com.github.NGoedix.videoplayer.network.PacketHandler;
 import me.srrapero720.watermedia.api.image.ImageRenderer;
 import net.fabricmc.api.EnvType;
@@ -10,6 +12,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.minecraft.command.argument.ArgumentTypes;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
@@ -31,6 +34,7 @@ public class VideoPlayer implements ModInitializer {
 
         ModBlocks.registerModBlocks();
         ModBlockEntities.registerAllBlockEntities();
+        ArgumentTypes.register("brigadier:symbol_string", SymbolStringArgumentType.class, new SymbolStringArgumentSerializer());
 
         PacketHandler.registerC2SPackets();
         CommandRegistrationCallback.EVENT.register(PlayVideoCommand::register);
