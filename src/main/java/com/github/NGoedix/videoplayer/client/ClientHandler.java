@@ -31,8 +31,6 @@ public class ClientHandler implements ClientModInitializer {
         PacketHandler.registerS2CPackets();
         BlockEntityRendererRegistry.register(ModBlockEntities.TV_BLOCK_ENTITY, TVBlockRenderer::new);
         VideoPlayer.IMG_PAUSED = ImageAPI.renderer(JarTool.readImage(VideoPlayer.class.getClassLoader(), "/pictures/paused.png"), true);
-
-        ArgumentTypesAccessor.fabric_getClassMap().put(SymbolStringArgumentType.class, new SymbolStringArgumentSerializer());
     }
 
     public static void openVideo(MinecraftClient client, String url, int volume, boolean controlBlocked) {
