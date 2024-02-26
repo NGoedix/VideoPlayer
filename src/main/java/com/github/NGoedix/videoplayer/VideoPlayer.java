@@ -10,6 +10,7 @@ import me.srrapero720.watermedia.api.image.ImageRenderer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.mixin.command.ArgumentTypesAccessor;
@@ -38,7 +39,7 @@ public class VideoPlayer implements ModInitializer {
 
         ModBlocks.registerModBlocks();
         ModBlockEntities.registerAllBlockEntities();
-        ArgumentTypesAccessor.fabric_getClassMap().put(SymbolStringArgumentType.class, new SymbolStringArgumentSerializer());
+        ArgumentTypeRegistry.registerArgumentType(new Identifier(Constants.MOD_ID, "symbol_string"), SymbolStringArgumentType.class, new SymbolStringArgumentSerializer());
 
         PacketHandler.registerC2SPackets();
         CommandRegistrationCallback.EVENT.register(PlayVideoCommand::register);
