@@ -19,7 +19,7 @@ plugins {
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
 }
 
-version = '2.6-FORGE-1.19-1.19.1-1.19.2'
+version = '2.6.2-FORGE-1.19-1.19.1-1.19.2'
 group = 'com.github.NGoedix.VideoPlayer' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'VideoPlayer'
 
@@ -78,7 +78,7 @@ repositories {
 dependencies {
     minecraft 'net.minecraftforge:forge:1.19-41.1.0'
 
-    implementation 'com.github.SrRapero720.watermedia:build:2.0.7'
+    implementation 'com.github.SrRapero720.watermedia:build:2.0.28'
     implementation fg.deobf("curse.maven:jei-238222:4494410")
 }
 
