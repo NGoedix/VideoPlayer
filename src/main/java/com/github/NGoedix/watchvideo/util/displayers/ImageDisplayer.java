@@ -1,6 +1,6 @@
 package com.github.NGoedix.watchvideo.util.displayers;
 
-import me.srrapero720.watermedia.api.image.ImageRenderer;
+import org.watermedia.api.image.ImageRenderer;
 import net.minecraft.client.Minecraft;
 
 import java.awt.*;
