@@ -1,11 +1,11 @@
 package com.github.NGoedix.watchvideo.util.displayers;
 
-import me.srrapero720.watermedia.api.player.SyncVideoPlayer;
+import org.watermedia.api.player.videolan.VideoPlayer;
 import net.minecraft.client.Minecraft;
 
 public class VideoScreenDisplay {
 
-    private final SyncVideoPlayer player;
+    private final VideoPlayer player;
     private final String url;
     private final int volume;
     private final int position;
@@ -15,7 +15,7 @@ public class VideoScreenDisplay {
     private final int optionOutSecs;
 
     public VideoScreenDisplay(String url, int volume, int position, int optionInMode, int optionInSecs, int optionOutMode, int optionOutSecs) {
-        player = new SyncVideoPlayer(null, Minecraft.getInstance());
+        player = new VideoPlayer(Minecraft.getInstance());
         this.url = url;
         this.volume = volume;
         this.position = position;
@@ -33,7 +33,7 @@ public class VideoScreenDisplay {
         return position;
     }
 
-    public SyncVideoPlayer getPlayer() {
+    public VideoPlayer getPlayer() {
         return player;
     }
 

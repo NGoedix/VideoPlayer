@@ -10,10 +10,10 @@ import com.github.NGoedix.watchvideo.util.displayers.VideoDisplayer;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import me.srrapero720.watermedia.api.image.ImageAPI;
-import me.srrapero720.watermedia.api.image.ImageRenderer;
-import me.srrapero720.watermedia.api.math.MathAPI;
-import me.srrapero720.watermedia.api.player.SyncVideoPlayer;
+import org.watermedia.api.image.ImageAPI;
+import org.watermedia.api.image.ImageRenderer;
+import org.watermedia.api.math.MathAPI;
+import org.watermedia.api.player.videolan.VideoPlayer;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -157,7 +157,7 @@ public class TVVideoScreen extends Screen {
         timeSlider.setOnSlideListener(value -> {
             if (be.requestDisplay() == null) return;
             if (be.requestDisplay() instanceof VideoDisplayer) {
-                SyncVideoPlayer player = (SyncVideoPlayer) ((VideoDisplayer) be.requestDisplay()).player;
+                VideoPlayer player = (VideoPlayer) ((VideoDisplayer) be.requestDisplay()).player;
                 if (player.isReady() && !player.isLive()) {
                     player.seekTo((int) ((value / 100D) * player.getDuration()));
                 }
@@ -166,7 +166,7 @@ public class TVVideoScreen extends Screen {
         });
 
         if (be.requestDisplay() != null && be.requestDisplay() instanceof VideoDisplayer) {
-            SyncVideoPlayer player = (SyncVideoPlayer) ((VideoDisplayer) be.requestDisplay()).player;
+            VideoPlayer player = (VideoPlayer) ((VideoDisplayer) be.requestDisplay()).player;
             timeSlider.setValue((double) player.getTime() / player.getDuration());
         }
 
@@ -201,7 +201,7 @@ public class TVVideoScreen extends Screen {
         String actualTimeFormatted = "00:00";
 
         if (be.requestDisplay() instanceof VideoDisplayer) {
-            SyncVideoPlayer player = (SyncVideoPlayer) ((VideoDisplayer) be.requestDisplay()).player;
+            VideoPlayer player = (VideoPlayer) ((VideoDisplayer) be.requestDisplay()).player;
 
             if (player != null && player.isReady()) {
                 timeSlider.setActive(!player.isLive());

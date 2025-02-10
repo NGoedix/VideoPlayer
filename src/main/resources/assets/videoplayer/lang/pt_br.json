@@ -1,0 +1,19 @@
+{
+  "itemGroup.videoplayer.items": "Video Player",
+  "gui.tv_video_screen.title": "Tela de TV",
+  "gui.tv_video_screen.save": "Salvar",
+  "gui.radio_screen.title": "Rádio",
+  "item.videoplayer.tv_block": "TV",
+  "item.videoplayer.radio_block": "Rádio",
+  "item.videoplayer.hand_radio_block": "Rádio portátil",
+  "block.videoplayer.tv_block": "TV",
+  "block.videoplayer.radio_block": "Rádio",
+  "block.videoplayer.hand_radio_block": "Rádio portátil",
+  "gui.tv_video_screen.play": "Play",
+  "gui.tv_video_screen.pause": "Pausar",
+  "gui.tv_video_screen.stop": "Parar",
+  "gui.tv_video_screen.url_text": "Url:",
+  "gui.tv_video_screen.volume": "Volume",
+  "gui.tv_video_screen.time": "Tempo: %s / %s",
+  "customslider.videoplayer.value": "%s: %d%%"
+}

@@ -68,7 +68,7 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    implementation 'com.github.WaterMediaTeam.watermedia:build:2.0.69'
+    implementation 'com.github.WaterMediaTeam:watermedia:2.1.16'
 }
 
 def resourceTargets = ['META-INF/mods.toml', 'pack.mcmeta']

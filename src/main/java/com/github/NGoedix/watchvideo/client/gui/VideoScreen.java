@@ -6,10 +6,9 @@ import com.github.NGoedix.watchvideo.util.math.VideoMathUtil;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import me.srrapero720.watermedia.api.image.ImageAPI;
-import me.srrapero720.watermedia.api.image.ImageRenderer;
-import me.srrapero720.watermedia.api.math.MathAPI;
-import me.srrapero720.watermedia.api.player.SyncVideoPlayer;
+import org.watermedia.api.image.ImageAPI;
+import org.watermedia.api.image.ImageRenderer;
+import org.watermedia.api.math.MathAPI;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -27,6 +26,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 import java.util.TimeZone;
+
+import java.net.URI;
 
 public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> {
 
@@ -54,7 +55,7 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     private int optionOutSecs;
 
     // TOOLS
-    private final SyncVideoPlayer player;
+    private final org.watermedia.api.player.videolan.VideoPlayer player;
 
     // VIDEO INFO
     int videoTexture = -1;
@@ -81,15 +82,16 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
         this.optionOutMode = -1;
         this.optionOutSecs = -1;
 
-        this.player = new SyncVideoPlayer(null, minecraft);
+        this.player = new org.watermedia.api.player.videolan.VideoPlayer(minecraft);
         Reference.LOGGER.info("Playing video (" + (!controlBlocked ? "not" : "") + "blocked) (" + url + " with volume: " + (int) (Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER) * volume));
 
         player.setVolume((int) (Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER) * volume));
+        URI uri = URI.create(url);
         if (!fadeIn) {
             started = true;
-            player.start(url);
+            player.start(uri);
         } else {
-            player.startPaused(url);
+            player.startPaused(uri);
         }
     }
 
@@ -99,7 +101,7 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     @Override
     protected void renderBg(@NotNull GuiGraphics guiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
         if (started && !closing) {
-            videoTexture = player.getGlTexture();
+            videoTexture = player.preRender();
         }
 
         // Handle easing for fade-in
@@ -162,14 +164,14 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
 
         // DEBUG RENDERING
         if (!FMLLoader.isProduction()) {
-            draw(guiGraphics, String.format("State: %s", player.getRawPlayerState().name()), getHeightCenter(-12));
+            draw(guiGraphics, String.format("State: %s", player.getStateName()), getHeightCenter(-12));
             draw(guiGraphics, String.format("Time: %s (%s) / %s (%s)", FORMAT.format(new Date(player.getTime())), player.getTime(), FORMAT.format(new Date(player.getDuration())), player.getDuration()), getHeightCenter(0));
             draw(guiGraphics, String.format("Media Duration: %s (%s)", FORMAT.format(new Date(player.getMediaInfoDuration())), player.getMediaInfoDuration()), getHeightCenter(12));
         }
     }
 
     private void renderTexture(GuiGraphics guiGraphics, int texture) {
-        if (player.getDimensions() == null) return; // Checking if video available
+        if (player.dimension() == null) return; // Checking if video available
 
         RenderSystem.enableBlend();
         guiGraphics.fill(0, 0, width, height, MathAPI.argb(255, 0, 0, 0));
@@ -179,7 +181,7 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
         RenderSystem.setShaderTexture(0, texture);
 
         // Get video dimensions
-        Dimension videoDimensions = player.getDimensions();
+        Dimension videoDimensions = player.dimension();
         double videoWidth = videoDimensions.getWidth();
         double videoHeight = videoDimensions.getHeight();
 

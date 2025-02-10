@@ -7,7 +7,7 @@ import com.github.NGoedix.watchvideo.util.math.geo.*;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import me.srrapero720.watermedia.api.image.ImageAPI;
+import org.watermedia.api.image.ImageAPI;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;

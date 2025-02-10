@@ -4,8 +4,8 @@ import com.github.NGoedix.watchvideo.util.displayers.IDisplay;
 import com.github.NGoedix.watchvideo.util.displayers.ImageDisplayer;
 import com.github.NGoedix.watchvideo.util.displayers.VideoDisplayer;
 import com.github.NGoedix.watchvideo.util.math.geo.Vec3d;
-import me.srrapero720.watermedia.api.image.ImageFetch;
-import me.srrapero720.watermedia.api.image.ImageRenderer;
+import org.watermedia.api.image.ImageFetch;
+import org.watermedia.api.image.ImageRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.sounds.SoundSource;
 
@@ -13,6 +13,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import java.net.URI;
 
 public class TextureCache {
     private static final Map<String, TextureCache> CACHE = new HashMap<>();
@@ -49,7 +51,8 @@ public class TextureCache {
     private synchronized void attemptToLoad() {
         if (this.seeker != null) return;
         if (!this.url.isEmpty()) {
-            this.seeker = new FramePictureFetcher(this, url);
+            URI uri = URI.create(url);
+            this.seeker = new FramePictureFetcher(this, uri);
             this.seeker.start();
         }
     }
@@ -116,13 +119,13 @@ public class TextureCache {
     public static void unload() { for (TextureCache cache : CACHE.values()) cache.remove(); CACHE.clear(); }
 
     private static final class FramePictureFetcher extends ImageFetch {
-        public FramePictureFetcher(TextureCache cache, String originalURL) {
+        public FramePictureFetcher(TextureCache cache, URI originalURL) {
             super(originalURL);
 
-            setOnSuccessCallback(imageRenderer -> Minecraft.getInstance().executeBlocking(() -> cache.process(imageRenderer)));
+            setSuccessCallback((imageRenderer, isCache) -> Minecraft.getInstance().executeBlocking(() -> cache.process(imageRenderer)));
 
-            setOnFailedCallback(e -> Minecraft.getInstance().executeBlocking(() -> {
-                if (e instanceof NoPictureException) {
+            setErrorCallback((e, isVideo) -> Minecraft.getInstance().executeBlocking(() -> {
+                if (isVideo) {
                     cache.processVideo();
                     return;
                 }

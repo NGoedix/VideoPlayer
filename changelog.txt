@@ -1,3 +1,6 @@
+3.1.0
+- Use watermedia 2.1.x instead of 2.0.x
+
 3.0.5
 - Fixed fading in playgovideo command
 
