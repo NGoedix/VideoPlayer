@@ -16,7 +16,7 @@ import com.github.NGoedix.watchvideo.util.displayers.VideoDisplayer;
 import com.mojang.logging.LogUtils;
 import org.watermedia.api.image.ImageAPI;
 import org.watermedia.api.image.ImageRenderer;
-import org.watermedia.core.tools.JarTool;;
+import org.watermedia.core.tools.JarTool;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
