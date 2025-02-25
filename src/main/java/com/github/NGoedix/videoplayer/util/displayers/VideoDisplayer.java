@@ -159,7 +159,7 @@ public class VideoDisplayer implements IDisplay {
         if (player == null) return -1;
         this.url = url;
         if (player instanceof VideoPlayer)
-            return ((VideoPlayer) player).texture();
+            return ((VideoPlayer) player).preRender();
 
         return 0;
     }
@@ -167,7 +167,7 @@ public class VideoDisplayer implements IDisplay {
     @Override
     public int getRenderTexture() {
         if (player instanceof VideoPlayer)
-            return ((VideoPlayer) player).texture();
+            return ((VideoPlayer) player).preRender();
 
         return 0;
     }
