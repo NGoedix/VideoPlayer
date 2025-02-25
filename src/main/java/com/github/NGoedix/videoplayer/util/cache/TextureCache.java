@@ -4,11 +4,12 @@ import com.github.NGoedix.videoplayer.util.displayers.IDisplay;
 import com.github.NGoedix.videoplayer.util.displayers.ImageDisplayer;
 import com.github.NGoedix.videoplayer.util.displayers.VideoDisplayer;
 import com.github.NGoedix.videoplayer.util.math.geo.Vec3d;
-import me.srrapero720.watermedia.api.image.ImageFetch;
-import me.srrapero720.watermedia.api.image.ImageRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.sounds.SoundSource;
+import org.watermedia.api.image.ImageFetch;
+import org.watermedia.api.image.ImageRenderer;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -117,12 +118,12 @@ public class TextureCache {
 
     private static final class FramePictureFetcher extends ImageFetch {
         public FramePictureFetcher(TextureCache cache, String originalURL) {
-            super(originalURL);
+            super(URI.create(originalURL));
 
-            setOnSuccessCallback(imageRenderer -> Minecraft.getInstance().executeBlocking(() -> cache.process(imageRenderer)));
+            setSuccessCallback((imageRenderer, isCache) -> Minecraft.getInstance().executeBlocking(() -> cache.process(imageRenderer)));
 
-            setOnFailedCallback(e -> Minecraft.getInstance().executeBlocking(() -> {
-                if (e instanceof NoPictureException) {
+            setErrorCallback((e, isVideo) -> Minecraft.getInstance().executeBlocking(() -> {
+                if (isVideo) {
                     cache.processVideo();
                     return;
                 }

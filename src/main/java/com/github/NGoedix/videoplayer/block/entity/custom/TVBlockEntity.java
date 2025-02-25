@@ -3,26 +3,19 @@ package com.github.NGoedix.videoplayer.block.entity.custom;
 import com.github.NGoedix.videoplayer.block.custom.TVBlock;
 import com.github.NGoedix.videoplayer.block.entity.ModBlockEntities;
 import com.github.NGoedix.videoplayer.network.PacketHandler;
-import com.github.NGoedix.videoplayer.util.cache.TextureCache;
-import com.github.NGoedix.videoplayer.util.displayers.IDisplay;
 import com.github.NGoedix.videoplayer.util.math.geo.AlignedBox;
 import com.github.NGoedix.videoplayer.util.math.geo.Axis;
 import com.github.NGoedix.videoplayer.util.math.geo.Facing;
-import com.github.NGoedix.videoplayer.util.math.geo.Vec3d;
-import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.UUID;
-
-import static net.fabricmc.api.EnvType.CLIENT;
 
 public class TVBlockEntity extends VideoPlayerBlockEntity {
 
@@ -60,14 +53,14 @@ public class TVBlockEntity extends VideoPlayerBlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag nbt) {
-        super.saveAdditional(nbt);
+    protected void saveAdditional(CompoundTag nbt, HolderLookup.Provider provider) {
+        super.saveAdditional(nbt, provider);
         nbt.putUUID("beingUsed", playerUsing == null ? new UUID(0, 0) : playerUsing);
     }
 
     @Override
-    public void load(CompoundTag nbt) {
-        super.load(nbt);
+    public void loadAdditional(CompoundTag nbt, HolderLookup.Provider provider) {
+        super.loadAdditional(nbt, provider);
 
         loadFromNBT(nbt);
     }

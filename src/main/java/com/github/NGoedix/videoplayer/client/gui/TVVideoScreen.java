@@ -9,10 +9,6 @@ import com.github.NGoedix.videoplayer.util.displayers.VideoDisplayer;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import me.srrapero720.watermedia.api.image.ImageAPI;
-import me.srrapero720.watermedia.api.image.ImageRenderer;
-import me.srrapero720.watermedia.api.math.MathAPI;
-import me.srrapero720.watermedia.api.player.SyncVideoPlayer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -22,21 +18,25 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
+import org.watermedia.api.image.ImageAPI;
+import org.watermedia.api.image.ImageRenderer;
+import org.watermedia.api.math.MathAPI;
+import org.watermedia.api.player.videolan.VideoPlayer;
 
 import java.awt.*;
 
 public class TVVideoScreen extends Screen {
 
-    private static final ResourceLocation TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/gui/background.png");
+    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/background.png");
 
-    private static final ResourceLocation PLAY_BUTTON_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/gui/play_button.png");
-    private static final ResourceLocation PLAY_HOVER_BUTTON_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/gui/play_button_hover.png");
+    private static final ResourceLocation PLAY_BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/play_button.png");
+    private static final ResourceLocation PLAY_HOVER_BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/play_button_hover.png");
 
-    private static final ResourceLocation PAUSE_BUTTON_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/gui/pause_button.png");
-    private static final ResourceLocation PAUSE_HOVER_BUTTON_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/gui/pause_button_hover.png");
+    private static final ResourceLocation PAUSE_BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/pause_button.png");
+    private static final ResourceLocation PAUSE_HOVER_BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/pause_button_hover.png");
 
-    private static final ResourceLocation STOP_BUTTON_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/gui/stop_button.png");
-    private static final ResourceLocation STOP_HOVER_BUTTON_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/gui/stop_button_hover.png");
+    private static final ResourceLocation STOP_BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/stop_button.png");
+    private static final ResourceLocation STOP_HOVER_BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/stop_button_hover.png");
 
     private ImageButtonHoverable playButton;
     private ImageButtonHoverable pauseButton;
@@ -154,7 +154,7 @@ public class TVVideoScreen extends Screen {
         timeSlider.setOnSlideListener(value -> {
             if (be.requestDisplay() == null) return;
             if (be.requestDisplay() instanceof VideoDisplayer) {
-                SyncVideoPlayer player = (SyncVideoPlayer) ((VideoDisplayer) be.requestDisplay()).player;
+                VideoPlayer player = (VideoPlayer) ((VideoDisplayer) be.requestDisplay()).player;
                 if (player.isReady() && !player.isLive()) {
                     player.seekTo((int) ((value / 100D) * player.getDuration()));
                 }
@@ -163,7 +163,7 @@ public class TVVideoScreen extends Screen {
         });
 
         if (be.requestDisplay() != null && be.requestDisplay() instanceof VideoDisplayer) {
-            SyncVideoPlayer player = (SyncVideoPlayer) ((VideoDisplayer) be.requestDisplay()).player;
+            VideoPlayer player = (VideoPlayer) ((VideoDisplayer) be.requestDisplay()).player;
             timeSlider.setValue((double) player.getTime() / player.getDuration());
         }
 
@@ -181,7 +181,7 @@ public class TVVideoScreen extends Screen {
 
     @Override
     public void render(GuiGraphics context, int pMouseX, int pMouseY, float pPartialTick) {
-        renderBackground(context);
+        renderBackground(context, pMouseX, pMouseY, pPartialTick);
         RenderSystem.clearColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, TEXTURE);
         context.blit(TEXTURE, leftPos, topPos, 320, 320, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
@@ -198,7 +198,7 @@ public class TVVideoScreen extends Screen {
         String actualTimeFormatted = "00:00";
 
         if (be.requestDisplay() instanceof VideoDisplayer) {
-            SyncVideoPlayer player = (SyncVideoPlayer) ((VideoDisplayer) be.requestDisplay()).player;
+            VideoPlayer player = (VideoPlayer) ((VideoDisplayer) be.requestDisplay()).player;
 
             if (player != null && player.isReady()) {
                 timeSlider.setActive(!player.isLive());
@@ -304,15 +304,14 @@ public class TVVideoScreen extends Screen {
         RenderSystem.setShaderTexture(0, texture);
 
         Matrix4f matrix4f = guiGraphics.pose().last().pose();
-        BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
-        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
 
-        bufferBuilder.vertex(matrix4f, x, y + height, 0).uv(uMin, vMax).endVertex();   // Bottom-left
-        bufferBuilder.vertex(matrix4f, x + width, y + height, 0).uv(uMax, vMax).endVertex();  // Bottom-right
-        bufferBuilder.vertex(matrix4f, x + width, y, 0).uv(uMax, vMin).endVertex();  // Top-right
-        bufferBuilder.vertex(matrix4f, x, y, 0).uv(uMin, vMin).endVertex();   // Top-left
+        bufferBuilder.addVertex(matrix4f, x, y + height, 0).setUv(uMin, vMax);   // Bottom-left
+        bufferBuilder.addVertex(matrix4f, x + width, y + height, 0).setUv(uMax, vMax);  // Bottom-right
+        bufferBuilder.addVertex(matrix4f, x + width, y, 0).setUv(uMax, vMin);  // Top-right
+        bufferBuilder.addVertex(matrix4f, x, y, 0).setUv(uMin, vMin);   // Top-left
 
-        BufferUploader.drawWithShader(bufferBuilder.end());
+        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
 
         RenderSystem.disableBlend();
     }

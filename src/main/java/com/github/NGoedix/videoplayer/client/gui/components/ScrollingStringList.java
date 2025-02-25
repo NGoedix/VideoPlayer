@@ -52,9 +52,9 @@ public class ScrollingStringList extends ScrollingList<ScrollingStringList.Playe
     }
 
     @Override
-    protected void renderBackground(GuiGraphics pGuiGraphics) {
+    protected void renderListBackground(GuiGraphics pGuiGraphics) {
         // Render background of the list
-        super.renderBackground(pGuiGraphics);
+        super.renderListBackground(pGuiGraphics);
 
         // Render background of the slots
         int i = this.getRowLeft();

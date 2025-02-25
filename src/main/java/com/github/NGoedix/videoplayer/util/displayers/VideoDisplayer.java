@@ -1,16 +1,17 @@
 package com.github.NGoedix.videoplayer.util.displayers;
 
+import com.github.NGoedix.videoplayer.util.TryCore;
 import com.github.NGoedix.videoplayer.util.cache.TextureCache;
 import com.github.NGoedix.videoplayer.util.math.VideoMathUtil;
 import com.github.NGoedix.videoplayer.util.math.geo.Vec3d;
-import me.lib720.watermod.safety.TryCore;
-import me.srrapero720.watermedia.api.math.MathAPI;
-import me.srrapero720.watermedia.api.player.SyncBasePlayer;
-import me.srrapero720.watermedia.api.player.SyncMusicPlayer;
-import me.srrapero720.watermedia.api.player.SyncVideoPlayer;
 import net.minecraft.client.Minecraft;
+import org.watermedia.api.math.MathAPI;
+import org.watermedia.api.player.videolan.BasePlayer;
+import org.watermedia.api.player.videolan.MusicPlayer;
+import org.watermedia.api.player.videolan.VideoPlayer;
 
 import java.awt.*;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -55,7 +56,7 @@ public class VideoDisplayer implements IDisplay {
         }, cache.ready() ? (IDisplay) new ImageDisplayer(cache.getPicture()) : null);
     }
 
-    public SyncBasePlayer player;
+    public BasePlayer player;
 
     private final Vec3d pos;
     private String url;
@@ -68,13 +69,13 @@ public class VideoDisplayer implements IDisplay {
 
         if (!url.isEmpty()) {
             if (isOnlyMusic) {
-                player = new SyncMusicPlayer();
+                player = new MusicPlayer();
             } else {
-                player = new SyncVideoPlayer(null, Minecraft.getInstance());
+                player = new VideoPlayer(null, Minecraft.getInstance());
             }
             adjustVolume(volume, minDistance, maxDistance);
             player.setRepeatMode(loop);
-            player.start(url);
+            player.start(URI.create(url));
         }
     }
 
@@ -87,7 +88,7 @@ public class VideoDisplayer implements IDisplay {
     private int calculateVolume(float volume, float minDistance, float maxDistance) {
         if (player == null) return 0;
         Minecraft mc = Minecraft.getInstance();
-        float distance = (float) pos.distance(Objects.requireNonNull(Minecraft.getInstance().player).getPosition(mc.isPaused() ? 1.0F : mc.getFrameTime()));
+        float distance = (float) pos.distance(Objects.requireNonNull(Minecraft.getInstance().player).getPosition(mc.isPaused() ? 1.0F : mc.getTimer().getGameTimeDeltaPartialTick(true)));
         volume = VideoMathUtil.calculateVolume(volume, distance, minDistance, maxDistance);
         return (int) volume;
     }
@@ -157,16 +158,16 @@ public class VideoDisplayer implements IDisplay {
     public int prepare(String url, boolean playing, boolean loop, int tick) {
         if (player == null) return -1;
         this.url = url;
-        if (player instanceof SyncVideoPlayer)
-            return ((SyncVideoPlayer) player).getGlTexture();
+        if (player instanceof VideoPlayer)
+            return ((VideoPlayer) player).texture();
 
         return 0;
     }
 
     @Override
     public int getRenderTexture() {
-        if (player instanceof SyncVideoPlayer)
-            return ((SyncVideoPlayer) player).getGlTexture();
+        if (player instanceof VideoPlayer)
+            return ((VideoPlayer) player).texture();
 
         return 0;
     }
@@ -211,8 +212,8 @@ public class VideoDisplayer implements IDisplay {
     @Override
     public Dimension getDimensions() {
         if (player == null) return null;
-        if (player instanceof SyncVideoPlayer)
-            return ((SyncVideoPlayer) player).getDimensions();
+        if (player instanceof VideoPlayer)
+            return ((VideoPlayer) player).dimension();
 
         return null;
     }

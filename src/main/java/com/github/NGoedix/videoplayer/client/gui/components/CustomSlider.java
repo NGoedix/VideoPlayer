@@ -6,9 +6,14 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
 public class CustomSlider extends AbstractSliderButton {
+    private static final ResourceLocation SLIDER_SPRITE = ResourceLocation.withDefaultNamespace("widget/slider");
+    private static final ResourceLocation HIGHLIGHTED_SPRITE = ResourceLocation.withDefaultNamespace("widget/slider_highlighted");
+    private static final ResourceLocation SLIDER_HANDLE_SPRITE = ResourceLocation.withDefaultNamespace("widget/slider_handle");
+    private static final ResourceLocation SLIDER_HANDLE_HIGHLIGHTED_SPRITE = ResourceLocation.withDefaultNamespace("widget/slider_handle_highlighted");
 
     public interface OnSlide {
         void onSlide(double value);
@@ -49,13 +54,12 @@ public class CustomSlider extends AbstractSliderButton {
         Minecraft minecraft = Minecraft.getInstance();
         Font fontrenderer = minecraft.font;
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
-        RenderSystem._setShaderTexture(0, WIDGETS_LOCATION);
         int i = 0;
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
-        guiGraphics.blit(WIDGETS_LOCATION, this.getX(), this.getY(), this.width / 2, this.height, 0, 46 + i * 20, this.width / 2, 20, 256, 256);
-        guiGraphics.blit(WIDGETS_LOCATION, this.getX() + this.width / 2, this.getY(), this.width / 2, this.height,200 - this.width / 2f, 46 + i * 20, this.width / 2, 20, 256, 256);
+        guiGraphics.blitSprite(SLIDER_SPRITE, this.getX(), this.getY(), this.width / 2, this.height);
+        guiGraphics.blitSprite(SLIDER_SPRITE, this.getX() + this.width / 2, this.getY(), this.width / 2, this.height);
 
         if (progressBar) {
             RenderSystem.setShaderColor(0.0F, 1.0F, 0.0F, 0.2F);
@@ -69,12 +73,13 @@ public class CustomSlider extends AbstractSliderButton {
     }
 
     protected void renderBg(GuiGraphics guiGraphics, Minecraft pMinecraft, int pMouseX, int pMouseY) {
-        RenderSystem._setShaderTexture(0, WIDGETS_LOCATION);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         int i = (this.isHovered ? 2 : 1) * 20;
 
-        guiGraphics.blit(WIDGETS_LOCATION, this.getX() + (int)(this.value * (double)(this.width - 8)), this.getY(),4, height, 0, 46 + i, 4, 20, 256, 256);
-        guiGraphics.blit(WIDGETS_LOCATION, this.getX() + (int)(this.value * (double)(this.width - 8)) + 4, this.getY(), 4, height, 196, 46 + i, 4, 20, 256, 256);
+        var texture = this.isHovered ? SLIDER_HANDLE_HIGHLIGHTED_SPRITE : SLIDER_HANDLE_SPRITE;
+
+        guiGraphics.blitSprite(texture, this.getX() + (int) (this.value * (double) (this.width - 8)), this.getY(), 4, height);
+        guiGraphics.blitSprite(texture, this.getX() + (int) (this.value * (double) (this.width - 8)) + 4, this.getY(), 4, height);
     }
 
     @Override

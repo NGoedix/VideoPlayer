@@ -4,7 +4,6 @@ import com.github.NGoedix.videoplayer.Reference;
 import com.github.NGoedix.videoplayer.VideoPlayer;
 import com.github.NGoedix.videoplayer.block.custom.RadioBlock;
 import com.github.NGoedix.videoplayer.block.custom.TVBlock;
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -30,7 +29,7 @@ public class ModBlocks {
             VideoPlayer.VIDEO_PLAYER_TAB);
 
     private static Block registerBlockWithoutBlockItem(String name, Block block, CreativeModeTab group) {
-        return Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation(Reference.MOD_ID, name), block);
+        return Registry.register(BuiltInRegistries.BLOCK, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name), block);
     }
 
     private static ToIntFunction<BlockState> litBlockEmission(int pLightValue) {
@@ -39,12 +38,12 @@ public class ModBlocks {
 
     private static Block registerBlock(String name, Block block, CreativeModeTab group) {
         registerBlockItem(name, block, group);
-        return Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation(Reference.MOD_ID, name), block);
+        return Registry.register(BuiltInRegistries.BLOCK, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name), block);
     }
 
     private static Item registerBlockItem(String name, Block block, CreativeModeTab group) {
-        return Registry.register(BuiltInRegistries.ITEM, new ResourceLocation(Reference.MOD_ID, name),
-                new BlockItem(block, new FabricItemSettings()));
+        return Registry.register(BuiltInRegistries.ITEM, ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, name),
+                new BlockItem(block, new Item.Properties()));
     }
 
     public static void registerModBlocks() {
