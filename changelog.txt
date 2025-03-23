@@ -1,3 +1,7 @@
+3.1.1
+- Refactored the code to fix random issues
+- Updated watermedia api
+
 3.0.5
 - Fixed fading in playgovideo command
 
