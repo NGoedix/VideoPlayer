@@ -2,6 +2,43 @@ package com.github.NGoedix.watchvideo.util.math;
 
 public class VideoMathUtil {
 
+    public static int getHeightCenter(int height, int offset) {
+        return (height / 2) + offset;
+    }
+
+    public static VideoDimensionInfo calculateAspectRatio(int containerWidth, int containerHeight, int videoWidth, int videoHeight) {
+        float containerAspectRatio = (float) containerWidth / (float) containerHeight;
+        float videoAspectRatio = (float) videoWidth / (float) videoHeight;
+
+        int renderWidth, renderHeight;
+        // Si el aspect ratio del video es mayor que el del contenedor,
+        // significa que hay que ajustar el ancho al contenedor.
+        if (videoAspectRatio > containerAspectRatio) {
+            renderWidth = containerWidth;
+            renderHeight = (int) (containerWidth / videoAspectRatio);
+        } else {
+            // De lo contrario, se ajusta la altura al contenedor.
+            renderWidth = (int) (containerHeight * videoAspectRatio);
+            renderHeight = containerHeight;
+        }
+
+        int offsetX = (containerWidth - renderWidth) / 2;
+        int offsetY = (containerHeight - renderHeight) / 2;
+
+        return new VideoDimensionInfo(renderWidth, renderHeight, offsetX, offsetY);
+    }
+
+    public static long floorMod(long x, long y) {
+        try {
+            final long r = x % y;
+            if ((x ^ y) < 0 && r != 0)
+                return r + y;
+            return r;
+        } catch (ArithmeticException e) {
+            return 0;
+        }
+    }
+
     public static float calculateVolume(float volume, float distance, float minDistance, float maxDistance) {
         if (distance <= minDistance) {
             // If the listener is within the minimum distance, the volume stays at the original level.

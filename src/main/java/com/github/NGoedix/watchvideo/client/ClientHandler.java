@@ -3,40 +3,39 @@ package com.github.NGoedix.watchvideo.client;
 import com.github.NGoedix.watchvideo.block.entity.custom.HandRadioBlockEntity;
 import com.github.NGoedix.watchvideo.block.entity.custom.RadioBlockEntity;
 import com.github.NGoedix.watchvideo.block.entity.custom.TVBlockEntity;
-import com.github.NGoedix.watchvideo.client.gui.OverlayVideo;
 import com.github.NGoedix.watchvideo.client.gui.RadioScreen;
 import com.github.NGoedix.watchvideo.client.gui.TVVideoScreen;
 import com.github.NGoedix.watchvideo.client.gui.VideoScreen;
 import com.github.NGoedix.watchvideo.item.custom.HandRadioItem;
-import me.srrapero720.watermedia.api.player.SyncMusicPlayer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import org.watermedia.api.player.videolan.MusicPlayer;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ClientHandler {
 
-    private static final List<SyncMusicPlayer> musicPlayers = new ArrayList<>();
+    private static final List<MusicPlayer> musicPlayers = new ArrayList<>();
 
-    @OnlyIn(Dist.CLIENT)
-    public static final OverlayVideo gui = new OverlayVideo();
+    public static VideoScreen videoScreen;
 
     public static void openVideo(String url, int volume, boolean isControlBlocked, boolean canSkip) {
-        Minecraft.getInstance().setScreen(new VideoScreen(url, volume, isControlBlocked, canSkip, false));
+        if (videoScreen == null || videoScreen.isFinished())
+            Minecraft.getInstance().setScreen(new VideoScreen(url, volume, isControlBlocked, canSkip, false));
     }
 
     public static void openVideo(String url, int volume, boolean isControlBlocked, boolean canSkip, int optionInMode, int optionInSecs, int optionOutMode, int optionOutSecs) {
-        Minecraft.getInstance().setScreen(new VideoScreen(url, volume, isControlBlocked, canSkip, optionInMode, optionInSecs, optionOutMode, optionOutSecs));
+        if (videoScreen == null || videoScreen.isFinished())
+            Minecraft.getInstance().setScreen(new VideoScreen(url, volume, isControlBlocked, canSkip, optionInMode, optionInSecs, optionOutMode, optionOutSecs));
     }
 
     public static void playMusic(String url, int volume) {
         // Until any callback in SyncMusicPlayer I will check if the music is playing when added other music player
-        for (SyncMusicPlayer musicPlayer : musicPlayers) {
+        for (MusicPlayer musicPlayer : musicPlayers) {
             if (musicPlayer.isPlaying()) {
                 musicPlayer.stop();
                 musicPlayer.release();
@@ -45,14 +44,14 @@ public class ClientHandler {
         }
 
         // Add the new player
-        SyncMusicPlayer musicPlayer = new SyncMusicPlayer();
+        MusicPlayer musicPlayer = new MusicPlayer();
         musicPlayers.add(musicPlayer);
         musicPlayer.setVolume(volume);
-        musicPlayer.start(url);
+        musicPlayer.start(URI.create(url));
     }
 
     public static void stopMusicIfPlaying() {
-        for (SyncMusicPlayer musicPlayer : musicPlayers) {
+        for (MusicPlayer musicPlayer : musicPlayers) {
             musicPlayer.stop();
             musicPlayer.release();
         }
@@ -69,11 +68,11 @@ public class ClientHandler {
     public static void manageRadio(String url, BlockPos pos, boolean playing) {
         BlockEntity be = Minecraft.getInstance().level.getBlockEntity(pos);
         if (be instanceof RadioBlockEntity) {
-            RadioBlockEntity tv = (RadioBlockEntity) be;
-            tv.setUrl(url);
-            tv.setPlaying(playing);
+            RadioBlockEntity radio = (RadioBlockEntity) be;
+            radio.setUrl(url);
+            radio.setPlaying(playing);
 
-            tv.notifyPlayer();
+            radio.notifyPlayer();
         }
 
         if (be instanceof HandRadioBlockEntity) {
@@ -93,12 +92,8 @@ public class ClientHandler {
             tv.setPlaying(playing);
             if (tv.getTick() - 40 > tick || tv.getTick() + 40 < tick)
                 tv.setTick(tick);
-            if (tv.requestDisplay() != null) {
-                if (playing)
-                    tv.requestDisplay().resume(tv.getTick());
-                else
-                    tv.requestDisplay().pause(tv.getTick());
-            }
+
+            tv.notifyPlayer();
         }
     }
 

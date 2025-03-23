@@ -1,8 +1,6 @@
 package com.github.NGoedix.watchvideo.block.custom;
 
-import com.github.NGoedix.watchvideo.block.entity.ModBlockEntities;
 import com.github.NGoedix.watchvideo.block.entity.custom.RadioBlockEntity;
-import com.github.NGoedix.watchvideo.block.entity.custom.TVBlockEntity;
 import com.github.NGoedix.watchvideo.block.entity.custom.VideoPlayerBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

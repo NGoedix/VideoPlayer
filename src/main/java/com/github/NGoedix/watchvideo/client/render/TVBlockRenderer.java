@@ -2,15 +2,13 @@ package com.github.NGoedix.watchvideo.client.render;
 
 import com.github.NGoedix.watchvideo.block.custom.TVBlock;
 import com.github.NGoedix.watchvideo.block.entity.custom.TVBlockEntity;
-import com.github.NGoedix.watchvideo.util.displayers.IDisplay;
+import com.github.NGoedix.watchvideo.util.displayers.Display;
 import com.github.NGoedix.watchvideo.util.math.geo.*;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
-import me.srrapero720.watermedia.api.image.ImageAPI;
-import me.srrapero720.watermedia.api.image.ImageRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -18,13 +16,12 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
+import org.watermedia.api.image.ImageAPI;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 
 public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
 
@@ -47,14 +44,14 @@ public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
             return;
         }
 
-        IDisplay display = frame.requestDisplay();
+        Display display = frame.requestDisplay();
         if (display == null) {
             if (!frame.isPlaying()) return;
             renderTexture(frame, null, ImageAPI.loadingGif().texture((int) (Minecraft.getInstance().level.getGameTime()), 1, true), pose, true);
             return;
         }
 
-        int texture = display.prepare(frame.getUrl(), frame.isPlaying(), true, frame.getTick());
+        int texture = display.renderTexture();
 
         if (texture == -1) return;
 
@@ -62,7 +59,7 @@ public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
         renderTexture(frame, display, texture, pose, true);
     }
 
-    private void renderTexture(TVBlockEntity frame, IDisplay display, int texture, PoseStack pose, boolean aspectRatio) {
+    private void renderTexture(TVBlockEntity frame, Display display, int texture, PoseStack pose, boolean aspectRatio) {
         RenderSystem.enableDepthTest();
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
@@ -179,6 +176,7 @@ public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
                     .normal(mat3f, normal.getX(), normal.getY(), normal.getZ()).endVertex();
         tesselator.end();
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
         pose.popPose();
 
         // Reset OpenGL state

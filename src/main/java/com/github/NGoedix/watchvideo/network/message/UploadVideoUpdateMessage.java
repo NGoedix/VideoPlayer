@@ -71,7 +71,8 @@ public class UploadVideoUpdateMessage implements IMessage<UploadVideoUpdateMessa
                         tvBlockEntity.stop();
 
                     tvBlockEntity.notifyPlayer();
-                }}
+                }
+            }
         });
     }
 }

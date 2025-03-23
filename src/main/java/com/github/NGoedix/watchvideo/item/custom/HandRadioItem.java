@@ -3,10 +3,8 @@ package com.github.NGoedix.watchvideo.item.custom;
 import com.github.NGoedix.watchvideo.block.ModBlocks;
 import com.github.NGoedix.watchvideo.network.PacketHandler;
 import com.github.NGoedix.watchvideo.network.message.OpenRadioManagerScreen;
-import com.github.NGoedix.watchvideo.util.cache.TextureCache;
-import com.github.NGoedix.watchvideo.util.config.TVConfig;
-import com.github.NGoedix.watchvideo.util.displayers.IDisplay;
-import com.github.NGoedix.watchvideo.util.math.geo.Vec3d;
+import com.github.NGoedix.watchvideo.util.displayers.Display;
+import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -17,15 +15,18 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.watermedia.api.image.ImageAPI;
+import org.watermedia.api.image.ImageCache;
 
 import javax.annotation.Nullable;
+import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class HandRadioItem extends BlockItem {
 
-    private static final Map<ItemStack, IDisplay> displays = new ConcurrentHashMap<>();
-    private static final Map<ItemStack, TextureCache> caches = new ConcurrentHashMap<>();
+    private static final Map<ItemStack, Display> displays = new ConcurrentHashMap<>();
+    private static final Map<ItemStack, ImageCache> caches = new ConcurrentHashMap<>();
 
     public HandRadioItem(Properties pProperties) {
         super(ModBlocks.HAND_RADIO_BLOCK.get(), pProperties);
@@ -97,33 +98,27 @@ public class HandRadioItem extends BlockItem {
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity pEntity, int pSlotId, boolean pIsSelected) {
         if (level.isClientSide) {
-            IDisplay display = requestDisplay(stack);
+            Display display = requestDisplay(stack);
             if (display != null) {
-                display.tick(getUrl(stack), getVolume(stack), TVConfig.MIN_DISTANCE, TVConfig.MAX_DISTANCE, getIsPlaying(stack), true, 0);
+                display.tick(0);
             }
         }
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static IDisplay requestDisplay(ItemStack stack) {
+    public static Display requestDisplay(ItemStack stack) {
         final String url = getUrl(stack);
         if (isURLEmpty(url)) return null;
 
-        final TextureCache cache = caches.computeIfAbsent(stack, s -> TextureCache.get(url));
-        if (!url.equals(cache.url)) {
-            final TextureCache newCache = TextureCache.get(url);
-            caches.put(stack, newCache);
-            IDisplay oldDisplay = displays.remove(stack);
-            if (oldDisplay != null) {
-                oldDisplay.release();
-            }
-        }
+        final ImageCache cache = caches.computeIfAbsent(stack, s -> ImageAPI.getCache(URI.create(url), Minecraft.getInstance()));
 
-        if (!cache.isVideo() && (!cache.ready() || cache.getError() != null)) {
+        if (!cache.isVideo() && (!cache.isUsed() || cache.getStatus().equals(ImageCache.Status.FAILED))) {
             return null;
         }
 
-        return displays.computeIfAbsent(stack, s -> cache.createDisplay(new Vec3d(0, 0, 0), url, getVolume(stack), TVConfig.MIN_DISTANCE, TVConfig.MAX_DISTANCE, true, getIsPlaying(stack), true));
+        // TODO: When doing this, uncomment
+//        return displays.computeIfAbsent(stack, s -> VideoDisplayer.createVideoDisplay(new Vec3d(0, 0, 0), url, true));
+        return null;
     }
 
     private static boolean isURLEmpty(String url) {

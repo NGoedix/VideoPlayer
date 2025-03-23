@@ -1,9 +1,7 @@
 package com.github.NGoedix.watchvideo.block.entity.custom;
 
-import com.github.NGoedix.watchvideo.util.cache.TextureCache;
-import com.github.NGoedix.watchvideo.util.config.TVConfig;
-import com.github.NGoedix.watchvideo.util.displayers.IDisplay;
-import com.github.NGoedix.watchvideo.util.math.geo.Vec3d;
+import com.github.NGoedix.watchvideo.util.displayers.Display;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -16,8 +14,11 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.watermedia.api.image.ImageAPI;
+import org.watermedia.api.image.ImageCache;
 
 import javax.annotation.Nullable;
+import java.net.URI;
 
 public abstract class VideoPlayerBlockEntity extends BlockEntity {
 
@@ -29,19 +30,17 @@ public abstract class VideoPlayerBlockEntity extends BlockEntity {
     private int volume = 100;
     private int tick = 0;
 
-    private final boolean loop = true;
+    @OnlyIn(Dist.CLIENT)
+    public Display display;
 
     @OnlyIn(Dist.CLIENT)
-    public IDisplay display;
+    public ImageCache imageCache;
 
-    @OnlyIn(Dist.CLIENT)
-    public TextureCache cache;
+    private final Display.DisplayType displayMode;
 
-    private final boolean isOnlyMusic;
-
-    public VideoPlayerBlockEntity(BlockEntityType<?> tileEntity, BlockPos pWorldPosition, BlockState pBlockState, boolean isOnlyMusic) {
+    public VideoPlayerBlockEntity(BlockEntityType<?> tileEntity, BlockPos pWorldPosition, BlockState pBlockState, Display.DisplayType displayMode) {
         super(tileEntity, pWorldPosition, pBlockState);
-        this.isOnlyMusic = isOnlyMusic;
+        this.displayMode = displayMode;
     }
 
     public boolean isURLEmpty() {
@@ -93,21 +92,33 @@ public abstract class VideoPlayerBlockEntity extends BlockEntity {
         stopped = true;
     }
 
-    public IDisplay requestDisplay() {
-        String url = getUrl();
+    public Display requestDisplay() {
         if (isURLEmpty()) return null;
-        if (cache == null || !cache.url.equals(url)) {
-            cache = TextureCache.get(url);
-            if (display != null)
-                display.release();
-            display = null;
-        }
-        if (!cache.isVideo() && (!cache.ready() || cache.getError() != null))
-            return null;
-        if (display != null)
-            return display;
 
-        return display = cache.createDisplay(new Vec3d(worldPosition), url, volume, TVConfig.MIN_DISTANCE, TVConfig.MAX_DISTANCE, loop, playing, isOnlyMusic);
+        if (imageCache == null || (!isURLEmpty() && !imageCache.uri.equals(URI.create(url)))) {
+            imageCache = ImageAPI.getCache(URI.create(url), Minecraft.getInstance());
+            releaseDisplay();
+        }
+
+        switch (imageCache.getStatus()) {
+            case LOADING:
+            case FAILED:
+            case READY:
+                if (this.display != null) return this.display;
+                return this.display = new Display(this, URI.create(url), displayMode);
+
+            case WAITING:
+                this.releaseDisplay();
+                this.imageCache.load();
+                return this.display;
+
+            case FORGOTTEN:
+                this.imageCache = null;
+                return null;
+
+            default:
+                return null;
+        }
     }
 
     public void tick() {}
@@ -137,14 +148,12 @@ public abstract class VideoPlayerBlockEntity extends BlockEntity {
 
     @Override
     public void setRemoved() {
-        if (isClient() && display != null)
-            display.release();
+        if (isClient()) releaseDisplay();
     }
 
     @Override
     public void onChunkUnloaded() {
-        if (isClient() && display != null)
-            display.release();
+        if (isClient()) releaseDisplay();
     }
 
     public boolean isClient() {
@@ -164,8 +173,7 @@ public abstract class VideoPlayerBlockEntity extends BlockEntity {
     @Override
     public void load(CompoundTag pTag) {
         super.load(pTag);
-
-        loadFromNBT(pTag);
+        loadFromNBTInternal(pTag);
     }
 
     protected abstract void loadFromNBT(CompoundTag nbt);
@@ -182,17 +190,25 @@ public abstract class VideoPlayerBlockEntity extends BlockEntity {
     public static void tick(Level level, BlockPos pos, BlockState state, BlockEntity blockEntity) {
         VideoPlayerBlockEntity be = (VideoPlayerBlockEntity) level.getBlockEntity(pos);
         if (level.isClientSide) {
-            IDisplay display = be.requestDisplay();
+            Display display = be.requestDisplay();
             if (display != null) {
-                if (be.stopped)
+                if (be.stopped) {
                     display.stop();
+                }
                 be.stopped = false;
-                display.tick(be.url, be.volume, TVConfig.MIN_DISTANCE, TVConfig.MAX_DISTANCE, be.playing, be.loop, be.isOnlyMusic ? 0 : be.tick);
+                display.tick(be.tick);
             }
         }
-        if (be == null) return;
         if (be.playing)
             be.tick++;
+
         be.tick();
+    }
+
+    public void releaseDisplay() {
+        if (display != null) {
+            display.release();
+            display = null;
+        }
     }
 }

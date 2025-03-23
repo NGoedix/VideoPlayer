@@ -130,6 +130,7 @@ public class RadioScreen extends Screen {
                 be.setVolume((int) value);
             else
                 HandRadioItem.setVolume(item, (int) value);
+
             volume = (int) volumeSlider.getValue();
 
             sendUpdate(urlField.getValue(), volume, pauseButton.visible, -1, false);

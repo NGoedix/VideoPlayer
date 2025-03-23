@@ -6,17 +6,15 @@ import com.github.NGoedix.watchvideo.client.gui.components.CustomSlider;
 import com.github.NGoedix.watchvideo.client.gui.components.ImageButtonHoverable;
 import com.github.NGoedix.watchvideo.network.PacketHandler;
 import com.github.NGoedix.watchvideo.network.message.UploadVideoUpdateMessage;
-import com.github.NGoedix.watchvideo.util.displayers.VideoDisplayer;
+import com.github.NGoedix.watchvideo.util.VideoRenderer;
+import com.github.NGoedix.watchvideo.util.displayers.Display;
+import com.github.NGoedix.watchvideo.util.math.VideoDimensionInfo;
+import com.github.NGoedix.watchvideo.util.math.VideoMathUtil;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import me.srrapero720.watermedia.api.image.ImageAPI;
-import me.srrapero720.watermedia.api.image.ImageRenderer;
-import me.srrapero720.watermedia.api.math.MathAPI;
-import me.srrapero720.watermedia.api.player.SyncVideoPlayer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TextComponent;
@@ -25,6 +23,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
+import org.watermedia.api.image.ImageAPI;
+import org.watermedia.api.math.MathAPI;
 
 import java.awt.*;
 
@@ -117,7 +117,6 @@ public class TVVideoScreen extends Screen {
                 playButton.visible = false;
                 pauseButton.visible = true;
 
-                if (be.requestDisplay() == null) return;
                 be.requestDisplay().resume(be.getTick());
                 PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getBlockPos(), url, volume, be.getTick(), true, false, false));
             }
@@ -144,7 +143,7 @@ public class TVVideoScreen extends Screen {
                 pauseButton.visible = false;
 
                 timeSlider.setValue(0);
-                if (be.requestDisplay() == null) return;
+
                 be.requestDisplay().stop();
                 PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getBlockPos(), url, volume, 0, false, true, false));
             }
@@ -154,18 +153,14 @@ public class TVVideoScreen extends Screen {
         addRenderableWidget(timeSlider = new CustomSlider(leftPos + 54, topPos + 200, 187, 10, null, 0 / 100f, true));
         timeSlider.setOnSlideListener(value -> {
             if (be.requestDisplay() == null) return;
-            if (be.requestDisplay() instanceof VideoDisplayer) {
-                SyncVideoPlayer player = (SyncVideoPlayer) ((VideoDisplayer) be.requestDisplay()).player;
-                if (player.isReady() && !player.isLive()) {
-                    player.seekTo((int) ((value / 100D) * player.getDuration()));
-                }
-                PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getBlockPos(), url, volume, MathAPI.msToTick(player.getTime()), pauseButton.visible, false, false));
-            }
+
+            long time = (long) ((value / 100D) * be.requestDisplay().getDuration());
+            be.requestDisplay().seekTo(time);
+            PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getBlockPos(), url, volume, MathAPI.msToTick(time), pauseButton.visible, false, false));
         });
 
-        if (be.requestDisplay() != null && be.requestDisplay() instanceof VideoDisplayer) {
-            SyncVideoPlayer player = (SyncVideoPlayer) ((VideoDisplayer) be.requestDisplay()).player;
-            timeSlider.setValue((double) player.getTime() / player.getDuration());
+        if (be.requestDisplay() != null) {
+            timeSlider.setValue((double) be.requestDisplay().getTime() / be.requestDisplay().getDuration());
         }
 
         // Volume slider
@@ -173,6 +168,7 @@ public class TVVideoScreen extends Screen {
         volumeSlider.setOnSlideListener(value -> {
             be.setVolume((int) value);
             volume = (int) volumeSlider.getValue();
+
             PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getBlockPos(), url, volume, -1, pauseButton.visible, false, false));
         });
         volumeSlider.setValue(volume / 100f);
@@ -182,6 +178,8 @@ public class TVVideoScreen extends Screen {
 
     @Override
     public void render(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+        Display display = be.requestDisplay();
+
         renderBackground(pPoseStack);
         RenderSystem.clearColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, TEXTURE);
@@ -198,17 +196,15 @@ public class TVVideoScreen extends Screen {
         String maxTimeFormatted = "00:00";
         String actualTimeFormatted = "00:00";
 
-        if (be.requestDisplay() instanceof VideoDisplayer) {
-            SyncVideoPlayer player = (SyncVideoPlayer) ((VideoDisplayer) be.requestDisplay()).player;
+        // Time slider if not live
+        if (display != null && display.isReady()) {
+            timeSlider.setActive(!display.isLive());
 
-            if (player != null && player.isReady()) {
-                timeSlider.setActive(!player.isLive());
+            if (maxDuration == 0 && !display.isLive())
+                maxDuration = display.getDuration();
 
-                if (maxDuration == 0 && !player.isLive())
-                    maxDuration = player.getDuration();
-            }
-
-            if (player != null && player.isReady() && !player.isLive()) {
+            // If not live, calculate the time
+            if (!display.isLive()) {
                 long durationSeconds = maxDuration / 1000;
                 long maxMinute = durationSeconds / 60;
                 long maxSeconds = durationSeconds % 60;
@@ -234,67 +230,30 @@ public class TVVideoScreen extends Screen {
     public void renderVideo(PoseStack pPoseStack) {
         if (url.isEmpty()) return;
 
-        if (be.requestDisplay() == null) {
-            renderIcon(pPoseStack, ImageAPI.loadingGif());
+        Display display = be.requestDisplay();
+        if (display == null) {
+            VideoRenderer.renderTexture(pPoseStack, ImageAPI.loadingGif().texture(be.getTick(), 1, true), 1, 0, 0,width - 36, height - 36, 36, 36);
             return;
         }
 
-        boolean playingState = be.requestDisplay().isPlaying();
-
         // RENDER VIDEO
-        if (playingState || be.requestDisplay().isStopped()) {
-            if (be.requestDisplay().getDimensions() == null) return; // Checking if video available
-
-            int textureId = be.requestDisplay().getRenderTexture();
-
-            if (textureId == -1) return;
+        if (display.isPlaying() || display.isStopped()) {
+            if (display.getDimensions() == null) return; // Checking if video available
 
             RenderSystem.enableBlend();
             fill(pPoseStack, leftPos + (imageWidth / 2) - (videoWidth / 2), topPos + 10, leftPos + (imageWidth / 2) - (videoWidth / 2) + videoWidth, topPos + 10 + videoHeight, MathAPI.argb(255, 0, 0, 0));
-            RenderSystem.disableBlend();
 
-            RenderSystem.bindTexture(textureId);
-            RenderSystem.setShaderTexture(0, textureId);
-
-            // Get video dimensions
-            Dimension videoDimensions = be.requestDisplay().getDimensions();
-            double nativeVideoWidth = videoDimensions.getWidth();
-            double nativeVideoHeight = videoDimensions.getHeight();
-
-            // Calculate aspect ratios for both the screen and the video
-            float screenAspectRatio = (float) videoWidth / videoHeight;
-            float videoAspectRatio = (float) ((float) nativeVideoWidth / nativeVideoHeight);
-
-            // New dimensions for rendering video texture
-            int renderWidth, renderHeight;
-
-            // If video's aspect ratio is greater than screen's, it means video's width needs to be scaled down to screen's width
-            if(videoAspectRatio > screenAspectRatio) {
-                renderWidth = videoWidth;
-                renderHeight = (int) (videoWidth / videoAspectRatio);
-            } else {
-                renderWidth = (int) (videoHeight * videoAspectRatio);
-                renderHeight = videoHeight;
-            }
-
-            int xOffset = (videoWidth - renderWidth) / 2; // xOffset for centering the video
-            int yOffset = (videoHeight - renderHeight) / 2; // yOffset for centering the video
+            // Get dimension and get aspect ratio details
+            Dimension videoDimensions = display.getDimensions();
+            VideoDimensionInfo info = VideoMathUtil.calculateAspectRatio(videoWidth, videoHeight, (int) videoDimensions.getWidth(), (int) videoDimensions.getHeight());
 
             RenderSystem.enableBlend();
             RenderSystem.clearColor(1.0F, 1.0F, 1.0F, 1.0F);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-            GuiComponent.blit(pPoseStack, leftPos + (imageWidth / 2) - (videoWidth / 2) + xOffset, topPos + 10 + yOffset, 0.0F, 0.0F, renderWidth, renderHeight, renderWidth, renderHeight);
+            GuiComponent.blit(pPoseStack, leftPos + (imageWidth / 2) - (videoWidth / 2) + info.getOffsetX(), topPos + 10 + info.getOffsetY(), 0.0F, 0.0F, info.getWidth(), info.getHeight(), info.getWidth(), info.getHeight());
             RenderSystem.disableBlend();
         }
-    }
-
-    private void renderIcon(PoseStack stack, ImageRenderer image) {
-        RenderSystem.enableBlend();
-        RenderSystem.bindTexture(image.texture(be.getTick(), 1, true));
-        GuiComponent.blit(stack, leftPos + (imageWidth / 2) - (videoWidth / 2) + 25, topPos + 10, 0, 0, videoHeight, videoHeight, videoHeight, videoHeight);
-        RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-        RenderSystem.disableBlend();
     }
 
     @Override
