@@ -1,5 +1,6 @@
 package com.github.NGoedix.watchvideo.util.displayers;
 
+import com.github.NGoedix.watchvideo.Reference;
 import com.github.NGoedix.watchvideo.block.entity.custom.VideoPlayerBlockEntity;
 import com.github.NGoedix.watchvideo.util.config.TVConfig;
 import com.github.NGoedix.watchvideo.util.math.VideoMathUtil;
@@ -22,7 +23,10 @@ public class Display {
     public static void tick() {
         synchronized (DISPLAYS) {
             // Tick all displays and check if them must be paused
-            DISPLAYS.forEach(display -> display.player.setPauseMode(Minecraft.getInstance().isPaused() && display.player.isPlaying() && (display.player.isLive() || display.player.getDuration() > 0)));
+            DISPLAYS.forEach(display -> {
+                if (Minecraft.getInstance().isPaused() && display.be.isPlaying() && (display.player.isLive() || display.player.getDuration() > 0))
+                    display.player.setPauseMode(true);
+            });
         }
     }
 
@@ -58,7 +62,7 @@ public class Display {
 
         this.player.setVolume(be.getVolume());
         this.player.setRepeatMode(true);
-        this.player.setPauseMode(false);
+        this.player.setPauseMode(!be.isPlaying());
         this.player.setMuteMode(false);
         this.player.start(url);
 
@@ -82,7 +86,7 @@ public class Display {
             if (!stream && player.isLive()) stream = true;
 
             // Change pause mode
-            boolean currentPlaying = player.isPlaying() && !Minecraft.getInstance().isPaused();
+            boolean currentPlaying = be.isPlaying() && !Minecraft.getInstance().isPaused();
             player.setPauseMode(!currentPlaying);
 
             // Sync time
@@ -108,6 +112,7 @@ public class Display {
     }
 
     public int renderTexture() {
+        if (be.isURLEmpty()) return 0;
         switch (type) {
             case VIDEO:
                 return ((VideoPlayer) player).preRender();
@@ -122,19 +127,10 @@ public class Display {
         player.stop();
     }
 
-    public void pause(int tick) {
+    public void setPauseMode(boolean pause) {
         if (player == null) return;
-        if (tick != -1)
-            player.seekTo(tick);
-        player.pause();
-    }
-
-    public void resume(int tick) {
-        if (player == null) return;
-        if (tick != -1)
-            player.seekTo(tick);
-        if (player.isSafeUse())
-            player.play();
+        if (player.isStopped() && !pause) player.play();
+        player.setPauseMode(pause);
     }
 
     public void seekTo(long tick) {

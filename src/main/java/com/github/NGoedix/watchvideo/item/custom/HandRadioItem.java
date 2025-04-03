@@ -2,7 +2,7 @@ package com.github.NGoedix.watchvideo.item.custom;
 
 import com.github.NGoedix.watchvideo.block.ModBlocks;
 import com.github.NGoedix.watchvideo.network.PacketHandler;
-import com.github.NGoedix.watchvideo.network.message.OpenRadioManagerScreen;
+import com.github.NGoedix.watchvideo.network.packets.gui.OpenRadioScreenPacket;
 import com.github.NGoedix.watchvideo.util.displayers.Display;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
@@ -41,7 +41,7 @@ public class HandRadioItem extends BlockItem {
             int volume = tag.getInt("volume");
             boolean isPlaying = tag.getBoolean("isPlaying");
 
-            PacketHandler.sendTo(new OpenRadioManagerScreen(pPlayer.getItemInHand(pHand), url, volume, isPlaying), pPlayer);
+//            PacketHandler.sendTo(new OpenRadioScreenPacket(pPlayer.getItemInHand(pHand), url, volume, isPlaying), pPlayer);
         }
 
         return ActionResult.success(pPlayer.getItemInHand(pHand));

@@ -5,8 +5,10 @@ import com.github.NGoedix.watchvideo.block.entity.custom.TVBlockEntity;
 import com.github.NGoedix.watchvideo.client.gui.components.CustomSlider;
 import com.github.NGoedix.watchvideo.client.gui.components.ImageButtonHoverable;
 import com.github.NGoedix.watchvideo.network.PacketHandler;
-import com.github.NGoedix.watchvideo.network.message.UploadVideoUpdateMessage;
+import com.github.NGoedix.watchvideo.network.packets.gui.ClosedScreenPacket;
+import com.github.NGoedix.watchvideo.network.packets.control.*;
 import com.github.NGoedix.watchvideo.util.VideoRenderer;
+import com.github.NGoedix.watchvideo.util.config.TVConfig;
 import com.github.NGoedix.watchvideo.util.displayers.Display;
 import com.github.NGoedix.watchvideo.util.math.VideoDimensionInfo;
 import com.github.NGoedix.watchvideo.util.math.VideoMathUtil;
@@ -80,8 +82,6 @@ public class TVVideoScreen extends Screen {
 
         Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(true);
 
-        String urlPattern = "(http|https)://(www\\.)?([\\w]+\\.)+[\\w]{2,63}/?[\\w\\-\\?\\=\\&\\%\\.\\/]*/?";
-
         addButton(urlBox = new TextFieldWidget(font, leftPos + 10, topPos + 165, imageWidth - 26, 20, new StringTextComponent("")));
         // Set the text to the url
         urlBox.setMaxLength(32767);
@@ -90,19 +90,13 @@ public class TVVideoScreen extends Screen {
         urlBox.setResponder(s -> {
             if (s != null && !s.isEmpty()) {
                 urlBox.setSuggestion("");
-                if (s.matches(urlPattern) && (be.getTick() > 5 || url.isEmpty())) {
+                if (s.matches(TVConfig.URL_PATTERN) && (be.getTick() > 5 || url.isEmpty())) {
                     if (!url.equals(s)) {
-                        be.setTick(0);
                         url = s;
-                        PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getBlockPos(), url, volume, 0, true, false, false));
-                        playButton.visible = false;
-                        pauseButton.visible = true;
+                        PacketHandler.sendToServer(new UrlPacket(be.getBlockPos(), url));
+
                         maxDuration = 0;
                         timeSlider.setValue(0);
-
-                        if (be.requestDisplay() == null) return;
-                        be.requestDisplay().stop();
-                        be.requestDisplay().resume(0);
                     }
                 }
             } else {
@@ -116,8 +110,7 @@ public class TVVideoScreen extends Screen {
                 playButton.visible = false;
                 pauseButton.visible = true;
 
-                be.requestDisplay().resume(be.getTick());
-                PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getBlockPos(), url, volume, be.getTick(), true, false, false));
+                PacketHandler.sendToServer(new PausePacket(be.getBlockPos(), false));
             }
         }));
 
@@ -126,8 +119,7 @@ public class TVVideoScreen extends Screen {
                 playButton.visible = true;
                 pauseButton.visible = false;
 
-                be.requestDisplay().pause(be.getTick());
-                PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getBlockPos(), url, volume, be.getTick(), false, false, false));
+                PacketHandler.sendToServer(new PausePacket(be.getBlockPos(), true));
             }
         }));
 
@@ -142,8 +134,7 @@ public class TVVideoScreen extends Screen {
 
                 timeSlider.setValue(0);
 
-                be.requestDisplay().stop();
-                PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getBlockPos(), url, volume, 0, false, true, false));
+                PacketHandler.sendToServer(new StopPacket(be.getBlockPos()));
             }
         }));
 
@@ -153,13 +144,9 @@ public class TVVideoScreen extends Screen {
             if (be.requestDisplay() == null) return;
 
             long time = (long) ((value / 100D) * be.requestDisplay().getDuration());
-            be.requestDisplay().seekTo(time);
-            PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getBlockPos(), url, volume, MathAPI.msToTick(time), pauseButton.visible, false, false));
+            PacketHandler.sendToServer(new TickPacket(be.getBlockPos(), MathAPI.msToTick(time)));
         });
-
-        if (be.requestDisplay() != null) {
-            timeSlider.setValue((double) be.requestDisplay().getTime() / be.requestDisplay().getDuration());
-        }
+        if (be.requestDisplay() != null) timeSlider.setValue((double) be.requestDisplay().getTime() / be.requestDisplay().getDuration());
 
         // Volume slider
         addButton(volumeSlider = new CustomSlider(leftPos + 10, topPos + 215, imageWidth - 24, 20, new TranslationTextComponent("gui.tv_video_screen.volume"), volume / 100f, false));
@@ -167,7 +154,7 @@ public class TVVideoScreen extends Screen {
             be.setVolume((int) value);
             volume = (int) volumeSlider.getValue();
 
-            PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getBlockPos(), url, volume, -1, pauseButton.visible, false, false));
+            PacketHandler.sendToServer(new VolumePacket(be.getBlockPos(), volume));
         });
         volumeSlider.setValue(volume / 100f);
 
@@ -204,8 +191,14 @@ public class TVVideoScreen extends Screen {
                 long durationSeconds = maxDuration / 1000;
                 long maxMinute = durationSeconds / 60;
                 long maxSeconds = durationSeconds % 60;
-
                 long actualTime = MathAPI.tickToMs(be.getTick()) / 1000;
+
+                // Check if actualTime exceeds maxDuration and reset to 0 if it does
+                if (maxDuration != 0 && actualTime > durationSeconds) {
+                    actualTime = 0;
+                    PacketHandler.sendToServer(new TickPacket(be.getBlockPos(), 0));
+                }
+
                 long actualMinute = actualTime / 60;
                 long actualSeconds = actualTime % 60;
 
@@ -233,7 +226,7 @@ public class TVVideoScreen extends Screen {
         }
 
         // RENDER VIDEO
-        if (display.isPlaying() || display.isStopped()) {
+        if (!display.isStopped()) {
             if (display.getDimensions() == null) return; // Checking if video available
 
             RenderSystem.enableBlend();
@@ -251,7 +244,7 @@ public class TVVideoScreen extends Screen {
 
     @Override
     public void removed() {
-        PacketHandler.sendToServer(new UploadVideoUpdateMessage(be.getBlockPos(), url, volume, -1, pauseButton.visible, false, true));
+        PacketHandler.sendToServer(new ClosedScreenPacket(be.getBlockPos()));
         Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(false);
     }
 

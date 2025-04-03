@@ -1,15 +1,19 @@
 package com.github.NGoedix.watchvideo.block.entity.custom;
 
+import com.github.NGoedix.watchvideo.Reference;
 import com.github.NGoedix.watchvideo.util.displayers.Display;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.watermedia.api.image.ImageAPI;
@@ -17,6 +21,7 @@ import org.watermedia.api.image.ImageCache;
 
 import javax.annotation.Nullable;
 import java.net.URI;
+import java.util.UUID;
 
 public abstract class VideoPlayerBlockEntity extends TileEntity implements ITickableTileEntity {
 
@@ -27,6 +32,8 @@ public abstract class VideoPlayerBlockEntity extends TileEntity implements ITick
 
     private int volume = 100;
     private int tick = 0;
+
+    private UUID playerUsing;
 
     @OnlyIn(Dist.CLIENT)
     public Display display;
@@ -51,16 +58,12 @@ public abstract class VideoPlayerBlockEntity extends TileEntity implements ITick
 
     public void setUrl(String url) {
         this.url = url;
-        if (this.level == null) return;
-        this.level.blockEntityChanged(this.worldPosition, this);
-        this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
+        this.tick = 0;
+        this.stopped = false;
     }
 
     public void setVolume(int volume) {
         this.volume = volume;
-        if (this.level == null) return;
-        this.level.blockEntityChanged(this.worldPosition, this);
-        this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
     }
 
     public int getVolume() {
@@ -77,9 +80,6 @@ public abstract class VideoPlayerBlockEntity extends TileEntity implements ITick
 
     public void setTick(int tick) {
         this.tick = tick;
-        if (this.level == null) return;
-        this.level.blockEntityChanged(this.worldPosition, this);
-        this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
     }
 
     public void setPlaying(boolean playing) {
@@ -89,6 +89,31 @@ public abstract class VideoPlayerBlockEntity extends TileEntity implements ITick
     public void stop() {
         stopped = true;
     }
+
+    public void setBeingUsed(UUID player) {
+        this.playerUsing = player;
+        setChanged();
+    }
+
+    public void tryOpen(World level, BlockPos blockPos, PlayerEntity player) {
+        // If none is using the block, open the GUI
+        if (playerUsing == null) {
+            setBeingUsed(player.getUUID());
+            onUsedBy(blockPos, player);
+            return;
+        }
+
+        // If the player that use the block is connected, don't open the GUI
+        for (PlayerEntity p : level.players())
+            if (p.getUUID() == playerUsing)
+                return;
+
+        // Open the GUI
+        setBeingUsed(player.getUUID());
+        onUsedBy(blockPos, player);
+    }
+
+    protected abstract void onUsedBy(BlockPos blockPos, PlayerEntity player);
 
     public Display requestDisplay() {
         if (isURLEmpty()) return null;
@@ -162,9 +187,10 @@ public abstract class VideoPlayerBlockEntity extends TileEntity implements ITick
         super.save(pTag);
 
         pTag.putString("url", url == null ? "" : url);
-        pTag.putBoolean("playing", playing);
+        pTag.putBoolean("playing", playing || stopped);
         pTag.putInt("tick", tick);
         pTag.putInt("volume", volume);
+        pTag.putUUID("beingUsed", playerUsing == null ? new UUID(0, 0) : playerUsing);
         return pTag;
     }
 
@@ -174,15 +200,12 @@ public abstract class VideoPlayerBlockEntity extends TileEntity implements ITick
         loadFromNBTInternal(pTag);
     }
 
-    protected abstract void loadFromNBT(CompoundNBT nbt);
-
     public void loadFromNBTInternal(CompoundNBT nbt) {
-        loadFromNBT(nbt);
-
         url = nbt.getString("url");
         playing = nbt.getBoolean("playing");
         tick = nbt.getInt("tick");
         volume = nbt.getInt("volume");
+        playerUsing = nbt.getUUID("beingUsed");
     }
 
     @Override
@@ -192,10 +215,6 @@ public abstract class VideoPlayerBlockEntity extends TileEntity implements ITick
         if (level.isClientSide) {
             Display display = be.requestDisplay();
             if (display != null) {
-                if (stopped) {
-                    display.stop();
-                }
-                stopped = false;
                 display.tick(be.tick);
             }
         }

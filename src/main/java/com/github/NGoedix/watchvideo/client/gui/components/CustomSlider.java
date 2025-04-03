@@ -59,12 +59,14 @@ public class CustomSlider extends AbstractSlider {
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
         blit(pMatrixStack, this.x, this.y, this.width / 2, this.height, 0, 46 + i * 20, this.width / 2, 20, 256, 256);
-        blit(pMatrixStack, this.x + this.width / 2, this.y, this.width / 2, this.height,200 - this.width / 2, 46 + i * 20, this.width / 2, 20, 256, 256);
+        blit(pMatrixStack, this.x + this.width / 2, this.y, this.width / 2, this.height, 200 - this.width / 2, 46 + i * 20, this.width / 2, 20, 256, 256);
 
+        // Se corrige la barra de progreso para que no se extienda fuera del componente.
         if (progressBar) {
             RenderSystem.disableTexture();
             RenderSystem.color4f(0.0F, 1.0F, 0.0F, 0.2F);
-            int progressBarWidth = (int)(this.width * this.value);
+            double clampedValue = MathHelper.clamp(this.value, 0.0, 0.99);
+            int progressBarWidth = (int) (this.width * clampedValue);
             AbstractGui.fill(pMatrixStack, this.x, this.y, this.x + progressBarWidth, this.y + this.height, 0x3300FF00);
             RenderSystem.enableTexture();
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -80,8 +82,10 @@ public class CustomSlider extends AbstractSlider {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         int i = (this.isHovered() ? 2 : 1) * 20;
 
-        blit(pMatrixStack, this.x + (int)(this.value * (double)(this.width - 8)), this.y,4, height, 0, 46 + i, 4, 20, 256, 256);
-        blit(pMatrixStack, this.x + (int)(this.value * (double)(this.width - 8)) + 4, this.y, 4, height, 196, 46 + i, 4, 20, 256, 256);
+        double clampedValue = MathHelper.clamp(this.value, 0.0, 0.99);
+        int thumbX = this.x + (int) (clampedValue * (double) (this.width - 8));
+        blit(pMatrixStack, thumbX, this.y, 4, height, 0, 46 + i, 4, 20, 256, 256);
+        blit(pMatrixStack, thumbX + 4, this.y, 4, height, 196, 46 + i, 4, 20, 256, 256);
     }
 
     @Override
@@ -97,7 +101,6 @@ public class CustomSlider extends AbstractSlider {
     @Override
     protected boolean isValidClickButton(int pButton) {
         if (!active) return false;
-
         return super.isValidClickButton(pButton);
     }
 

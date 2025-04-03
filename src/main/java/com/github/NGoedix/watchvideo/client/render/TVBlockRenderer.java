@@ -44,13 +44,10 @@ public class TVBlockRenderer extends TileEntityRenderer<TVBlockEntity> {
         }
 
         int texture = display.renderTexture();
-
-        if (texture == -1) {
-            return;
-        }
+        if (texture == -1) return;
 
         renderTexture(frame, display, ImageAPI.blackPicture().texture(1, 1, false), pose, false);
-        renderTexture(frame, display, texture, pose, true);
+        if (!display.isStopped()) renderTexture(frame, display, texture, pose, true);
     }
 
     @Override
