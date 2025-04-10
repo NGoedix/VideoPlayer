@@ -188,7 +188,7 @@ public class TVVideoScreen extends Screen {
         if (display != null && display.isReady()) {
             timeSlider.setActive(!display.isLive());
 
-            if ((maxDuration == -1 || maxDuration == 0) && !display.isLive())
+            if (maxDuration <= 0 && !display.isLive())
                 maxDuration = display.getDuration();
 
             // If not live, calculate the time
@@ -199,9 +199,8 @@ public class TVVideoScreen extends Screen {
                 long actualTime = MathAPI.tickToMs(be.getTick()) / 1000;
 
                 // Check if actualTime exceeds maxDuration and reset to 0 if it does
-                if (maxDuration != -1 && maxDuration != 0 && actualTime > durationSeconds) {
-                    actualTime = 0;
-                    PacketHandler.sendToServer(new TickPacket(be.getBlockPos(), 0));
+                if (maxDuration > 0 && actualTime > durationSeconds) {
+                    actualTime = actualTime % durationSeconds;
                 }
 
                 long actualMinute = actualTime / 60;
