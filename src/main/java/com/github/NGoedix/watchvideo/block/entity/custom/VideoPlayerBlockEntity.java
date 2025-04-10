@@ -170,11 +170,13 @@ public abstract class VideoPlayerBlockEntity extends TileEntity implements ITick
 
     @Override
     public void setRemoved() {
+        super.setRemoved();
         if (isClient()) releaseDisplay();
     }
 
     @Override
     public void onChunkUnloaded() {
+        super.onChunkUnloaded();
         if (isClient()) releaseDisplay();
     }
 

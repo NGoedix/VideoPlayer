@@ -22,11 +22,13 @@ public class Display {
 
     public static void tick() {
         synchronized (DISPLAYS) {
-            // Tick all displays and check if them must be paused
-            DISPLAYS.forEach(display -> {
-                if (Minecraft.getInstance().isPaused() && display.be.isPlaying() && (display.player.isLive() || display.player.getDuration() > 0))
+            for (Display display : new ArrayList<>(DISPLAYS)) {
+                if (display.be.isRemoved()) // I don't know why but the block is not releasing correctly the display, so I hope that this fixes that
+                    display.release();
+                if (Minecraft.getInstance().isPaused() && display.be.isPlaying() &&
+                        (display.player.isLive() || display.player.getDuration() > 0))
                     display.player.setPauseMode(true);
-            });
+            }
         }
     }
 
@@ -176,6 +178,7 @@ public class Display {
 
     private void internalRelease() {
         if (player != null) {
+            player.stop();
             player.release();
             player = null;
         }
