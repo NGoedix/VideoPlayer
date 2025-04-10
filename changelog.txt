@@ -1,6 +1,18 @@
+3.1.3
+- Fixed an issue where the TV re-renders the video because the max duration is -1 and not 0 (xD)
+- Fixed an issue where the TV is not released when the TV is destroyed
+
+3.1.2
+- Refactored code in block entities
+- Refactored the network structure & packets
+- Fixed bug where the TV screen doesn't show frame when paused
+- Fixed bug where TV show the frame of the video when stopped
+- Fixed visual bug where the tick slider overflows the screen
+- Fixed visual bug where the buttons in TV screen could be selected and get blue background
+
 3.1.1
- - Refactored the code to fix random issues
- - Updated watermedia api
+- Refactored the code to fix random issues
+- Updated watermedia api
 
 3.0.5
 - Fixed fading in playgovideo command

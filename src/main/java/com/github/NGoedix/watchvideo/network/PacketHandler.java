@@ -1,7 +1,14 @@
 package com.github.NGoedix.watchvideo.network;
 
 import com.github.NGoedix.watchvideo.Reference;
-import com.github.NGoedix.watchvideo.network.message.*;
+import com.github.NGoedix.watchvideo.network.packets.*;
+import com.github.NGoedix.watchvideo.network.packets.commands.SendCustomVideoMessage;
+import com.github.NGoedix.watchvideo.network.packets.commands.SendMusicMessage;
+import com.github.NGoedix.watchvideo.network.packets.commands.SendVideoMessage;
+import com.github.NGoedix.watchvideo.network.packets.control.*;
+import com.github.NGoedix.watchvideo.network.packets.gui.ClosedScreenPacket;
+import com.github.NGoedix.watchvideo.network.packets.gui.OpenRadioScreenPacket;
+import com.github.NGoedix.watchvideo.network.packets.gui.OpenTVScreenPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,9 +21,11 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
+import java.util.function.Supplier;
+
 public class PacketHandler {
 
-    public static final String PROTOCOL_VERSION = "2";
+    public static final String PROTOCOL_VERSION = "3";
 
     private static SimpleChannel INSTANCE;
 
@@ -29,24 +38,43 @@ public class PacketHandler {
                 .clientAcceptedVersions(PROTOCOL_VERSION::equals)
                 .serverAcceptedVersions(PROTOCOL_VERSION::equals)
                 .simpleChannel();
-        register(SendVideoMessage.class, new SendVideoMessage());
-        register(SendCustomVideoMessage.class, new SendCustomVideoMessage());
-        register(SendMusicMessage.class, new SendMusicMessage());
-        register(FrameVideoMessage.class, new FrameVideoMessage());
-        register(RadioMessage.class, new RadioMessage());
-        register(OpenVideoManagerScreen.class, new OpenVideoManagerScreen());
-        register(UploadVideoUpdateMessage.class, new UploadVideoUpdateMessage());
-        register(UploadRadioUpdateMessage.class, new UploadRadioUpdateMessage());
-        register(OpenRadioManagerScreen.class, new OpenRadioManagerScreen());
+
+        // COMMANDS
+        register(SendCustomVideoMessage.class, SendCustomVideoMessage::new);
+        register(SendVideoMessage.class, SendVideoMessage::new);
+        register(SendMusicMessage.class, SendMusicMessage::new);
+
+        // CONTROL
+        register(PausePacket.class, PausePacket::new);
+        register(StopPacket.class, StopPacket::new);
+        register(VolumePacket.class, VolumePacket::new);
+        register(UrlPacket.class, UrlPacket::new);
+        register(TickPacket.class, TickPacket::new);
+
+        // GUI
+        register(ClosedScreenPacket.class, ClosedScreenPacket::new);
+        register(OpenRadioScreenPacket.class, OpenRadioScreenPacket::new);
+        register(OpenTVScreenPacket.class, OpenTVScreenPacket::new);
     }
 
-    private static <T> void register(Class<T> clazz, IMessage<T> message) {
-        INSTANCE.registerMessage(nextId++, clazz, message::encode, message::decode, message::handle);
-    }
-
-    public static SimpleChannel getPlayChannel()
-    {
-        return INSTANCE;
+    private static <T extends AbstractPacket<T>> void register(Class<T> clazz, Supplier<T> factory) {
+        INSTANCE.registerMessage(
+                nextId++,
+                clazz,
+                // encode
+                AbstractPacket::write,
+                // decode
+                buf -> {
+                    T msg = factory.get();
+                    msg.read(buf);
+                    return msg;
+                },
+                // handle
+                (msg, ctx) -> {
+                    msg.handlePacket(ctx.get());
+                    ctx.get().setPacketHandled(true);
+                }
+        );
     }
 
     public static <MSG> void sendTo(MSG msg, Player player) {

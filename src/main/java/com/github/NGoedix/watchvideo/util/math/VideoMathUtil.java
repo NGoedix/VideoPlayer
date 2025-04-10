@@ -11,13 +11,11 @@ public class VideoMathUtil {
         float videoAspectRatio = (float) videoWidth / (float) videoHeight;
 
         int renderWidth, renderHeight;
-        // Si el aspect ratio del video es mayor que el del contenedor,
-        // significa que hay que ajustar el ancho al contenedor.
+
         if (videoAspectRatio > containerAspectRatio) {
             renderWidth = containerWidth;
             renderHeight = (int) (containerWidth / videoAspectRatio);
         } else {
-            // De lo contrario, se ajusta la altura al contenedor.
             renderWidth = (int) (containerHeight * videoAspectRatio);
             renderHeight = containerHeight;
         }

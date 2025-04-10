@@ -3,7 +3,6 @@ package com.github.NGoedix.watchvideo.util.displayers;
 import com.github.NGoedix.watchvideo.block.entity.custom.VideoPlayerBlockEntity;
 import com.github.NGoedix.watchvideo.util.config.TVConfig;
 import com.github.NGoedix.watchvideo.util.math.VideoMathUtil;
-import com.github.NGoedix.watchvideo.util.math.geo.Axis;
 import com.github.NGoedix.watchvideo.util.math.geo.Vec3d;
 import net.minecraft.client.Minecraft;
 import org.watermedia.api.math.MathAPI;
@@ -22,8 +21,13 @@ public class Display {
 
     public static void tick() {
         synchronized (DISPLAYS) {
-            // Tick all displays and check if them must be paused
-            DISPLAYS.forEach(display -> display.player.setPauseMode(Minecraft.getInstance().isPaused() && display.player.isPlaying() && (display.player.isLive() || display.player.getDuration() > 0)));
+            for (Display display : new ArrayList<>(DISPLAYS)) {
+                if (display.be.isRemoved()) // I don't know why but the block is not releasing correctly the display, so I hope that this fixes that
+                    display.release();
+                if (Minecraft.getInstance().isPaused() && display.be.isPlaying() &&
+                        (display.player.isLive() || display.player.getDuration() > 0))
+                    display.player.setPauseMode(true);
+            }
         }
     }
 
@@ -59,7 +63,7 @@ public class Display {
 
         this.player.setVolume(be.getVolume());
         this.player.setRepeatMode(true);
-        this.player.setPauseMode(false);
+        this.player.setPauseMode(!be.isPlaying());
         this.player.setMuteMode(false);
         this.player.start(url);
 
@@ -83,7 +87,7 @@ public class Display {
             if (!stream && player.isLive()) stream = true;
 
             // Change pause mode
-            boolean currentPlaying = player.isPlaying() && !Minecraft.getInstance().isPaused();
+            boolean currentPlaying = be.isPlaying() && !Minecraft.getInstance().isPaused();
             player.setPauseMode(!currentPlaying);
 
             // Sync time
@@ -109,6 +113,7 @@ public class Display {
     }
 
     public int renderTexture() {
+        if (be.isURLEmpty()) return 0;
         switch (type) {
             case VIDEO:
                 return ((VideoPlayer) player).preRender();
@@ -123,19 +128,10 @@ public class Display {
         player.stop();
     }
 
-    public void pause(int tick) {
+    public void setPauseMode(boolean pause) {
         if (player == null) return;
-        if (tick != -1)
-            player.seekTo(tick);
-        player.pause();
-    }
-
-    public void resume(int tick) {
-        if (player == null) return;
-        if (tick != -1)
-            player.seekTo(tick);
-        if (player.isSafeUse())
-            player.play();
+        if (player.isStopped() && !pause) player.play();
+        player.setPauseMode(pause);
     }
 
     public void seekTo(long tick) {
@@ -181,6 +177,7 @@ public class Display {
 
     private void internalRelease() {
         if (player != null) {
+            player.stop();
             player.release();
             player = null;
         }

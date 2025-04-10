@@ -39,8 +39,6 @@ public class ImageButtonHoverable extends Button {
 
     @Override
     public void renderButton(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
-        Minecraft minecraft = Minecraft.getInstance();
-
         ResourceLocation texture = getTextureLocation();
         if (texture != null) {
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);

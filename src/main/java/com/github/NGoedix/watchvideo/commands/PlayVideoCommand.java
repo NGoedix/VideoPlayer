@@ -2,7 +2,7 @@ package com.github.NGoedix.watchvideo.commands;
 
 import com.github.NGoedix.watchvideo.commands.arguments.SymbolStringArgumentType;
 import com.github.NGoedix.watchvideo.network.PacketHandler;
-import com.github.NGoedix.watchvideo.network.message.SendVideoMessage;
+import com.github.NGoedix.watchvideo.network.packets.commands.SendVideoMessage;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;

@@ -1,7 +1,7 @@
 package com.github.NGoedix.watchvideo.commands;
 
 import com.github.NGoedix.watchvideo.network.PacketHandler;
-import com.github.NGoedix.watchvideo.network.message.SendMusicMessage;
+import com.github.NGoedix.watchvideo.network.packets.commands.SendMusicMessage;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;

@@ -56,7 +56,7 @@ public class TVBlockRenderer implements BlockEntityRenderer<TVBlockEntity> {
         if (texture == -1) return;
 
         renderTexture(frame, display, ImageAPI.blackPicture().texture(1, 1, false), pose, false);
-        renderTexture(frame, display, texture, pose, true);
+        if (!display.isStopped()) renderTexture(frame, display, texture, pose, true);
     }
 
     private void renderTexture(TVBlockEntity frame, Display display, int texture, PoseStack pose, boolean aspectRatio) {

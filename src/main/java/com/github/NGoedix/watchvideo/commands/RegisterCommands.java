@@ -7,9 +7,9 @@ public class RegisterCommands {
 
     @SubscribeEvent
     public static void registerCommands(RegisterCommandsEvent event){
+        PlayCustomVideoCommand.register(event.getDispatcher());
         PlayVideoCommand.register(event.getDispatcher());
         PlayMusicCommand.register(event.getDispatcher());
-        PlayCustomVideoCommand.register(event.getDispatcher());
         StopVideoCommand.register(event.getDispatcher());
         StopMusicCommand.register(event.getDispatcher());
     }

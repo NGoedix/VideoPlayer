@@ -1,15 +1,13 @@
 package com.github.NGoedix.watchvideo.client;
 
-import com.github.NGoedix.watchvideo.block.entity.custom.HandRadioBlockEntity;
 import com.github.NGoedix.watchvideo.block.entity.custom.RadioBlockEntity;
 import com.github.NGoedix.watchvideo.block.entity.custom.TVBlockEntity;
+import com.github.NGoedix.watchvideo.block.entity.custom.VideoPlayerBlockEntity;
 import com.github.NGoedix.watchvideo.client.gui.RadioScreen;
 import com.github.NGoedix.watchvideo.client.gui.TVVideoScreen;
 import com.github.NGoedix.watchvideo.client.gui.VideoScreen;
-import com.github.NGoedix.watchvideo.item.custom.HandRadioItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.watermedia.api.player.videolan.MusicPlayer;
 
@@ -65,38 +63,7 @@ public class ClientHandler {
         }
     }
 
-    public static void manageRadio(String url, BlockPos pos, boolean playing) {
-        BlockEntity be = Minecraft.getInstance().level.getBlockEntity(pos);
-        if (be instanceof RadioBlockEntity) {
-            RadioBlockEntity radio = (RadioBlockEntity) be;
-            radio.setUrl(url);
-            radio.setPlaying(playing);
-
-            radio.notifyPlayer();
-        }
-
-        if (be instanceof HandRadioBlockEntity) {
-            HandRadioBlockEntity tv = (HandRadioBlockEntity) be;
-            tv.setUrl(url);
-            tv.setPlaying(playing);
-
-            tv.notifyPlayer();
-        }
-    }
-
-    public static void manageVideo(String url, BlockPos pos, boolean playing, int tick) {
-        BlockEntity be = Minecraft.getInstance().level.getBlockEntity(pos);
-        if (be instanceof TVBlockEntity) {
-            TVBlockEntity tv = (TVBlockEntity) be;
-            tv.setUrl(url);
-            tv.setPlaying(playing);
-            if (tv.getTick() - 40 > tick || tv.getTick() + 40 < tick)
-                tv.setTick(tick);
-
-            tv.notifyPlayer();
-        }
-    }
-
+    // GUIs
     public static void openVideoGUI(BlockPos pos, String url, int volume, int tick, boolean isPlaying) {
         BlockEntity be = Minecraft.getInstance().level.getBlockEntity(pos);
         if (be instanceof TVBlockEntity) {
@@ -120,9 +87,28 @@ public class ClientHandler {
         }
     }
 
-    public static void openRadioGUI(ItemStack stack, String url, int volume, boolean isPlaying) {
-        if (stack.getItem() instanceof HandRadioItem) {
-            Minecraft.getInstance().setScreen(new RadioScreen(stack));
+    // Display control
+    public static void setPauseMode(BlockPos pos, boolean pause) {
+        BlockEntity be = Minecraft.getInstance().level.getBlockEntity(pos);
+        if (be instanceof VideoPlayerBlockEntity) {
+            VideoPlayerBlockEntity tv = (VideoPlayerBlockEntity) be;
+            tv.requestDisplay().setPauseMode(pause);
+        }
+    }
+
+    public static void setTick(BlockPos pos, int tick) {
+        BlockEntity be = Minecraft.getInstance().level.getBlockEntity(pos);
+        if (be instanceof VideoPlayerBlockEntity) {
+            VideoPlayerBlockEntity tv = (VideoPlayerBlockEntity) be;
+            tv.requestDisplay().seekTo(tick);
+        }
+    }
+
+    public static void stop(BlockPos pos) {
+        BlockEntity be = Minecraft.getInstance().level.getBlockEntity(pos);
+        if (be instanceof VideoPlayerBlockEntity) {
+            VideoPlayerBlockEntity tv = (VideoPlayerBlockEntity) be;
+            tv.requestDisplay().stop();
         }
     }
 }
