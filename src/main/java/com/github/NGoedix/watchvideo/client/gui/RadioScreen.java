@@ -27,16 +27,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.NGoedix.watchvideo.client.gui.VideoScreen.*;
+
 public class RadioScreen extends Screen {
-
-    // Textures
-    private static final ResourceLocation TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/gui/background.png");
-
-    private static final ResourceLocation PLAY_BUTTON_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/gui/play_button.png");
-    private static final ResourceLocation PLAY_HOVER_BUTTON_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/gui/play_button_hover.png");
-
-    private static final ResourceLocation PAUSE_BUTTON_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/gui/pause_button.png");
-    private static final ResourceLocation PAUSE_HOVER_BUTTON_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/gui/pause_button_hover.png");
 
     private ScrollingStringList countryList, stationList;
     private EditBox urlField;
@@ -46,7 +39,7 @@ public class RadioScreen extends Screen {
 
     // Control
     private final RadioBlockEntity be;
-    private String url;
+    private final String url;
     private int volume;
     private boolean ready = false;
 
@@ -56,7 +49,7 @@ public class RadioScreen extends Screen {
     private int leftPos;
     private int topPos;
 
-    public RadioScreen(BlockEntity be) {
+    public RadioScreen(final BlockEntity be) {
         super(new TranslatableComponent("gui.radio_screen.title"));
         this.be = (RadioBlockEntity) be;
         this.url = this.be.getUrl();
@@ -67,93 +60,93 @@ public class RadioScreen extends Screen {
     protected void init() {
         super.init();
 
-        leftPos = (width - imageWidth) / 2;
-        topPos = (height - imageHeight) / 2;
+        this.leftPos = (this.width - this.imageWidth) / 2;
+        this.topPos = (this.height - this.imageHeight) / 2;
 
         Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(true);
 
-        List<String> sortedCountries = new ArrayList<>(RadioStreams.getRadioStreams().keySet());
+        final List<String> sortedCountries = new ArrayList<>(RadioStreams.getRadioStreams().keySet());
         Collections.sort(sortedCountries);
 
         // Country list
-        addRenderableWidget(countryList = new ScrollingStringList((width / 2) - 177, height / 2 - 3, 100, 248, sortedCountries));
-        countryList.setSelected("Custom");
-        countryList.setPlayerSlotClickListener(text -> {
-            if (urlField != null)
-                urlField.setEditable(text.equals("Custom"));
-            if (stationList != null)
-                stationList.updateEntries(getStationNamesForCountry(text, RadioStreams.getRadioStreams()));
+        this.addRenderableWidget(this.countryList = new ScrollingStringList((this.width / 2) - 177, this.height / 2 - 3, 100, 248, sortedCountries));
+        this.countryList.setSelected("Custom");
+        this.countryList.setPlayerSlotClickListener(text -> {
+            if (this.urlField != null)
+                this.urlField.setEditable(text.equals("Custom"));
+            if (this.stationList != null)
+                this.stationList.updateEntries(this.getStationNamesForCountry(text, RadioStreams.getRadioStreams()));
         });
-        countryList.setSelected(getCountryFromStationUrl(url));
+        this.countryList.setSelected(this.getCountryFromStationUrl(this.url));
 
         // Custom URL callback
-        addRenderableWidget(urlField = new EditBox(font, leftPos + 12, height / 2 - 30, imageWidth - 28, 20, new TextComponent("")));
-        urlField.setResponder(text -> {
-            if (!ready) return;
+        this.addRenderableWidget(this.urlField = new EditBox(this.font, this.leftPos + 12, this.height / 2 - 30, this.imageWidth - 28, 20, new TextComponent("")));
+        this.urlField.setResponder(text -> {
+            if (!this.ready) return;
 
-            if (countryList.getSelectedText().equals("Custom")) {
+            if (this.countryList.getSelectedText().equals("Custom")) {
                 if (text.matches(TVConfig.URL_PATTERN))
-                    PacketHandler.sendToServer(new UrlPacket(be.getBlockPos(), text));
+                    PacketHandler.sendToServer(new UrlPacket(this.be.getBlockPos(), text));
             }
         });
-        urlField.setEditable(countryList.getSelectedText().equals("Custom"));
-        urlField.setMaxLength(32767);
-        urlField.setValue(url);
+        this.urlField.setEditable(this.countryList.getSelectedText().equals("Custom"));
+        this.urlField.setMaxLength(32767);
+        this.urlField.setValue(this.url);
 
         // Station of country
-        addRenderableWidget(stationList = new ScrollingStringList((width / 2) + 172, height / 2 - 3, 100, 248, getStationNamesForCountry(countryList.getSelectedText(), RadioStreams.getRadioStreams())));
-        stationList.setPlayerSlotClickListener(text -> {
-            if (!ready) return;
+        this.addRenderableWidget(this.stationList = new ScrollingStringList((this.width / 2) + 172, this.height / 2 - 3, 100, 248, this.getStationNamesForCountry(this.countryList.getSelectedText(), RadioStreams.getRadioStreams())));
+        this.stationList.setPlayerSlotClickListener(text -> {
+            if (!this.ready) return;
 
             if (text != null && !text.isEmpty()) {
-                urlField.setValue(getStationUrlFromStation(text));
-                PacketHandler.sendToServer(new UrlPacket(be.getBlockPos(), getStationUrlFromStation(text)));
+                this.urlField.setValue(this.getStationUrlFromStation(text));
+                PacketHandler.sendToServer(new UrlPacket(this.be.getBlockPos(), this.getStationUrlFromStation(text)));
             }
         });
-        stationList.setSelected(getStationFromStationUrl(url));
-        stationList.updateEntries(getStationNamesForCountry(countryList.getSelectedText(), RadioStreams.getRadioStreams()));
+        this.stationList.setSelected(this.getStationFromStationUrl(this.url));
+        this.stationList.updateEntries(this.getStationNamesForCountry(this.countryList.getSelectedText(), RadioStreams.getRadioStreams()));
 
         // Volume slider
-        addRenderableWidget(volumeSlider = new CustomSlider(leftPos + 10, height / 2 - 5, imageWidth - 24, 20, new TranslatableComponent("gui.tv_video_screen.volume"), volume / 100f, false));
-        volumeSlider.setOnSlideListener(value -> {
-            if (!ready) return;
+        this.addRenderableWidget(this.volumeSlider = new CustomSlider(this.leftPos + 10, this.height / 2 - 5, this.imageWidth - 24, 20, new TranslatableComponent("gui.tv_video_screen.volume"), this.volume / 100f, false));
+        this.volumeSlider.setOnSlideListener(value -> {
+            if (!this.ready) return;
 
-            volume = (int) volumeSlider.getValue();
-            PacketHandler.sendToServer(new VolumePacket(be.getBlockPos(), volume));
+            this.volume = (int) this.volumeSlider.getValue();
+            PacketHandler.sendToServer(new VolumePacket(this.be.getBlockPos(), this.volume));
         });
-        volumeSlider.setValue(volume / 100f);
+        this.volumeSlider.setValue(this.volume / 100f);
 
         // Buttons
-        addRenderableWidget(playButton = new ImageButtonHoverable(width / 2 - 10, topPos + 150, 20, 20, 0, 0, 0, PLAY_BUTTON_TEXTURE, PLAY_HOVER_BUTTON_TEXTURE, 20, 20, button -> {
-            if (!ready) return;
+        this.addRenderableWidget(this.playButton = new ImageButtonHoverable(this.width / 2 - 10, this.topPos + 150, 20, 20, 0, 0, 0, PLAY_BUTTON_TEXTURE, PLAY_HOVER_BUTTON_TEXTURE, 20, 20, button -> {
+            if (!this.ready) return;
 
-            if (!urlField.getValue().isEmpty()) {
-                playButton.visible = false;
-                pauseButton.visible = true;
+            if (!this.urlField.getValue().isEmpty()) {
+                this.playButton.visible = false;
+                this.pauseButton.visible = true;
 
-                if (be.requestDisplay() == null) return;
-                PacketHandler.sendToServer(new PausePacket(be.getBlockPos(), false));
+                if (this.be.requestDisplay() == null) return;
+                PacketHandler.sendToServer(new PausePacket(this.be.getBlockPos(), false));
             }
         }));
-        playButton.visible = be != null ? !be.isPlaying() : url.isEmpty();
+        this.playButton.visible = this.be != null ? !this.be.isPlaying() : this.url.isEmpty();
 
-        addRenderableWidget(pauseButton = new ImageButtonHoverable(width / 2 - 10, topPos + 150, 20, 20, 0, 0, 0, PAUSE_BUTTON_TEXTURE, PAUSE_HOVER_BUTTON_TEXTURE, 20, 20, button -> {
-            if (!ready) return;
+        this.addRenderableWidget(this.pauseButton = new ImageButtonHoverable(this.width / 2 - 10, this.topPos + 150, 20, 20, 0, 0, 0, PAUSE_BUTTON_TEXTURE, PAUSE_HOVER_BUTTON_TEXTURE, 20, 20, button -> {
+            if (!this.ready) return;
 
-            if (!urlField.getValue().isEmpty()) {
-                playButton.visible = true;
-                pauseButton.visible = false;
+            if (!this.urlField.getValue().isEmpty()) {
+                this.playButton.visible = true;
+                this.pauseButton.visible = false;
 
-                if (be.requestDisplay() == null) return;
-                PacketHandler.sendToServer(new PausePacket(be.getBlockPos(), true));
+                if (this.be.requestDisplay() == null) return;
+                PacketHandler.sendToServer(new PausePacket(this.be.getBlockPos(), true));
             }
         }));
-        pauseButton.visible = be != null ? be.isPlaying() : !url.isEmpty();
+        this.pauseButton.visible = this.be != null ? this.be.isPlaying() : !this.url.isEmpty();
     }
 
-    private String getCountryFromStationUrl(String url) {
-        for (Map.Entry<String, List<RadioStreams.RadioStream>> entry : RadioStreams.getRadioStreams().entrySet()) {
-            for (RadioStreams.RadioStream station : entry.getValue()) {
+    private String getCountryFromStationUrl(final String url) {
+        for (final Map.Entry<String, List<RadioStreams.RadioStream>> entry : RadioStreams.getRadioStreams().entrySet()) {
+            for (final RadioStreams.RadioStream station : entry.getValue()) {
                 if (station.getStreamLink().equals(url)) {
                     return entry.getKey();
                 }
@@ -162,9 +155,9 @@ public class RadioScreen extends Screen {
         return "Custom";
     }
 
-    private String getStationFromStationUrl(String url) {
-        for (Map.Entry<String, List<RadioStreams.RadioStream>> entry : RadioStreams.getRadioStreams().entrySet()) {
-            for (RadioStreams.RadioStream station : entry.getValue()) {
+    private String getStationFromStationUrl(final String url) {
+        for (final Map.Entry<String, List<RadioStreams.RadioStream>> entry : RadioStreams.getRadioStreams().entrySet()) {
+            for (final RadioStreams.RadioStream station : entry.getValue()) {
                 if (station.getStreamLink().equals(url)) {
                     return station.getRadioName();
                 }
@@ -173,8 +166,8 @@ public class RadioScreen extends Screen {
         return null;
     }
 
-    private List<String> getStationNamesForCountry(String country, Map<String, List<RadioStreams.RadioStream>> radioStreamsByCountry) {
-        List<String> stationNames = new ArrayList<>(9);
+    private List<String> getStationNamesForCountry(final String country, final Map<String, List<RadioStreams.RadioStream>> radioStreamsByCountry) {
+        final List<String> stationNames = new ArrayList<>(9);
 
         if (country == null) {
             for (int i = 0; i < 8; i++)
@@ -182,9 +175,9 @@ public class RadioScreen extends Screen {
             return stationNames;
         }
 
-        List<RadioStreams.RadioStream> stations = radioStreamsByCountry.get(country);
+        final List<RadioStreams.RadioStream> stations = radioStreamsByCountry.get(country);
         if (stations != null) {
-            for (RadioStreams.RadioStream station : stations) {
+            for (final RadioStreams.RadioStream station : stations) {
                 stationNames.add(station.getRadioName());
             }
         }
@@ -195,9 +188,9 @@ public class RadioScreen extends Screen {
         return stationNames;
     }
 
-    private String getStationUrlFromStation(String stationUrl) {
-        for (Map.Entry<String, List<RadioStreams.RadioStream>> entry : RadioStreams.getRadioStreams().entrySet()) {
-            for (RadioStreams.RadioStream station : entry.getValue()) {
+    private String getStationUrlFromStation(final String stationUrl) {
+        for (final Map.Entry<String, List<RadioStreams.RadioStream>> entry : RadioStreams.getRadioStreams().entrySet()) {
+            for (final RadioStreams.RadioStream station : entry.getValue()) {
                 if (station.getRadioName().equals(stationUrl)) {
                     return station.getStreamLink();
                 }
@@ -207,22 +200,22 @@ public class RadioScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        if (!ready) ready = true;
-        renderBackground(pPoseStack);
+    public void render(final PoseStack pPoseStack, final int pMouseX, final int pMouseY, final float pPartialTick) {
+        if (!this.ready) this.ready = true;
+        this.renderBackground(pPoseStack);
 
         RenderSystem.clearColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem._setShaderTexture(0, TEXTURE);
-        blit(pPoseStack, leftPos, topPos, 320, 320, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
+        blit(pPoseStack, this.leftPos, this.topPos, 320, 320, 0, 0, this.imageWidth, this.imageHeight, this.imageWidth, this.imageHeight);
 
-        font.draw(pPoseStack, "Radio Player (by Goedix)", (width / 2f) - 62, height / 2f - 100, 0xFFFFFF);
+        this.font.draw(pPoseStack, "Radio Player (by Goedix)", (this.width / 2f) - 62, this.height / 2f - 100, 0xFFFFFF);
 
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
     }
 
     @Override
     public void removed() {
-        PacketHandler.sendToServer(new ClosedScreenPacket(be != null ? be.getBlockPos() : null));
+        PacketHandler.sendToServer(new ClosedScreenPacket(this.be != null ? this.be.getBlockPos() : null));
         Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(false);
     }
 

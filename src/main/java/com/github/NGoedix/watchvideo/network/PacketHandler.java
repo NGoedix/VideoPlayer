@@ -33,7 +33,7 @@ public class PacketHandler {
 
     public static void init() {
         INSTANCE = NetworkRegistry.ChannelBuilder
-                .named(new ResourceLocation(Reference.MOD_ID, "network"))
+                .named(ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "network"))
                 .networkProtocolVersion(() -> PROTOCOL_VERSION)
                 .clientAcceptedVersions(PROTOCOL_VERSION::equals)
                 .serverAcceptedVersions(PROTOCOL_VERSION::equals)

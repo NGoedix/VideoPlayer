@@ -1,12 +1,12 @@
 modLoader="javafml"
-loaderVersion="[38,)"
+loaderVersion="[40,)"
 license="All Rights Reserved"
 [[mods]]
-modId="videoplayer"
-version="3.0.5"
-displayName="VideoPlayer"
-authors="Goedix"
-description='''
+    modId="videoplayer"
+    version="3.1.3"
+    displayName="VideoPlayer"
+    authors="Goedix"
+    description='''
 This mod allows the playback of videos in the user interface (GUI), you can play videos for all connected users or for a specific user.
 Thanks to anarkh_angel for the blocks.
 '''
@@ -14,6 +14,12 @@ credits="Thanks J-RAP for the help with the API"
 [[dependencies.videoplayer]]
     modId="watermedia"
     mandatory=true
-    versionRange="[2.0,)"
+    versionRange="[2.1,2.2)"
     ordering="AFTER"
     side="CLIENT"
+[[dependencies.videoplayer]]
+    modId="forge"
+    mandatory=true
+    versionRange="[40.3,)"
+    ordering="NONE"
+    side="BOTH"

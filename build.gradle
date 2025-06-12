@@ -1,60 +1,45 @@
-buildscript {
-    repositories {
-        // These repositories are only for Gradle plugins, put any other repositories in the repository block further below
-        maven { url = 'https://maven.minecraftforge.net' }
-        maven { url = 'https://maven.parchmentmc.org' }
-        maven { url = 'https://repo.spongepowered.org/maven' }
-        maven { url 'https://jitpack.io' }
-        mavenCentral()
-        jcenter()
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        classpath 'org.parchmentmc:librarian:1.+'
-    }
-}
-// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 plugins {
-    id 'eclipse'
-    id 'maven-publish'
+    id 'java'
+    id 'idea'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'org.spongepowered.mixin' version '0.7.+'
+    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+    id "me.modmuss50.mod-publish-plugin" version "0.8.3"
 }
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
-version = '3.1.3-FORGE-1.18.X'
+// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
+def MT_TOKEN = System.getenv("MODRINTH_TOKEN")
+def CF_TOKEN = System.getenv("CURSEFORGE_TOKEN")
+
 group = 'com.github.NGoedix.VideoPlayer' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'VideoPlayer'
+base {
+    archivesName = "VideoPlayer"
+    version = '3.1.3-FORGE-1.18.X'
+}
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 minecraft {
-    mappings channel: 'parchment', version: '1.18.1-2022.03.06-1.18.2'
+    mappings channel: 'parchment', version: '2022.11.06-1.18.2'
     runs {
-        client {
+        configureEach {
             workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'videoplayer'
+            property 'log4j.appender.Console', "org.apache.log4j.ConsoleAppender"
+            property 'terminal.jline', 'true'
+            arg '--nogui'
+
             mods {
-                videoplayer {
+                "videoplayer" {
                     source sourceSets.main
                 }
             }
         }
 
-        server {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'videoplayer'
-            mods {
-                videoplayer {
-                    source sourceSets.main
-                }
-            }
-        }
+        client {}
+        server {}
     }
 }
 
@@ -72,7 +57,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.18.2-40.2.10'
+    minecraft 'net.minecraftforge:forge:1.18.2-40.3.10'
 
     implementation 'com.github.WaterMediaTeam:watermedia:2.1.22'
     implementation fg.deobf("curse.maven:jei-238222:4434393")
