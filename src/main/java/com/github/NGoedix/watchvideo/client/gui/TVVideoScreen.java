@@ -1,6 +1,5 @@
 package com.github.NGoedix.watchvideo.client.gui;
 
-import com.github.NGoedix.watchvideo.Reference;
 import com.github.NGoedix.watchvideo.block.entity.custom.TVBlockEntity;
 import com.github.NGoedix.watchvideo.client.gui.components.CustomSlider;
 import com.github.NGoedix.watchvideo.client.gui.components.ImageButtonHoverable;
@@ -16,12 +15,10 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
@@ -30,18 +27,9 @@ import org.watermedia.api.math.MathAPI;
 
 import java.awt.*;
 
+import static com.github.NGoedix.watchvideo.client.gui.VideoScreen.*;
+
 public class TVVideoScreen extends Screen {
-
-    private static final ResourceLocation TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/gui/background.png");
-
-    private static final ResourceLocation PLAY_BUTTON_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/gui/play_button.png");
-    private static final ResourceLocation PLAY_HOVER_BUTTON_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/gui/play_button_hover.png");
-
-    private static final ResourceLocation PAUSE_BUTTON_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/gui/pause_button.png");
-    private static final ResourceLocation PAUSE_HOVER_BUTTON_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/gui/pause_button_hover.png");
-
-    private static final ResourceLocation STOP_BUTTON_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/gui/stop_button.png");
-    private static final ResourceLocation STOP_HOVER_BUTTON_TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/gui/stop_button_hover.png");
 
     private ImageButtonHoverable playButton;
     private ImageButtonHoverable pauseButton;
@@ -67,7 +55,7 @@ public class TVVideoScreen extends Screen {
     private EditBox urlBox;
     private CustomSlider volumeSlider;
 
-    public TVVideoScreen(BlockEntity be) {
+    public TVVideoScreen(final BlockEntity be) {
         super(new TranslatableComponent("gui.tv_video_screen.title"));
         this.be = (TVBlockEntity) be;
         this.url = this.be.getUrl();
@@ -78,106 +66,106 @@ public class TVVideoScreen extends Screen {
     protected void init() {
         super.init();
 
-        leftPos = (width - imageWidth) / 2;
-        topPos = (height - imageHeight) / 2;
+        this.leftPos = (this.width - this.imageWidth) / 2;
+        this.topPos = (this.height - this.imageHeight) / 2;
 
         Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(true);
 
-        addRenderableWidget(urlBox = new EditBox(font, leftPos + 10, topPos + 165, imageWidth - 26, 20, new TextComponent("")));
+        this.addRenderableWidget(this.urlBox = new EditBox(this.font, this.leftPos + 10, this.topPos + 165, this.imageWidth - 26, 20, new TextComponent("")));
         // Set the text to the url
-        urlBox.setMaxLength(32767);
-        urlBox.setValue(url == null ? "" : url);
-        urlBox.setSuggestion(url == null || url.isEmpty() ? "https://youtube.com/watch?v=FUIcBBM5-xQ" : "");
-        urlBox.setResponder(s -> {
+        this.urlBox.setMaxLength(32767);
+        this.urlBox.setValue(this.url == null ? "" : this.url);
+        this.urlBox.setSuggestion(this.url == null || this.url.isEmpty() ? "https://youtube.com/watch?v=FUIcBBM5-xQ" : "");
+        this.urlBox.setResponder(s -> {
             if (s != null && !s.isEmpty()) {
-                urlBox.setSuggestion("");
-                if (s.matches(TVConfig.URL_PATTERN) && (be.getTick() > 5 || url.isEmpty())) {
-                    if (!url.equals(s)) {
-                        url = s;
-                        PacketHandler.sendToServer(new UrlPacket(be.getBlockPos(), url));
+                this.urlBox.setSuggestion("");
+                if (s.matches(TVConfig.URL_PATTERN) && (this.be.getTick() > 5 || this.url.isEmpty())) {
+                    if (!this.url.equals(s)) {
+                        this.url = s;
+                        PacketHandler.sendToServer(new UrlPacket(this.be.getBlockPos(), this.url));
 
-                        maxDuration = 0;
-                        timeSlider.setValue(0);
+                        this.maxDuration = 0;
+                        this.timeSlider.setValue(0);
                     }
                 }
             } else {
-                urlBox.setSuggestion("https://youtube.com/watch?v=FUIcBBM5-xQ");
+                this.urlBox.setSuggestion("https://youtube.com/watch?v=FUIcBBM5-xQ");
             }
         });
 
         // Play button
-        addRenderableWidget(playButton = new ImageButtonHoverable(leftPos + 10, topPos + 190, 20, 20, 0, 0, 0, PLAY_BUTTON_TEXTURE, PLAY_HOVER_BUTTON_TEXTURE, 20, 20, button -> {
-            if (be.requestDisplay() != null && !url.isEmpty()) {
-                playButton.visible = false;
-                pauseButton.visible = true;
+        this.addRenderableWidget(this.playButton = new ImageButtonHoverable(this.leftPos + 10, this.topPos + 190, 20, 20, 0, 0, 0, PLAY_BUTTON_TEXTURE, PLAY_HOVER_BUTTON_TEXTURE, 20, 20, button -> {
+            if (this.be.requestDisplay() != null && !this.url.isEmpty()) {
+                this.playButton.visible = false;
+                this.pauseButton.visible = true;
 
-                PacketHandler.sendToServer(new PausePacket(be.getBlockPos(), false));
+                PacketHandler.sendToServer(new PausePacket(this.be.getBlockPos(), false));
             }
         }));
 
         // Pause button
-        addRenderableWidget(pauseButton = new ImageButtonHoverable(leftPos + 10, topPos + 190, 20, 20, 0, 0, 0, PAUSE_BUTTON_TEXTURE, PAUSE_HOVER_BUTTON_TEXTURE, 20, 20, button -> {
-            if (be.requestDisplay() != null && !url.isEmpty()) {
-                playButton.visible = true;
-                pauseButton.visible = false;
+        this.addRenderableWidget(this.pauseButton = new ImageButtonHoverable(this.leftPos + 10, this.topPos + 190, 20, 20, 0, 0, 0, PAUSE_BUTTON_TEXTURE, PAUSE_HOVER_BUTTON_TEXTURE, 20, 20, button -> {
+            if (this.be.requestDisplay() != null && !this.url.isEmpty()) {
+                this.playButton.visible = true;
+                this.pauseButton.visible = false;
 
-                PacketHandler.sendToServer(new PausePacket(be.getBlockPos(), true));
+                PacketHandler.sendToServer(new PausePacket(this.be.getBlockPos(), true));
             }
         }));
 
-        playButton.visible = !be.isPlaying();
-        pauseButton.visible = be.isPlaying();
+        this.playButton.visible = !this.be.isPlaying();
+        this.pauseButton.visible = this.be.isPlaying();
 
         // Stop button
-        addRenderableWidget(stopButton = new ImageButtonHoverable(leftPos + 32, topPos + 190, 20, 20, 0, 0, 0, STOP_BUTTON_TEXTURE, STOP_HOVER_BUTTON_TEXTURE, 20, 20, button -> {
-            if (be.requestDisplay() != null && !url.isEmpty()) {
-                playButton.visible = true;
-                pauseButton.visible = false;
+        this.addRenderableWidget(this.stopButton = new ImageButtonHoverable(this.leftPos + 32, this.topPos + 190, 20, 20, 0, 0, 0, STOP_BUTTON_TEXTURE, STOP_HOVER_BUTTON_TEXTURE, 20, 20, button -> {
+            if (this.be.requestDisplay() != null && !this.url.isEmpty()) {
+                this.playButton.visible = true;
+                this.pauseButton.visible = false;
 
-                timeSlider.setValue(0);
+                this.timeSlider.setValue(0);
 
-                PacketHandler.sendToServer(new StopPacket(be.getBlockPos()));
+                PacketHandler.sendToServer(new StopPacket(this.be.getBlockPos()));
             }
         }));
 
         // Time slider
-        addRenderableWidget(timeSlider = new CustomSlider(leftPos + 54, topPos + 200, 187, 10, null, 0 / 100f, true));
-        timeSlider.setOnSlideListener(value -> {
-            if (be.requestDisplay() == null) return;
+        this.addRenderableWidget(this.timeSlider = new CustomSlider(this.leftPos + 54, this.topPos + 200, 187, 10, null, 0 / 100f, true));
+        this.timeSlider.setOnSlideListener(value -> {
+            if (this.be.requestDisplay() == null) return;
 
-            long time = (long) ((value / 100D) * be.requestDisplay().getDuration());
-            if (maxDuration != 0)
-                PacketHandler.sendToServer(new TickPacket(be.getBlockPos(), MathAPI.msToTick(time)));
+            final long time = (long) ((value / 100D) * this.be.requestDisplay().getDuration());
+            if (this.maxDuration != 0)
+                PacketHandler.sendToServer(new TickPacket(this.be.getBlockPos(), MathAPI.msToTick(time)));
         });
-        if (be.requestDisplay() != null) timeSlider.setValue((double) be.requestDisplay().getTime() / be.requestDisplay().getDuration());
+        if (this.be.requestDisplay() != null) this.timeSlider.setValue((double) this.be.requestDisplay().getTime() / this.be.requestDisplay().getDuration());
 
         // Volume slider
-        addRenderableWidget(volumeSlider = new CustomSlider(leftPos + 10, topPos + 215, imageWidth - 24, 20, new TranslatableComponent("gui.tv_video_screen.volume"), volume / 100f, false));
-        volumeSlider.setOnSlideListener(value -> {
-            be.setVolume((int) value);
-            volume = (int) volumeSlider.getValue();
+        this.addRenderableWidget(this.volumeSlider = new CustomSlider(this.leftPos + 10, this.topPos + 215, this.imageWidth - 24, 20, new TranslatableComponent("gui.tv_video_screen.volume"), this.volume / 100f, false));
+        this.volumeSlider.setOnSlideListener(value -> {
+            this.be.setVolume((int) value);
+            this.volume = (int) this.volumeSlider.getValue();
 
-            PacketHandler.sendToServer(new VolumePacket(be.getBlockPos(), volume));
+            PacketHandler.sendToServer(new VolumePacket(this.be.getBlockPos(), this.volume));
         });
-        volumeSlider.setValue(volume / 100f);
+        this.volumeSlider.setValue(this.volume / 100f);
 
-        be.setVolume(volume);
+        this.be.setVolume(this.volume);
     }
 
     @Override
-    public void render(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        Display display = be.requestDisplay();
+    public void render(@NotNull final PoseStack pPoseStack, final int pMouseX, final int pMouseY, final float pPartialTick) {
+        final Display display = this.be.requestDisplay();
 
-        renderBackground(pPoseStack);
+        this.renderBackground(pPoseStack);
         RenderSystem.clearColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, TEXTURE);
-        blit(pPoseStack, leftPos, topPos, 320, 320, 0, 0, imageWidth, imageHeight, imageWidth, imageHeight);
+        blit(pPoseStack, this.leftPos, this.topPos, 320, 320, 0, 0, this.imageWidth, this.imageHeight, this.imageWidth, this.imageHeight);
 
         // Draw black square
         GlStateManager._bindTexture(ImageAPI.blackPicture().texture(0));
 
         RenderSystem.setShaderTexture(0, ImageAPI.blackPicture().texture(0));
-        blit(pPoseStack, leftPos + (imageWidth / 2) - (videoWidth / 2), topPos + 10, videoWidth, videoHeight, 0, 0, videoWidth, videoHeight, videoWidth, videoHeight);
+        blit(pPoseStack, this.leftPos + (this.imageWidth / 2) - (this.videoWidth / 2), this.topPos + 10, this.videoWidth, this.videoHeight, 0, 0, this.videoWidth, this.videoHeight, this.videoWidth, this.videoHeight);
 
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
 
@@ -186,28 +174,28 @@ public class TVVideoScreen extends Screen {
 
         // Time slider if not live
         if (display != null && display.isReady()) {
-            timeSlider.setActive(!display.isLive());
+            this.timeSlider.setActive(!display.isLive());
 
-            if (maxDuration <= 0 && !display.isLive())
-                maxDuration = display.getDuration();
+            if (this.maxDuration <= 0 && !display.isLive())
+                this.maxDuration = display.getDuration();
 
             // If not live, calculate the time
             if (!display.isLive()) {
-                long durationSeconds = maxDuration / 1000;
-                long maxMinute = durationSeconds / 60;
-                long maxSeconds = durationSeconds % 60;
-                long actualTime = MathAPI.tickToMs(be.getTick()) / 1000;
+                final long durationSeconds = this.maxDuration / 1000;
+                final long maxMinute = durationSeconds / 60;
+                final long maxSeconds = durationSeconds % 60;
+                long actualTime = MathAPI.tickToMs(this.be.getTick()) / 1000;
 
                 // Check if actualTime exceeds maxDuration and reset to 0 if it does
-                if (maxDuration > 0 && actualTime > durationSeconds) {
+                if (this.maxDuration > 0 && actualTime > durationSeconds) {
                     actualTime = actualTime % durationSeconds;
                 }
 
-                long actualMinute = actualTime / 60;
+                final long actualMinute = actualTime / 60;
                 long actualSeconds = actualTime % 60;
 
                 if (durationSeconds != 0)
-                    timeSlider.setValue((double) actualTime / durationSeconds);
+                    this.timeSlider.setValue((double) actualTime / durationSeconds);
 
                 maxTimeFormatted = String.format("%02d:%02d", maxMinute, maxSeconds);
                 if (actualSeconds == -1) actualSeconds = 0;
@@ -215,21 +203,21 @@ public class TVVideoScreen extends Screen {
             }
         }
 
-        font.draw(pPoseStack, new TranslatableComponent("gui.tv_video_screen.time", actualTimeFormatted, maxTimeFormatted), leftPos + 54, topPos + 190, 0xFFFFFF);
+        this.font.draw(pPoseStack, new TranslatableComponent("gui.tv_video_screen.time", actualTimeFormatted, maxTimeFormatted), this.leftPos + 54, this.topPos + 190, 0xFFFFFF);
 
-        renderVideo(pPoseStack);
+        this.renderVideo(pPoseStack);
     }
 
-    public void renderVideo(PoseStack pPoseStack) {
-        if (url.isEmpty()) return;
+    public void renderVideo(final PoseStack pPoseStack) {
+        if (this.url.isEmpty()) return;
 
-        Display display = be.requestDisplay();
+        final Display display = this.be.requestDisplay();
         if (display == null) {
             RenderSystem.enableBlend();
             RenderSystem.clearColor(1.0F, 1.0F, 1.0F, 1.0F);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-            VideoRenderer.renderTexture(pPoseStack, ImageAPI.loadingGif().texture(be.getTick(), 1, true), 1, 0, 0,width - 36, height - 36, 36, 36);
+            VideoRenderer.renderTexture(pPoseStack, ImageAPI.loadingGif().texture(this.be.getTick(), 1, true), 1, 0, 0, this.width - 36, this.height - 36, 36, 36);
             RenderSystem.disableBlend();
             return;
         }
@@ -239,25 +227,25 @@ public class TVVideoScreen extends Screen {
             if (display.getDimensions() == null) return; // Checking if video available
 
             RenderSystem.enableBlend();
-            int localLeftPos = leftPos + (imageWidth / 2) - (videoWidth / 2);
-            int localTopPos = topPos + 10;
-            fill(pPoseStack, localLeftPos, localTopPos, leftPos + (imageWidth / 2) - (videoWidth / 2) + videoWidth, topPos + 10 + videoHeight, MathAPI.argb(255, 0, 0, 0));
+            final int localLeftPos = this.leftPos + (this.imageWidth / 2) - (this.videoWidth / 2);
+            final int localTopPos = this.topPos + 10;
+            fill(pPoseStack, localLeftPos, localTopPos, this.leftPos + (this.imageWidth / 2) - (this.videoWidth / 2) + this.videoWidth, this.topPos + 10 + this.videoHeight, MathAPI.argb(255, 0, 0, 0));
 
             // Get dimension and get aspect ratio details
-            Dimension videoDimensions = display.getDimensions();
-            VideoDimensionInfo info = VideoMathUtil.calculateAspectRatio(videoWidth, videoHeight, (int) videoDimensions.getWidth(), (int) videoDimensions.getHeight());
+            final Dimension videoDimensions = display.getDimensions();
+            final VideoDimensionInfo info = VideoMathUtil.calculateAspectRatio(this.videoWidth, this.videoHeight, (int) videoDimensions.getWidth(), (int) videoDimensions.getHeight());
 
             RenderSystem.clearColor(1.0F, 1.0F, 1.0F, 1.0F);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-            VideoRenderer.renderTexture(pPoseStack, be.requestDisplay().renderTexture(), 1, info.getOffsetX() + localLeftPos, info.getOffsetY() + localTopPos, 0, 0, info.getWidth(), info.getHeight());
+            VideoRenderer.renderTexture(pPoseStack, this.be.requestDisplay().renderTexture(), 1, info.getOffsetX() + localLeftPos, info.getOffsetY() + localTopPos, 0, 0, info.getWidth(), info.getHeight());
             RenderSystem.disableBlend();
         }
     }
 
     @Override
     public void removed() {
-        PacketHandler.sendToServer(new ClosedScreenPacket(be.getBlockPos()));
+        PacketHandler.sendToServer(new ClosedScreenPacket(this.be.getBlockPos()));
         Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(false);
     }
 

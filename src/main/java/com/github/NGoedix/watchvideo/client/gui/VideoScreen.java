@@ -2,14 +2,17 @@ package com.github.NGoedix.watchvideo.client.gui;
 
 import com.github.NGoedix.watchvideo.Reference;
 import com.github.NGoedix.watchvideo.VideoPlayer;
+import com.github.NGoedix.watchvideo.VideoPlayerUtils;
 import com.github.NGoedix.watchvideo.util.VideoRenderer;
 import com.github.NGoedix.watchvideo.util.math.VideoDimensionInfo;
 import com.github.NGoedix.watchvideo.util.math.VideoMathUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraftforge.fml.loading.FMLLoader;
@@ -26,15 +29,26 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.TimeZone;
 
-public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> {
+public class VideoScreen extends Screen {
 
     private static final DateFormat FORMAT = new SimpleDateFormat("HH:mm:ss");
+    public static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/background.png");
+
+    public static final ResourceLocation PLAY_BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/play_button.png");
+    public static final ResourceLocation PLAY_HOVER_BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/play_button_hover.png");
+
+    public static final ResourceLocation PAUSE_BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/pause_button.png");
+    public static final ResourceLocation PAUSE_HOVER_BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/pause_button_hover.png");
+
+    public static final ResourceLocation STOP_BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/stop_button.png");
+    public static final ResourceLocation STOP_HOVER_BUTTON_TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/stop_button_hover.png");
+
     static {
         FORMAT.setTimeZone(TimeZone.getTimeZone("GMT-00:00"));
     }
 
     // STATUS
-    private int tick = 0;
+    private final int tick = 0;
     private int closingOnTick = -1;
     private float fadeLevel = 0;
     private float fadeStep10 = 0;
@@ -57,7 +71,7 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     // VIDEO INFO
     int videoTexture = -1;
 
-    public VideoScreen(String url, int volume, boolean controlBlocked, boolean canSkip, int optionInMode, int optionInSecs, int optionOutMode, int optionOutSecs) {
+    public VideoScreen(final String url, final int volume, final boolean controlBlocked, final boolean canSkip, final int optionInMode, final int optionInSecs, final int optionOutMode, final int optionOutSecs) {
         this(url, volume, controlBlocked, canSkip, optionInMode != -1 && optionInSecs > 0);
         this.optionInMode = optionInMode;
         this.optionInSecs = optionInSecs;
@@ -65,10 +79,10 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
         this.optionOutSecs = optionOutSecs;
     }
 
-    public VideoScreen(String url, int volume, boolean controlBlocked, boolean canSkip, boolean fadeIn) {
-        super(new DummyContainer(), Objects.requireNonNull(Minecraft.getInstance().player).getInventory(), new TextComponent(""));
+    public VideoScreen(final String url, final int volume, final boolean controlBlocked, final boolean canSkip, final boolean fadeIn) {
+        super(new TextComponent(""));
 
-        Minecraft minecraft = Minecraft.getInstance();
+        final Minecraft minecraft = Minecraft.getInstance();
         minecraft.getSoundManager().pause();
 
         this.volume = volume;
@@ -82,102 +96,99 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
         this.player = new org.watermedia.api.player.videolan.VideoPlayer(null, minecraft);
         Reference.LOGGER.info("Playing video (" + (!controlBlocked ? "not" : "") + "blocked) (" + url + " with volume: " + (int) (minecraft.options.getSoundSourceVolume(SoundSource.MASTER) * volume));
 
-        player.setVolume((int) (minecraft.options.getSoundSourceVolume(SoundSource.MASTER) * volume));
-        if (!fadeIn && player.isSafeUse()) {
-            started = true;
-            player.start(URI.create(url));
+        this.player.setVolume((int) (minecraft.options.getSoundSourceVolume(SoundSource.MASTER) * volume));
+        if (!fadeIn && this.player.isSafeUse()) {
+            this.started = true;
+            this.player.start(URI.create(url));
         } else {
-            player.startPaused(URI.create(url));
+            this.player.startPaused(URI.create(url));
         }
     }
 
     @Override
-    protected void renderLabels(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY) {}
-
-    @Override
-    protected void renderBg(@NotNull PoseStack stack, float pPartialTicks, int pMouseX, int pMouseY) {
-        if (started && !closing) {
-            videoTexture = player.preRender();
+    public void render(final PoseStack stack, final int pMouseX, final int pMouseY, final float pPartialTick) {
+        if (this.started && !this.closing) {
+            this.videoTexture = this.player.preRender();
         }
 
         // Handle easing for fade-in
-        if ((tick < optionInSecs * 20 && optionInMode != -1) || !started) {
-            float t = tick / (float) (optionInSecs * 20);
-            fadeLevel = (float) VideoRenderer.applyEasing(optionInMode, 0, 1, t);
-            if (!started && fadeLevel >= 1.0) {
-                if (player.isSafeUse())
-                    player.play();
-                started = true;
-                fadeLevel = 0;
+        if ((this.tick < this.optionInSecs * 20 && this.optionInMode != -1) || !this.started) {
+            final float t = this.tick / (float) (this.optionInSecs * 20);
+            this.fadeLevel = (float) VideoRenderer.applyEasing(this.optionInMode, 0, 1, t);
+            if (!this.started && this.fadeLevel >= 1.0) {
+                if (this.player.isSafeUse())
+                    this.player.play();
+                this.started = true;
+                this.fadeLevel = 0;
             }
         }
 
         // Handle easing for fade-out
-        if (closing || player.isEnded() || player.isBroken()) {
-            if (optionOutMode == -1) {
-                System.out.println("Closing without fading out");
-                onClose();
+        if (this.closing || this.player.isEnded() || this.player.isBroken()) {
+            if (this.optionOutMode == -1) {
+                Reference.LOGGER.info("Closed video screen without fade-out");
+                this.onClose();
             }
 
-            if (optionInMode != -1 || closing) {
-                closing = true;
-                if (closingOnTick == -1) closingOnTick = tick + optionOutSecs * 20;
-                float t = (tick - closingOnTick + optionOutSecs * 20) / (float)(optionOutSecs * 20);
-                fadeLevel = (float) VideoRenderer.applyEasing(optionOutMode, 1, 0, t);
-                renderBlackBackground(stack);
-                if (fadeLevel == 0) onClose();
+            if (this.optionInMode != -1 || this.closing) {
+                this.closing = true;
+                if (this.closingOnTick == -1) this.closingOnTick = this.tick + this.optionOutSecs * 20;
+                final float t = (this.tick - this.closingOnTick + this.optionOutSecs * 20) / (float)(this.optionOutSecs * 20);
+                this.fadeLevel = (float) VideoRenderer.applyEasing(this.optionOutMode, 1, 0, t);
+                this.renderBlackBackground(stack);
+                if (this.fadeLevel == 0) this.onClose();
                 return;
             }
         }
 
         // BLACK SCREEN
-        if (!player.isPaused() || optionInMode != -1 || optionOutMode != -1)
-            renderBlackBackground(stack);
+        if (!this.player.isPaused() || this.optionInMode != -1 || this.optionOutMode != -1)
+            this.renderBlackBackground(stack);
 
-        if (!started) return;
+        if (!this.started) return;
 
-        boolean playingState = (player.isPlaying() || player.isPaused());
+        final boolean playingState = (this.player.isPlaying() || this.player.isPaused());
 
         // RENDER VIDEO
-        if (playingState || player.isStopped() || player.isEnded()) {
-            renderTexture(stack, videoTexture);
+        if (playingState || this.player.isStopped() || this.player.isEnded()) {
+            this.renderTexture(stack, this.videoTexture);
         }
 
         // BLACK SCREEN
-        if (!player.isPaused())
-            renderBlackBackground(stack);
+        if (!this.player.isPaused())
+            this.renderBlackBackground(stack);
 
         // RENDER GIF
-        if (!player.isPlaying() || !player.isPlaying()) {
-            if (player.isPaused() && player.isPaused()) {
-                VideoRenderer.renderTexture(stack, VideoPlayer.pausedImage().texture(tick, 1, true), 1, 0, 0, width - 36, height - 36, 36, 36);
+        if (!this.player.isPlaying() || !this.player.isPlaying()) {
+            if (this.player.isPaused() && this.player.isPaused()) {
+                VideoRenderer.renderTexture(stack, VideoPlayer.pausedImage().texture(this.tick, 1, true), 1, 0, 0, this.width - 36, this.height - 36, 36, 36);
             } else {
-                VideoRenderer.renderTexture(stack, ImageAPI.loadingGif().texture(tick, 1, true), 1, 0, 0,width - 36, height - 36, 36, 36);
+                VideoRenderer.renderTexture(stack, ImageAPI.loadingGif().texture(this.tick, 1, true), 1, 0, 0, this.width - 36, this.height - 36, 36, 36);
             }
         }
 
         // Render icons 10 and -5 seconds
-        renderStepIcon(stack, pPartialTicks, true);
-        renderStepIcon(stack, pPartialTicks, false);
+        this.renderStepIcon(stack, pPartialTick, true);
+        this.renderStepIcon(stack, pPartialTick, false);
 
         // DEBUG RENDERING
         if (!FMLLoader.isProduction()) {
-            if (!player.isReady()) return;
-            VideoRenderer.drawString(stack, String.format("State: %s", player.raw().mediaPlayer().media().info().state().toString()), VideoMathUtil.getHeightCenter(height, -12));
-            VideoRenderer.drawString(stack, String.format("Time: %s (%s) / %s (%s)", FORMAT.format(new Date(player.getTime())), player.getTime(), FORMAT.format(new Date(player.getDuration())), player.getDuration()), VideoMathUtil.getHeightCenter(height, 0));
-            VideoRenderer.drawString(stack, String.format("Media Duration: %s (%s)", FORMAT.format(new Date(player.getMediaInfoDuration())), player.getMediaInfoDuration()), VideoMathUtil.getHeightCenter(height, 12));
+            if (!this.player.isReady()) return;
+            VideoRenderer.drawString(stack, String.format("State: %s", this.player.raw().mediaPlayer().media().info().state().toString()), VideoMathUtil.getHeightCenter(this.height, -12));
+            VideoRenderer.drawString(stack, String.format("Time: %s (%s) / %s (%s)", FORMAT.format(new Date(this.player.getTime())), this.player.getTime(), FORMAT.format(new Date(this.player.getDuration())), this.player.getDuration()), VideoMathUtil.getHeightCenter(this.height, 0));
+            VideoRenderer.drawString(stack, String.format("Media Duration: %s (%s)", FORMAT.format(new Date(this.player.getMediaInfoDuration())), this.player.getMediaInfoDuration()), VideoMathUtil.getHeightCenter(this.height, 12));
         }
     }
 
-    private void renderTexture(PoseStack stack, int texture) {
-        if (player.dimension() == null) return; // Checking if video available
+    private void renderTexture(final PoseStack stack, final int texture) {
+        if (this.player.dimension() == null) return; // Checking if video available
 
         RenderSystem.enableBlend();
-        fill(stack, 0, 0, width, height, MathAPI.argb(255, 0, 0, 0));
+        fill(stack, 0, 0, this.width, this.height, MathAPI.argb(255, 0, 0, 0));
 
         // Get video dimensions
-        Dimension videoDimensions = player.dimension();
-        VideoDimensionInfo info = VideoMathUtil.calculateAspectRatio(width, height, (int) videoDimensions.getWidth(), (int) videoDimensions.getHeight());
+        final Dimension videoDimensions = this.player.dimension();
+        final VideoDimensionInfo info = VideoMathUtil.calculateAspectRatio(this.width, this.height, (int) videoDimensions.getWidth(), (int) videoDimensions.getHeight());
 
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
@@ -185,87 +196,87 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     }
 
 
-    private void renderBlackBackground(PoseStack stack) {
+    private void renderBlackBackground(final PoseStack stack) {
         RenderSystem.enableBlend();
-        fill(stack, 0, 0, width, height, MathAPI.argb((int) (fadeLevel * 255), 0, 0, 0));
+        fill(stack, 0, 0, this.width, this.height, MathAPI.argb((int) (this.fadeLevel * 255), 0, 0, 0));
         RenderSystem.disableBlend();
     }
 
-    private void renderStepIcon(PoseStack stack, float pPartialTicks, boolean forward) {
-        int texture = forward ? VideoPlayer.step10Image().texture(tick, 1, true) : VideoPlayer.step5Image().texture(tick, 1, true);
-        float alpha = forward ? fadeStep10 : fadeStep5;
-        VideoRenderer.renderTexture(stack, texture, alpha, width / 2 + (forward ? 70 : -134), height / 2 - 32, 0, 0, 64, 64);
+    private void renderStepIcon(final PoseStack stack, final float pPartialTicks, final boolean forward) {
+        final int texture = forward ? VideoPlayer.step10Image().texture(this.tick, 1, true) : VideoPlayer.step5Image().texture(this.tick, 1, true);
+        final float alpha = forward ? this.fadeStep10 : this.fadeStep5;
+        VideoRenderer.renderTexture(stack, texture, alpha, this.width / 2 + (forward ? 70 : -134), this.height / 2 - 32, 0, 0, 64, 64);
 
         if (forward) {
-            fadeStep10 = Math.max(fadeStep10 - (pPartialTicks / 8), 0.0f);
+            this.fadeStep10 = Math.max(this.fadeStep10 - (pPartialTicks / 8), 0.0f);
         } else {
-            fadeStep5 = Math.max(fadeStep5 - (pPartialTicks / 8), 0.0f);
+            this.fadeStep5 = Math.max(this.fadeStep5 - (pPartialTicks / 8), 0.0f);
         }
     }
 
     @Override
-    public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
+    public boolean keyPressed(final int pKeyCode, final int pScanCode, final int pModifiers) {
         // Shift + ESC (Exit)
-        if (canSkip && hasShiftDown() && pKeyCode == 256) {
+        if (this.canSkip && hasShiftDown() && pKeyCode == 256) {
             this.onClose();
         }
 
         // Up arrow key (Volume)
         if (pKeyCode == 265) {
-            if (volume <= 120) {
-                volume += 5;
+            if (this.volume <= 120) {
+                this.volume += 5;
             } else {
-                volume = 125;
-                float masterVolume = Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER);
+                this.volume = 125;
+                final float masterVolume = Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER);
                 Minecraft.getInstance().options.setSoundCategoryVolume(SoundSource.MASTER, masterVolume <= 0.95 ? masterVolume + 0.1F : 1.0F);
             }
 
-            float actualVolume = Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER);
-            float newVolume = volume * actualVolume;
+            final float actualVolume = Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER);
+            final float newVolume = this.volume * actualVolume;
             Reference.LOGGER.info("Volume UP to: " + newVolume);
-            player.setVolume((int) newVolume);
+            this.player.setVolume((int) newVolume);
         }
 
         // Down arrow key (Volume)
         if (pKeyCode == 264) {
-            if (volume >= 5) {
-                volume -= 5;
+            if (this.volume >= 5) {
+                this.volume -= 5;
             } else {
-                volume = 0;
+                this.volume = 0;
             }
-            float actualVolume = Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER);
-            float newVolume = volume * actualVolume;
+            final float actualVolume = Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER);
+            final float newVolume = this.volume * actualVolume;
             Reference.LOGGER.info("Volume DOWN to: " + newVolume);
-            player.setVolume((int) newVolume);
+            this.player.setVolume((int) newVolume);
         }
 
         // M to mute
         if (pKeyCode == 77) {
-            if (player.isMuted()) {
-                player.unmute();
+            if (this.player.isMuted()) {
+                this.player.unmute();
             } else {
-                player.mute();
+                this.player.mute();
             }
         }
 
         // If control blocked can't modify the video time
-        if (controlBlocked) return super.keyPressed(pKeyCode, pScanCode, pModifiers);
+        if (this.controlBlocked) return super.keyPressed(pKeyCode, pScanCode, pModifiers);
 
         // Shift + Right arrow key (Forwards)
         if (hasShiftDown() && pKeyCode == 262) {
-            player.seekTo(player.getTime() + 10000);
-            fadeStep10 = 1;
+            this.player.seekTo(this.player.getTime() + 10000);
+            this.fadeStep10 = 1;
         }
 
         // Shift + Left arrow key (Backwards)
         if (hasShiftDown() && pKeyCode == 263) {
-            player.seekTo(player.getTime() - 5000);
-            fadeStep5 = 1;
+            this.player.seekTo(this.player.getTime() - 5000);
+            this.fadeStep5 = 1;
         }
 
         // Shift + Space (Pause / Play)
         if (hasShiftDown() && pKeyCode == 32) {
-            player.togglePlayback();
+            this.player.togglePlayback();
         }
 
         return super.keyPressed(pKeyCode, pScanCode, pModifiers);
@@ -279,31 +290,21 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     @Override
     public void onClose() {
         super.onClose();
-        if (started) {
-            started = false;
-            player.stop();
-            player.release();
+        if (this.started) {
+            this.started = false;
+            this.player.stop();
+            this.player.release();
             Minecraft.getInstance().getSoundManager().resume();
         }
     }
 
     public boolean isFinished() {
-        return !started;
+        return !this.started;
     }
 
     @Override
     protected void init() {
-        if (Minecraft.getInstance().screen != null) {
-            this.imageWidth = Minecraft.getInstance().screen.width;
-            this.imageHeight = Minecraft.getInstance().screen.height;
-        }
         super.init();
-    }
-
-    @Override
-    protected void containerTick() {
-        super.containerTick();
-        tick++;
     }
 }
 
