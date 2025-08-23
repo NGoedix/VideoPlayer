@@ -22,7 +22,9 @@ import org.watermedia.api.math.MathAPI;
 import org.watermedia.api.player.videolan.VideoPlayer;
 
 import java.awt.*;
+import java.io.File;
 import java.net.URI;
+import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -71,7 +73,12 @@ public class VideoScreen extends AbstractContainerScreen<AbstractContainerMenu> 
     public VideoScreen(String url, int volume, boolean controlBlocked, boolean canSkip, boolean fadeIn) {
         super(new DummyContainer(), Objects.requireNonNull(Minecraft.getInstance().player).getInventory(), Component.literal(""));
 
-        URI uri = URI.create(url);
+        URI uri;
+        if (url.startsWith("local://")) {
+            uri = Path.of(url.replaceFirst("local://", "")).toAbsolutePath().toUri();
+        } else {
+            uri = URI.create(url);
+        }
 
         Minecraft minecraft = Minecraft.getInstance();
         Minecraft.getInstance().getSoundManager().pause();
