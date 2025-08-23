@@ -2,23 +2,38 @@ package com.github.NGoedix.videoplayer.network.packet;
 
 import com.github.NGoedix.videoplayer.Reference;
 import com.github.NGoedix.videoplayer.client.ClientHandler;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
-public class OpenRadioManagerScreenMessage {
+public record OpenRadioManagerScreenMessage(
+    BlockPos pos, String url,
+    int volume, boolean isPlaying
+) implements CustomPacketPayload {
+    public static final StreamCodec<RegistryFriendlyByteBuf, OpenRadioManagerScreenMessage> CODEC = StreamCodec.composite(
+        BlockPos.STREAM_CODEC, OpenRadioManagerScreenMessage::pos,
+        ByteBufCodecs.STRING_UTF8, OpenRadioManagerScreenMessage::url,
+        ByteBufCodecs.VAR_INT, OpenRadioManagerScreenMessage::volume,
+        ByteBufCodecs.BOOL, OpenRadioManagerScreenMessage::isPlaying,
+        OpenRadioManagerScreenMessage::new
+    );
 
-    public static final ResourceLocation ID = new ResourceLocation(Reference.MOD_ID, "open_radio_manager");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "open_radio_manager");
+    public static final CustomPacketPayload.Type<OpenRadioManagerScreenMessage> TYPE = new CustomPacketPayload.Type<>(ID);
 
-    public static void receive(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender sender) {
-        BlockPos pos = buf.readBlockPos();
-        String url = buf.readUtf();
-        int volume = buf.readInt();
-        boolean isPlaying = buf.readBoolean();
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
 
-        ClientHandler.openRadioGUI(client, pos, url, volume, isPlaying);
+    @Environment(EnvType.CLIENT)
+    public static void handle(OpenRadioManagerScreenMessage message, ClientPlayNetworking.Context ctx) {
+        ClientHandler.openRadioGUI(ctx.client(), message.pos(), message.url(), message.volume(), message.isPlaying());
     }
 }

@@ -3,6 +3,7 @@ package com.github.NGoedix.videoplayer.block.entity.custom;
 import com.github.NGoedix.videoplayer.block.entity.ModBlockEntities;
 import com.github.NGoedix.videoplayer.network.PacketHandler;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
@@ -48,14 +49,14 @@ public class RadioBlockEntity extends VideoPlayerBlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag pTag) {
-        super.saveAdditional(pTag);
+    protected void saveAdditional(CompoundTag pTag, HolderLookup.Provider provider) {
+        super.saveAdditional(pTag, provider);
         pTag.putUUID("beingUsed", playerUsing == null ? new UUID(0, 0) : playerUsing);
     }
 
     @Override
-    public void load(CompoundTag pTag) {
-        super.load(pTag);
+    public void loadAdditional(CompoundTag pTag, HolderLookup.Provider provider) {
+        super.loadAdditional(pTag, provider);
 
         loadFromNBT(pTag);
     }

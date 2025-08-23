@@ -1,7 +1,7 @@
 plugins {
 	id 'java'
 	id 'idea'
-	id 'fabric-loom' version '1.6-SNAPSHOT'
+	id 'fabric-loom' version '1.9-SNAPSHOT'
 }
 
 version = project.mod_version
@@ -39,7 +39,7 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	implementation 'com.github.WaterMediaTeam.watermedia:build:2.0.69'
+	implementation 'com.github.WaterMediaTeam:watermedia:2.1.19'
 
 }
 
@@ -56,15 +56,15 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-	// Minecraft 1.18 (1.18-pre2) upwards uses Java 17.
-	it.options.release = 17
+	// Minecraft 1.21 (1.20.6) upwards uses Java 21.
+	it.options.release = 21
 }
 
 java {
 	withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = JavaVersion.VERSION_17
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
 }
 
 jar {

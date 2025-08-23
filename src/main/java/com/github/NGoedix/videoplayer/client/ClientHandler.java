@@ -1,5 +1,6 @@
 package com.github.NGoedix.videoplayer.client;
 
+import com.github.NGoedix.videoplayer.Reference;
 import com.github.NGoedix.videoplayer.VideoPlayerUtils;
 import com.github.NGoedix.videoplayer.block.entity.ModBlockEntities;
 import com.github.NGoedix.videoplayer.block.entity.custom.RadioBlockEntity;
@@ -9,12 +10,7 @@ import com.github.NGoedix.videoplayer.client.gui.TVVideoScreen;
 import com.github.NGoedix.videoplayer.client.gui.VideoScreen;
 import com.github.NGoedix.videoplayer.client.render.TVBlockRenderer;
 import com.github.NGoedix.videoplayer.network.PacketHandler;
-import com.github.NGoedix.videoplayer.Reference;
 import com.github.NGoedix.videoplayer.util.RadioStreams;
-import me.srrapero720.watermedia.api.image.ImageAPI;
-import me.srrapero720.watermedia.api.image.ImageRenderer;
-import me.srrapero720.watermedia.api.player.SyncMusicPlayer;
-import me.srrapero720.watermedia.core.tools.JarTool;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -22,7 +18,12 @@ import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.watermedia.api.image.ImageAPI;
+import org.watermedia.api.image.ImageRenderer;
+import org.watermedia.api.player.videolan.MusicPlayer;
+import org.watermedia.core.tools.JarTool;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +48,7 @@ public class ClientHandler implements ClientModInitializer {
     @Environment(EnvType.CLIENT)
     public static ImageRenderer step5Image() { return IMG_STEP5; }
 
-    private static final List<SyncMusicPlayer> musicPlayers = new ArrayList<>();
+    private static final List<MusicPlayer> musicPlayers = new ArrayList<>();
 
     @Override
     public void onInitializeClient() {
@@ -103,7 +104,7 @@ public class ClientHandler implements ClientModInitializer {
     public static void playMusic(Minecraft client, String url, int volume) {
         client.execute(() -> {
             // Until any callback in SyncMusicPlayer I will check if the music is playing when added other music player
-            for (SyncMusicPlayer musicPlayer : musicPlayers) {
+            for (MusicPlayer musicPlayer : musicPlayers) {
                 if (musicPlayer.isPlaying()) {
                     musicPlayer.stop();
                     musicPlayer.release();
@@ -112,16 +113,16 @@ public class ClientHandler implements ClientModInitializer {
             }
 
             // Add the new player
-            SyncMusicPlayer musicPlayer = new SyncMusicPlayer();
+            MusicPlayer musicPlayer = new MusicPlayer();
             musicPlayers.add(musicPlayer);
             musicPlayer.setVolume(volume);
-            musicPlayer.start(url);
+            musicPlayer.start(URI.create(url));
         });
     }
 
     public static void stopMusicIfPlaying(Minecraft client) {
         client.execute(() -> {
-            for (SyncMusicPlayer musicPlayer : musicPlayers) {
+            for (MusicPlayer musicPlayer : musicPlayers) {
                 if (musicPlayer.isPlaying()) {
                     musicPlayer.stop();
                     musicPlayer.release();

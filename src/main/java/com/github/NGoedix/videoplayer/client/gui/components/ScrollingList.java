@@ -9,18 +9,17 @@ import org.lwjgl.opengl.GL11;
 public class ScrollingList<E extends AbstractSelectionList.Entry<E>> extends AbstractSelectionList<E> {
 
     public ScrollingList(int x, int y, int width, int height, int slotHeightIn) {
-        super(Minecraft.getInstance(), width, height, y - (height / 2), (y - (height / 2)) + height, slotHeightIn);
-        this.setLeftPos(x - (width / 2));
-        this.setRenderBackground(false);
-        this.setRenderTopAndBottom(false); // removes background
+        super(Minecraft.getInstance(), width, height, y - (height / 2), slotHeightIn);
+        this.setX(x - (width / 2));
+        this.setRenderHeader(false, 0);
     }
 
     @Override
-    public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+    public void renderWidget(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         double scale = Minecraft.getInstance().getWindow().getGuiScale();
 
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
-        GL11.glScissor((int)(this.x0  * scale), (int)(Minecraft.getInstance().getWindow().getHeight() - ((this.y0 + this.height) * scale)),
+        GL11.glScissor((int)(this.getX()  * scale), (int)(Minecraft.getInstance().getWindow().getHeight() - ((this.getY() + this.height) * scale)),
                 (int)(this.width * scale), (int)(this.height * scale));
 
         super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
@@ -28,13 +27,17 @@ public class ScrollingList<E extends AbstractSelectionList.Entry<E>> extends Abs
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
     }
 
+    @Override
+    protected void renderListBackground(GuiGraphics guiGraphics) {
+    }
+
     @Override // @mcp: getScrollbarPosition = getScrollbarPosition
     protected int getScrollbarPosition() {
-        return (this.x0 + this.width) - 6;
+        return (this.getX() + this.width) - 6;
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput p_169152_) {
+    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
 
     }
 }

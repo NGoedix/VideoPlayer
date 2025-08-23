@@ -2,22 +2,36 @@ package com.github.NGoedix.videoplayer.network.packet;
 
 import com.github.NGoedix.videoplayer.Reference;
 import com.github.NGoedix.videoplayer.client.ClientHandler;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
-public class RadioMessage {
+public record RadioMessage(
+    String url, BlockPos pos, boolean playing
+) implements CustomPacketPayload {
+    public static final StreamCodec<RegistryFriendlyByteBuf, RadioMessage> CODEC = StreamCodec.composite(
+        ByteBufCodecs.STRING_UTF8, RadioMessage::url,
+        BlockPos.STREAM_CODEC, RadioMessage::pos,
+        ByteBufCodecs.BOOL, RadioMessage::playing,
+        RadioMessage::new
+    );
 
-    public static final ResourceLocation ID = new ResourceLocation(Reference.MOD_ID, "radio");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "radio");
+    public static final CustomPacketPayload.Type<RadioMessage> TYPE = new CustomPacketPayload.Type<>(ID);
 
-    public static void receive(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender sender) {
-        String url = buf.readUtf();
-        BlockPos pos = buf.readBlockPos();
-        boolean playing = buf.readBoolean();
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
 
-        ClientHandler.manageRadio(client, url, pos, playing);
+    @Environment(EnvType.CLIENT)
+    public static void handle(RadioMessage message, ClientPlayNetworking.Context ctx) {
+        ClientHandler.manageRadio(ctx.client(), message.url(), message.pos(), message.playing());
     }
 }

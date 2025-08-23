@@ -2,23 +2,37 @@ package com.github.NGoedix.videoplayer.network.packet;
 
 import com.github.NGoedix.videoplayer.Reference;
 import com.github.NGoedix.videoplayer.client.ClientHandler;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 
-public class FrameVideoMessage {
+public record FrameVideoMessage(
+    String url, BlockPos pos, boolean playing, int tick
+) implements CustomPacketPayload {
+    public static final StreamCodec<RegistryFriendlyByteBuf, FrameVideoMessage> CODEC = StreamCodec.composite(
+        ByteBufCodecs.STRING_UTF8, FrameVideoMessage::url,
+        BlockPos.STREAM_CODEC, FrameVideoMessage::pos,
+        ByteBufCodecs.BOOL, FrameVideoMessage::playing,
+        ByteBufCodecs.VAR_INT, FrameVideoMessage::tick,
+        FrameVideoMessage::new
+    );
 
-    public static final ResourceLocation ID = new ResourceLocation(Reference.MOD_ID, "frame_video");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "frame_video");
+    public static final CustomPacketPayload.Type<FrameVideoMessage> TYPE = new CustomPacketPayload.Type<>(ID);
 
-    public static void receive(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender sender) {
-        String url = buf.readUtf();
-        BlockPos pos = buf.readBlockPos();
-        boolean playing = buf.readBoolean();
-        int tick = buf.readInt();
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
 
-        ClientHandler.manageVideo(client, url, pos, playing, tick);
+    @Environment(EnvType.CLIENT)
+    public static void handle(FrameVideoMessage message, ClientPlayNetworking.Context ctx) {
+        ClientHandler.manageVideo(ctx.client(), message.url(), message.pos(), message.playing(), message.tick());
     }
 }
